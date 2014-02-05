@@ -57,16 +57,16 @@ var genMenObj = function (prop) {
 };
 
 var dateFunc = function () {
-    var htmlJson = parseDpJson(jsonDtPkr({
+    var htmlJson = parseDpJson(jsonDtPkr({ //generate the html.
         id: 'dp0',
     }));
-    $.colorbox({html:htmlJson.html, width: '310px', height: '310px'});
-    if(undefined !== htmlJson.css) {
+    $.colorbox({html:htmlJson.html, width: '320px', height: '350px'});
+    if(undefined !== htmlJson.css) { //uses jQuery to assign css in cbDatePicker.js.
         $.each(htmlJson.css, function () {
             this();
         });
     }
-    if(undefined !== htmlJson.functions) {
+    if(undefined !== htmlJson.functions) { //executes each function for each div in cbDatePicker.js
         $.each(htmlJson.functions, function () {
             this(); 
         });

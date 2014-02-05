@@ -6,27 +6,12 @@ var jsonDtPkr = function (prop) {
         title: undefined !== prop.title ? prop.title : undefined,
         div: [
             {
-                //Description
-                id: 'dpDescription',
-                class: undefined,
-                title: 'Date Picker',
-                css: function() {
-                    console.log('jQuery css:', '#'+jsonDtPkr(prop).div[0].id);
-                    $('#'+jsonDtPkr(prop).div[0].id).css({
-                        'width': '100%',
-                        'height': '50%',
-                        'text-align': 'inherit',
-                    });
-                },
-                functions: undefined, //what to execute after div is added.
-            },
-            {
                 //datePicker
                 id: 'dpDtPkr',
                 class: undefined,
                 title: undefined,
                 css: function () {
-                    $('#'+jsonDtPkr(prop).div[1].id).css({
+                    $('#'+jsonDtPkr(prop).div[0].id).css({
                         'width': '100%',
                         'height': '50%',
                         'text-align': 'inherit',
@@ -34,7 +19,33 @@ var jsonDtPkr = function (prop) {
                 },
                 functions: [
                     function () { //what to execute after div is added.
-                        $('#'+jsonDtPkr(prop).div[1].id).datepicker();
+                        $('#'+jsonDtPkr(prop).div[0].id).datepicker();
+                    },
+                ],
+            },
+            {
+                //submit button
+                id:'btnSubmit',
+                class: undefined,
+                title: undefined,
+                css: function() {
+                    $('#'+jsonDtPkr(prop).div[1].id).css({
+                        'width': '100%',
+                        'height': '30px',
+                        'text-align': 'inherit',
+                    });
+                },
+                button: {
+                    id: 'submitBtn0',
+                    title: 'submit',
+                    onclick: 'console.log($(\'#dpDtPkr\').datepicker(\'getDate\'))',
+                },
+                functions: [
+                    function() {
+                        $('#submitBtn0').css({
+                            'width': '100px',
+                            'height': '30px',
+                        });
                     },
                 ],
             }
@@ -44,6 +55,7 @@ var jsonDtPkr = function (prop) {
                 'width': '300px',
                 'height': '200px',
                 'text-align': 'center',
+                'background-color':'#A0C400',
             });
         },
         functions: undefined, //what to execute after div is added.
@@ -51,7 +63,6 @@ var jsonDtPkr = function (prop) {
 };
 
 var parseDpJson = function (dpJson) {
-    console.log('parseDpJson:', dpJson);
     var prop = {
         id: dpJson.id !== undefined ? 'id="'+dpJson.id+'"' : '',
         class: dpJson.class !== undefined ? 'class="'+dpJson.class+'"' : '',
@@ -62,8 +73,16 @@ var parseDpJson = function (dpJson) {
     var htmlDivs = '';
     $.each(dpJson.div, function () {
         htmlDivs += undefined !== this.id ? '<div id="'+this.id+'"' : '<div';
-        htmlDivs += undefined !== this.class ? ' class="'+this.class+'">' : ' >';
+        htmlDivs += undefined !== this.class ? ' class="'+this.class+'">' : '>';
         htmlDivs += undefined !== this.title ? this.title : '';
+
+        if(undefined !== this.button) {
+            var btnHTML = '';
+            btnHTML += undefined !== this.button.class ? '<button id="'+this.button.id+'" class="'+this.button.class : '<button id="'+this.button.id;
+            btnHTML += undefined !== this.button.onclick ? '" onclick="'+this.button.onclick+'">' : ' >';
+            btnHTML += undefined !== this.button.title ? this.button.title + '</button>' : '</button>';
+            htmlDivs += btnHTML;
+        }
     });
     var html = function () {
         return '<div '+prop.id+prop.class+'>'+prop.title+htmlDivs+'</div>';
