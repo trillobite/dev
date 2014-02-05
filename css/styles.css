@@ -1,0 +1,61 @@
+html { 
+    height: 100%;
+}
+body { 
+    height: 100%; 
+    padding: 0;
+}
+#display {
+	border: 1px solid black;
+	width: 800px;
+	height: 800px;
+	margin: 0 auto;
+	font-family: sans-serif;
+	text-align: center;
+}
+#display-tbls {
+	border: 1px solid black;
+	height: 50%;
+	width: 100%;
+	margin: 0 auto;
+}
+#display-tblsInfo {
+	border: 1px solid black;
+	height: 50%;
+	width: 100%;
+	margin: 0 auto;
+}
+.btn {
+	text-align: right;
+	border: 1px solid black;
+}
+.container {
+    font-family: sans-serif;
+}
+.editBtn {
+    width: 55px;
+    height: 20px;
+}
+.txtContainer {
+	border: 1px solid black;
+}
+.foo {
+    /*74B93E*/
+    background-color: #D98D06;
+    color: white;
+    width: 85%;
+    height: auto;
+    margin: 0 auto; /*centers the whole div element.*/
+    border: 1px solid black;
+    line-height: 40px; /*makes the text center vertically, may not work in multi-line.*/
+    cursor: pointer; /*makes the div element act like a button.*/
+}
+/*.foo {
+	width: 85%,
+	height: 50px,
+	margin: 0 auto, //centers the whole div element.
+	border: 1px solid black,
+	line-height: 40px, //makes the text center vertically, may not work in multi-line.
+	cursor: pointer, //makes the div element act like a button.
+
+}*/
