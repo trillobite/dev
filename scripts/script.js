@@ -5,6 +5,23 @@
 
 */
 
+var $v = function (div) {
+    return {
+        events: function () {
+            return dataObjs.srvdTbls.EventSchedules;  
+        },
+        eventTimes: function () {
+            return dataObjs.tblsData;
+        },
+        html: function () {
+            return $('#'+div);
+        },
+        clear: function () {
+            $('#'+div).empty();  
+        },
+    };  
+};
+
 /*
     Object: dataObjs
     Description: Global properties variable, holds common data.
@@ -40,7 +57,6 @@ var dataObjs = {
             strSortOrderDefault: undef,
         };
     },
-
     /*
         Function: tblElemClick()
         Description: Used by createDivElemens(array, string); returns a function which will fire
@@ -93,7 +109,7 @@ var template = {
             },
             listener: function () {
                 var lstnrs = [
-                    'onclick="dataObjs.tblElemClick('+myDiv.id+')()" ',
+                    'onclick="console.log(\''+myDiv.id+'\')" ',
                 ];
                 var htmlBlock = '';
                 $.each(lstnrs, function () {
@@ -110,42 +126,60 @@ var template = {
     }
 };
 
-
-/*
-    Function: main()
-    Description: main function of the web application, call it to begin the application.
-    Inputs: NONE.
-    Outputs: No returned value, VOID.
-*/
-function main () {
-    var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=1';
-    
-    $sql(url).get(function(dta) { //this gets the data from the sql database, code provided in class.js
-        var parsed = JSON.parse(dta);
-        dataObjs.srvdTbls = parsed;
-        $.each(parsed.EventSchedules, function(indx, obj) {
-            $('#display-tbls').append(template.scheduleTbl({
-                title: obj.strScheduleTitle +
-                    ' ' + obj.strScheduleDescription + 
-                    ' ' + obj.dtScheduleDate + 
-                    ' ' + 'visible: ' + (obj.blnActive ? 'true' : 'false'),
-                id: 'foo' + indx,
-                class: 'foo',
-            }));
-            $('#foo'+indx).append(parseMenu(genMenObj({
-                title: 'edit',
-                id: 'Edit'+indx,
-                width: '185px',
-            })));
-            $('#Edit'+indx).menu({
-                theme: 'theme-default',
-                transition: 'inside-slide-fade-left',
+var cmd = {
+    events: { //display-tbls DIV.
+        drawJSON: function (jsonDta) {
+            $.each(jsonDta.EventSchedules, function(indx, obj) {
+                $('#display-tbls').append(template.scheduleTbl({
+                    title: obj.strScheduleTitle +
+                        ' ' + obj.strScheduleDescription + 
+                        ' ' + obj.dtScheduleDate + 
+                        ' ' + 'visible: ' + (obj.blnActive ? 'true' : 'false'),
+                    id: 'foo' + indx,
+                    class: 'foo',
+                }));
+                $('#foo'+indx).append(parseMenu(genMenObj({
+                    title: 'edit',
+                    id: 'Edit'+indx,
+                    width: '185px',
+                })));
+                $('#Edit'+indx).menu({
+                    theme: 'theme-default',
+                    transition: 'inside-slide-fade-left',
+                });
             });
+        },
+    },
+    eventTimes: { //display-tblInfo DIV.
+        drawJSON: function () {
+            console.log('undefined');
+        },
+    },
+    update: function (indx) {
+        var jStr = JSON.stringify($v().events()[indx]);
+        //jStr = jStr.replace(/"/g, '\\"');
+        //var url = "https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='"+jStr+"'";
+        var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+jStr;
+        console.log(jStr);
+        console.log(url);
+        $sql(url).get(function(dta) {
+            console.log(dta);
+            cmd.get();
         });
-    });
-}
+    },
+    get: function () {
+        var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=1';
+        $sql(url).get(function(dta) {
+            //console.log(dta);
+            var parsed = JSON.parse(dta);
+            dataObjs.srvdTbls = parsed;
+            $v('display-tbls').clear();
+            cmd.events.drawJSON(parsed);
+        });
+    },
+};
 
 //this is how to tell when the code should start.
 $(document).ready(function() {
-    main();
+    cmd.get();
 });

@@ -9,11 +9,11 @@ var genMenObj = function (prop) {
                 options: [
                     {
                         title: 'true', //Text for child option.
-                        onclick: "console.log('Active true button')", //Standard function call just in quotes.
+                        onclick: "toggleActive(\'"+prop.id+"\', true)", //Standard function call just in quotes.
                     },
                     {
                         title: 'false', //Text for child option.
-                        onclick: "console.log('Active false button')", //Standard function call just in quotes.
+                        onclick: "toggleActive(\'"+prop.id+"\', false)", //Standard function call just in quotes.
                     },
                 ],
             },
@@ -56,6 +56,7 @@ var genMenObj = function (prop) {
     };
 };
 
+//for the date picker.
 var dateFunc = function () {
     var htmlJson = parseDpJson(jsonDtPkr({ //generate the html.
         id: 'dp0',
@@ -73,6 +74,20 @@ var dateFunc = function () {
     }
 };
 
+var toggleActive = function (obj, bool) {
+    var indx = parseInt(obj.substring(4, obj.length), 10) + 1;
+    $.each($v().events(), function () {
+        if(indx == this.indxScheduleID) {
+            if(this.blnActive != bool) {
+                this.blnActive = bool;
+                console.log('toggled');
+                cmd.update(indx-1);
+            }
+        }
+    });
+};
+
+//creates all the html.
 var parseMenu = function (menu) {
 	var optionsHTML = [];
 	$.each(menu.options, function(indx0, LyrOption0) {
