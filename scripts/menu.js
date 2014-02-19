@@ -1,3 +1,5 @@
+
+
 var genMenObj = function (prop) {
     return {
         id: prop.id,
@@ -18,20 +20,11 @@ var genMenObj = function (prop) {
                 ],
             },
             {
-                title: 'Date', //Text for parent option.
-                options: [
-                    {
-                        title: 'Pick Date', //Text for child option.
-                        onclick: "dateFunc()", //Standard function call just in quotes.
-                    },
-                ],
-            },
-            {
                 title: 'Delete', //Text for parent option.
                 options: [
                     {
                         title: 'This', //Text for child option.
-                        onclick: "console.log('Delete This button')", //Standard function call just in quotes.
+                        onclick: "cmd.del("+prop.index+")", //Standard function call just in quotes.
                     },
                     {
                         title: 'Time', //Text for child option.
@@ -44,7 +37,8 @@ var genMenObj = function (prop) {
                 options: [
                     {
                         title: 'Event', //Text for child option.
-                        onclick: "console.log('New Event button')", //Standard function call just in quotes.
+                        onclick: "defaultColorbox('newEvent', 'createEventMinimal', { width: '350px', height: '370px' })",
+                        //onclick: "cmd.create()", //Standard function call just in quotes.
                     },
                     {
                         title: 'Time', //Text for child option.
@@ -52,6 +46,23 @@ var genMenObj = function (prop) {
                     },
                 ],
             },
+            {
+                title: 'Replace',
+                options: [
+                    {
+                        title: 'Date',
+                        onclick: "dateEdit("+prop.index+")",
+                    },
+                    {
+                        title: 'Description',
+                        onclick: "descriptionEdit("+prop.index+")",
+                    },
+                    {
+                        title: 'Title',
+                        onclick: "titleEdit("+prop.index+")",
+                    },
+                ],
+            }
         ],
     };
 };
@@ -74,20 +85,35 @@ var dateFunc = function () {
     }
 };
 
-var toggleActive = function (obj, bool) {
-    var indx = parseInt(obj.substring(4, obj.length), 10) + 1;
-    $.each($v().events(), function () {
-        if(indx == this.indxScheduleID) {
-            if(this.blnActive != bool) {
-                this.blnActive = bool;
-                console.log('toggled');
-                cmd.update(indx-1);
-            }
-        }
-    });
+//opens a colorbox to edit the date of one of the events.
+var dateEdit = function (indx) {
+    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
+    appendHTML(forms['datePicker'](indx), 'cbDateEdit');
 };
 
-//creates all the html.
+//opens a colorbox to edit the title of one of the events.
+var titleEdit = function (indx) {
+    $.colorbox({html:'<div id="cbTitleEdit"></div>', width: '300px', height: '150px'});
+    appendHTML(forms['editTitle'](indx), 'cbTitleEdit');
+};
+
+//opens a colorbox to edit the description of one of the events.
+var descriptionEdit = function (indx) {
+    $.colorbox({html: '<div id="cbDescriptionEdit"></div>', width: '300px', height: '150px'});
+    appendHTML(forms['editDescription'](indx), 'cbDescriptionEdit');
+};
+
+//sets whether the event is active or not.
+var toggleActive = function (obj, bool) {
+    var indx = parseInt(obj.substring(4, obj.length), 10);
+    console.log(obj, indx);
+    if(bool != $v().events()[indx].blnActive) {
+        $v().events()[indx].blnActive = bool;
+        cmd.update(indx);
+    } 
+};
+
+//creates all the html for the menu.
 var parseMenu = function (menu) {
 	var optionsHTML = [];
 	$.each(menu.options, function(indx0, LyrOption0) {

@@ -1,3 +1,4 @@
 https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=1                  <-- get
 https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data=”[JSONObject]”  <-- update
+https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data="[JSONObject]"  <-- create
 https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=74521&Data2=1   <-- delete

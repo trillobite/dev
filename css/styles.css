@@ -15,9 +15,11 @@ body {
 }
 #display-tbls {
 	border: 1px solid black;
-	height: 50%;
+	height: auto;
 	width: 100%;
-	margin: 0 auto;
+	/*margin: 0 auto;*/
+	/*overflow: auto;*/
+	
 }
 #display-tblsInfo {
 	border: 1px solid black;
@@ -44,12 +46,19 @@ body {
     background-color: #D98D06;
     color: white;
     width: 85%;
-    height: auto;
+    height: 80px;
     margin: 0 auto; /*centers the whole div element.*/
-    border: 1px solid black;
-    line-height: 40px; /*makes the text center vertically, may not work in multi-line.*/
+    border: 1px solid #4D4D4D;
+    line-height: 25px; /*makes the text center vertically, may not work in multi-line.*/
     cursor: pointer; /*makes the div element act like a button.*/
+    
 }
+.foo:active {
+    background-color: #474747;
+    border: 1px solid #D98D06;
+}
+
+
 /*.foo {
 	width: 85%,
 	height: 50px,
