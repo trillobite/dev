@@ -38,6 +38,22 @@
   </head>
   <body>
     <div id="display">
+        <div id='defaultMenu'>
+            <div class='button' id='btnNwEvnt' onclick="defaultColorbox('newEvent', 'createEventMinimal', { width: '350px', height: '370px' })">New Event</div>
+            <script>
+                $('#btnNwEvnt').focus(function() {
+                    $('#btnNwEvnt').css({
+                        'border': '4px inset #003DBF',
+                    });
+                   defaultColorbox('newEvent', 'createEventMinimal', { width: '350px', height: '370px' }); 
+                }).blur(function () {
+                    $('#btnNwEvnt').css({
+                        'border': '4px outset #003DBF',
+                    })
+                });
+            </script>
+            
+        </div>
       <div id='display-tbls'></div>
       <div id='display-tblInfo'></div>
     </div>

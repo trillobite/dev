@@ -354,6 +354,19 @@ var forms = {
             id: undefined !== prop.id ? prop.id : undefined,
             class: undefined !== prop.class ? prop.class : undefined,
             text: undefined !== prop.text ? prop.text : undefined,
+            functions: [function () {
+                $('#'+prop.id).mouseover(function () {
+                    $('#'+prop.id).css({
+                        'background-color': '#3287CC',
+                        'border': '1px solid #3287CC',
+                    });
+                }).mouseout(function () {
+                    $('#'+prop.id).css({
+                        'background-color': '#ABABAB',
+                        'border': '1px solid #D6B318',
+                    });
+                });
+            }],
             children: [
                 {
                     type: 'div',
@@ -371,6 +384,7 @@ var forms = {
                     }],
                     children: undefined !== prop.pt1.children ? prop.pt1.children : undefined,
                 },
+                
                 {
                     type: 'div',
                     id: prop.id + 'pt15',
@@ -402,7 +416,7 @@ var forms = {
                         $('#'+prop.id + 'pt2').append(parseMenu(genMenObj({
                             title: 'edit', 
                             id: 'Edit'+prop.indx,
-                            width: '185px',
+                            width: '100%',
                             index: prop.indx,
                         })));
                         $('#Edit'+prop.indx).menu({
@@ -413,6 +427,7 @@ var forms = {
                     }],
                     children: undefined !== prop.pt2.children ? prop.pt2.children : undefined,
                 },
+                
                 {
                     type: 'div',
                     id: prop.id + 'pt0',

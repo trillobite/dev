@@ -136,35 +136,12 @@ var parsetype = function (type) {
     return undefined !== options[type] ? options[type] : undefined;
 };
 
-var parseMenuType = function (menuObj) {
-    function ico(element) {
-        var html = {
-            id: undefined !== element.id ? ' id="'+element.id+'"' : '',
-            class: undefined !== element.class ? ' class="'+element.class+'"' : '',
-            onclick: undefined !== element.onclick ? ' onclick="'+element.onclick+'"' : '',
-            onblur: undefined !== element.onblur ? ' onblur="' + element.onblur + '"' : '',
-            onfocus: undefined !== element.onfocus ? ' onfocus="' + element.onfocus + '"' : '',
-        }; 
-        return html.id + html.class + html.onclick + html.onblur + html.onfocus;
-    }
-
-    function parseListItem(listItem) {
-        var html = {
-            start: '<li',
-            end: undefined !== listItem.text ? '>' + element.text + '</li>' : '></li>',
-        };
-        return html.start + ico(element) + html.end;
-    }  
-};
 //recursive function, simply loops until there are no more children objects,
 //uses jQuery to append to the parent object (usually a div element).
 function appendHTML(jsonObj, container) {
     if($m(jsonObj).typ == 'function'){
         jsonObj = jsonObj();
     }
-    //console.log(container);
-    //console.log(jsonObj);
-    //console.log(parsetype(jsonObj.type)(jsonObj));
     $('#'+container).append(parsetype(jsonObj.type)(jsonObj));
     if(undefined !== jsonObj.children) {
         $.each(jsonObj.children, function () {

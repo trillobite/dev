@@ -26,20 +26,20 @@ var genMenObj = function (prop) {
                         title: 'This', //Text for child option.
                         onclick: "cmd.del("+prop.index+")", //Standard function call just in quotes.
                     },
-                    {
+                    /*{
                         title: 'Time', //Text for child option.
                         onclick: "console.log('Delete Time button')", //Standard function call just in quotes.
-                    },
+                    },*/
                 ],
             },
             {
                 title: 'New', //Text for parent option.
                 options: [
-                    {
+                    /*{
                         title: 'Event', //Text for child option.
                         onclick: "defaultColorbox('newEvent', 'createEventMinimal', { width: '350px', height: '370px' })",
                         //onclick: "cmd.create()", //Standard function call just in quotes.
-                    },
+                    },*/
                     {
                         title: 'Time', //Text for child option.
                         onclick: "console.log('New Time button')", //Standard function call just in quotes.
@@ -132,3 +132,5 @@ var parseMenu = function (menu) {
 	});
 	return html + '</ul></div></div>';
 };
+
+

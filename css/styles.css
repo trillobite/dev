@@ -5,10 +5,18 @@ body {
     height: 100%; 
     padding: 0;
 }
+#defaultMenu {
+    border: 1px solid #4D4D4D;
+    width: 85%;
+    height: 40px;
+    text-align: center;
+    margin: 0 auto;
+    background-color: #147BEA;
+}
 #display {
 	border: 1px solid black;
 	width: 800px;
-	height: 800px;
+	height: 800px; /*Aventually this needs to be set to auto */
 	margin: 0 auto;
 	font-family: sans-serif;
 	text-align: center;
@@ -27,6 +35,19 @@ body {
 	width: 100%;
 	margin: 0 auto;
 }
+.button {
+    color: white; /* makes font color white */
+    width: 100px;
+    height: 33px;
+    /*margin: 0 auto;*/
+    margin-left: 10px;
+    line-height: 33px;
+    font-family: sans-serif;
+    background-color: #3287CC; /*0E549E*/
+    border: 4px outset #003DBF;
+    cursor: pointer;
+    z-index: 0;
+}
 .btn {
 	text-align: right;
 	border: 1px solid black;
@@ -43,20 +64,17 @@ body {
 }
 .foo {
     /*74B93E*/
-    background-color: #D98D06;
-    color: white;
+    background-color: #ABABAB;
+    color: white; /* makes font color white */
     width: 85%;
     height: 80px;
     margin: 0 auto; /*centers the whole div element.*/
-    border: 1px solid #4D4D4D;
+    border: 1px solid #D6B318;
     line-height: 25px; /*makes the text center vertically, may not work in multi-line.*/
     cursor: pointer; /*makes the div element act like a button.*/
     
 }
-.foo:active {
-    background-color: #474747;
-    border: 1px solid #D98D06;
-}
+
 
 
 /*.foo {
