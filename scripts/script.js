@@ -80,8 +80,9 @@ var dataObjs = {
     },
 };
 
-//example json parsing, type this into chrome console:
 /*
+    example json parsing, type this into chrome console:
+    
     appendHTML(jsonObj({
         id: 'helloWorld',
     }), 'id if blank div element here in quotes');
@@ -180,6 +181,10 @@ var cmd = {
 
     events: { //display-tbls DIV.
         drawJSON: function (jsonDta) {
+            jsonDta.EventSchedules.sort(function(a,b) { //sort by date.
+                return new Date(a.dtScheduleDate) - new Date(b.dtScheduleDate); 
+            });
+
             $.each(jsonDta.EventSchedules, function(indx, obj) {
                 appendHTML(forms['genEvnt'](cmd.createEvent({
                     cntr: indx,
