@@ -227,6 +227,15 @@ var cmd = {
             cmd.events.drawJSON(parsed);
         });
     },
+    getEvent: function(id) {
+        var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + id;
+        $sql(url).get(function(data) {
+            var parsed = JSON.parse(data);
+            dataObjs.tblsData = parsed;
+            //$v('display-tblInfo').clear(); clear the event data section.
+            console.log(dataObjs.tblsData);
+        });
+    },
     del: function (indx) {
         console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
         var rmObj = $v().events()[indx];

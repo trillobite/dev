@@ -445,7 +445,7 @@ var forms = {
                     children: undefined !== prop.pt0.children ? prop.pt0.children : undefined,
                 },
             ]
-        };  
+        };
     },
     
     datePicker: function (indx) {
@@ -501,10 +501,10 @@ var forms = {
                 id: 'btnOk',
                 text: 'Ok',
                 functions: [function() {
-                    
+                    console.log('you clicked ok!');
                 }],
-            }    
-        ]
+            },  
+        ],
     },
     
     editTitle: function (indx) {
@@ -542,7 +542,7 @@ var forms = {
                                 cmd.update(indx);
                                 $.colorbox.close();
                             }
-                        })
+                        });
                     }]
                 },
                 {
@@ -552,7 +552,7 @@ var forms = {
                     functions: [function () {
                         $('#titleEditCancelBtn').click(function () {
                             $.colorbox.close();
-                        })
+                        });
                     }]
                 }
             ]
@@ -594,7 +594,7 @@ var forms = {
                                 cmd.update(indx);
                                 $.colorbox.close();
                             }
-                        })
+                        });
                     }]
                 },
                 {
@@ -611,6 +611,33 @@ var forms = {
         };
     },
     
+    defEvntTimes: function (options) {
+        return {
+            type: 'div',
+            id: 'fooTimes' + options.indx,
+            class: 'fooTimes',
+            children: [
+                {
+                    //top row
+                    type: 'div',
+                    id: 'fooTopRow',
+                    children: [
+                        {
+                            type: 'textbox',
+                            id: 'txtBxTime',
+                            text: 'time',
+                            functions: [function() {
+                                $('#txtBxTime').css({
+                                    'color': '#5C0964',
+                                });
+                            }],
+                        },
+                    ],
+                },
+            ],
+        };
+    },
+
 };
 
 function defaultColorbox(id, obj, dimens) {

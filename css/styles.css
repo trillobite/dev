@@ -1,10 +1,10 @@
-html { 
+/*html { 
     height: 100%;
-}
-body { 
+}*/
+/*body { 
     height: 100%; 
     padding: 0;
-}
+}*/
 #defaultMenu {
     /*border: 1px solid #4D4D4D;*/
     width: 85%;
@@ -74,5 +74,13 @@ body {
     border: 1px solid #D6B318;
     line-height: 25px; /*makes the text center vertically, may not work in multi-line.*/
     cursor: pointer; /*makes the div element act like a button.*/
+    border-radius: 10px;
+}
+.fooTimes {
+    border: 1px solid black;
+    width: 85%;
+    height: auto;
+    margin: 0 auto;
+    line-height: 25px;
     border-radius: 10px;
 }
