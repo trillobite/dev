@@ -119,7 +119,7 @@ var parsetype = function (type) {
         checkbox: function (element) {
             var html = {
                 start: '<input type="checkbox"',
-                end: '>' + element.text + '<br>',
+                end: '>' + (undefined !== element.text ? element.text : '') + '<br>',
             };
             return html.start + ico(element) + html.end;
         },
@@ -164,8 +164,9 @@ var cmd = {
             id: 'foo' + obj.cntr,
             class: 'foo',
             indx: obj.cntr,
+            evntID: obj.data.indxScheduleID,
             pt0: {
-                text: '<font color="#554899">Description: ' + obj.data.strScheduleDescription + '</font>',
+                text: '<font color="#241DAB">Description: ' + obj.data.strScheduleDescription + '</font>',
             },
             pt1: {
                 text: '<b><u>' + obj.data.strScheduleTitle + '</b></u>',
@@ -175,7 +176,7 @@ var cmd = {
             },
             pt2: {
                 text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
-            }
+            },
         };
     }, 
 

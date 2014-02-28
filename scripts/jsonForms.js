@@ -26,6 +26,23 @@ var dpData = {
 
 var dpToggle = 1;
 
+function tgglTxtBx(id) {
+    var defTxt = $('#'+id)[0].value;
+    $('#'+id).focus(function() {
+        $('#'+id)[0].value = '';
+        $('#'+id).css({
+            'color': '#5233A6',
+        });
+    }).blur(function() {
+        if($('#'+id)[0].value === '') {
+            $('#'+id)[0].value = defTxt;
+            $('#'+id).css({
+                'color': '#CCCCCC',
+            });
+        }
+    });
+}
+
 function toggleTxtBx(id, txt) {
     if( $('#'+id)[0].value == txt ) {
         $('#'+id)[0].value = '';
@@ -358,12 +375,32 @@ var forms = {
                 $('#'+prop.id).mouseover(function () {
                     $('#'+prop.id).css({
                         'background-color': '#3287CC',
-                        'border': '1px solid #3287CC',
+                        'border-bottom': '1px solid #3287CC',
                     });
                 }).mouseout(function () {
                     $('#'+prop.id).css({
-                        'background-color': '#ABABAB',
-                        'border': '1px solid #D6B318',
+                        'background-color': 'white',
+                        'border-bottom': '1px solid #D6B318',
+                    });
+                }).click(function() {
+                    var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + prop.evntID;
+                    $sql(url).get(function(data) {
+                        console.log(data);
+                        $v('display-tblInfo').clear(); //clears the div in case there is existing data.
+                        $.each(JSON.parse(data).EventScheduleItems, function(indx, obj) {
+                            var prop = {
+                                cnt: indx,
+                                reserved: obj.blnOnlineFilledAllowed,
+                                checked: obj.blnCheckedIn,
+                                time: obj.dtDateTime,
+                                name: obj.strGroupName,
+                                division: obj.strGroupDivision,
+                                coach: obj.strGroupInstructor,
+                                id: obj.strOrganizationEventGroupCode,
+                            };
+                            
+                            appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
+                        });
                     });
                 });
             }],
@@ -614,24 +651,183 @@ var forms = {
     defEvntTimes: function (options) {
         return {
             type: 'div',
-            id: 'fooTimes' + options.indx,
+            id: 'fooTimes' + options.cnt,
             class: 'fooTimes',
+            functions:[function() {
+                $('#fooTimes'+options.cnt).mouseover(function() {
+                    $('#fooTimes'+options.cnt).css({
+                        'background-color': '#3287CC',
+                        'border-bottom': '1px solid #32B7CC',
+                    });
+                }).mouseout(function() {
+                    $('#fooTimes'+options.cnt).css({
+                        'background-color': 'white',
+                        'border-bottom': '1px solid black',
+                    });
+                });
+            }],
             children: [
                 {
-                    //top row
                     type: 'div',
-                    id: 'fooTopRow',
+                    id: 'statusContainer' + options.cnt,
+                    functions: [function() {
+                        $('#statusContainer' + options.cnt).css({
+                            'float': 'left',
+                            //'border': '1px solid black',
+                            'text-align': 'center',
+                            'width': '30px',
+                            'height': 'auto',
+                        });
+                    }],
+                    children: [
+                        {
+                            type: 'checkbox',
+                            id: 'chkdIn' + options.cnt,
+                            functions: [function() {
+                                if(undefined !== options.checked) {
+                                    if(options.checked) {
+                                        $('#chkdIn'+options.cnt).prop('checked', true);
+                                    }
+                                }
+                            }]
+                        },
+                    ]
+                },
+
+                {
+                    type: 'div',
+                    id: 'resrvd' + options.cnt,
+                    text: '<b>R</b>',
+                    functions: [function() {
+                        if(undefined !== options.reserved) {
+                            $('#resrvd'+options.cnt).css({
+                                'color': 'white',
+                                'background-color': '#D6B318',
+                                'border-radius': '5px',
+                                'text-align': 'center',
+                                'width': '25px',
+                                'height': 'auto',
+                                'float': 'left',
+                            });
+                        } else {
+                            $('#resrvd'+options.cnt).remove();
+                        }
+                    }]
+                },
+
+                {
+                    type: 'div',
+                    id: 'fooTopRow' + options.cnt,
+                    functions: [function() {
+                        $('#fooTopRow' + options.cnt).css({
+                            //'float': 'left',
+                            'text-align': 'left',
+                            'width': 'auto',
+                            'height': 'auto',
+                            //'border-radius': '5px',
+                        });
+                    }],
                     children: [
                         {
                             type: 'textbox',
-                            id: 'txtBxTime',
+                            id: 'txtBxTime' + options.cnt,
+                            class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
-                                $('#txtBxTime').css({
-                                    'color': '#5C0964',
-                                });
-                            }],
+                                tgglTxtBx('txtBxTime' + options.cnt);
+                                if(undefined !== options.time) {
+                                    $('#txtBxTime'+options.cnt)[0].value = options.time;
+                                    $('#txtBxTime'+options.cnt).css({
+                                        'color': '#5233A6',
+                                    });
+                                }
+                            }]
                         },
+                        {
+                            type: 'textbox',
+                            id: 'txtBxName' + options.cnt,
+                            class: 'txtBxTimes',
+                            text: 'name',
+                            functions: [function() {
+                                tgglTxtBx('txtBxName' + options.cnt);
+                                if(undefined !== options.name) {
+                                    $('#txtBxName'+options.cnt)[0].value = options.name;
+                                    $('#txtBxName'+options.cnt).css({
+                                        'color': '#5233A6',
+                                    });
+                                }
+                            }]
+                        },
+                        {
+                            type: 'textbox',
+                            id: 'txtBxDivision' + options.cnt,
+                            class: 'txtBxTimes',
+                            text: 'division',
+                            functions: [function() {
+                                tgglTxtBx('txtBxDivision'+options.cnt);
+                                if(undefined !== options.division) {
+                                    $('#txtBxDivision'+options.cnt)[0].value = options.division;
+                                    $('#txtBxDivision'+options.cnt).css({
+                                        'color': '#5233A6',
+                                    });
+                                }
+                            }]
+                        },
+                        {
+                            type: 'textbox',
+                            id: 'txtBxCoach' + options.cnt,
+                            class: 'txtBxTimes',
+                            text: 'coach',
+                            functions: [function() {
+                                tgglTxtBx('txtBxCoach'+options.cnt);
+                                if(undefined !== options.coach) {
+                                    $('#txtBxCoach' + options.cnt)[0].value = options.coach;
+                                    $('#txtBxCoach' + options.cnt).css({
+                                        'color': '#5233A6',
+                                    });
+                                }
+                            }]
+                        },
+                        {
+                            type: 'textbox',
+                            id: 'txtBxID' + options.cnt,
+                            class: 'txtBxTimes',
+                            text: '#ID',
+                            functions: [function() {
+                                $('#txtBxID' + options.cnt).css({
+                                    'width': '60px',
+                                });
+                                tgglTxtBx('txtBxID'+options.cnt);
+                                if(undefined !== options.id) {
+                                    $('#txtBxID' + options.cnt)[0].value = options.id;
+                                    $('#txtBxID' + options.cnt).css({
+                                        'color': '#5233A6',
+                                    });
+                                }
+                            }]
+                        },
+                        {
+                            type: 'div',
+                            id: 'closeBtn' + options.cnt,
+                            class: 'maxMinBtn',
+                            text: '<b>X</b>',
+                            functions: [function() {
+                                $('#closeBtn'+options.cnt).css({
+                                    'background-color': 'red',
+                                });
+                            }]
+                        },
+                        {
+                            type: 'div',
+                            id: 'maximizeBtn' + options.cnt,
+                            class: 'maxMinBtn',
+                            text: '<b>[_]</b>',
+                            functions: [function() {
+                                $('#maximizeBtn' + options.cnt).css({
+                                    'background-color': 'green',
+                                });
+                            }]
+                        }
                     ],
                 },
             ],
