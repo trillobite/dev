@@ -886,12 +886,12 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
-                                tgglTxtBx('txtBxTime' + options.cnt);
-                                if(undefined !== options.time) {
-                                    //console.log(options.time);
-                                    $('#txtBxTime'+options.cnt)[0].value = options.time.substring(options.time.indexOf('T')+1, options.time.length);
+                                if(undefined !== options.time && '' !== options.time && null !== options.time) {
+                                    var time = options.time.substring(options.time.indexOf('T')+1, options.time.length);
+                                    $('#txtBxTime'+options.cnt)[0].value = time;
+                                    //tgglTxtBx('txtBxTime' + options.cnt);
                                     $('#txtBxTime'+options.cnt).css({
-                                        'color': '#5233A6',
+                                        'color': colors().purple,
                                     });
                                 }
                             }]
@@ -902,45 +902,50 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'name',
                             functions: [function() {
-                                tgglTxtBx('txtBxName' + options.cnt);
-                                if(undefined !== options.name) {
+                                //console.log(options.name);
+                                if(undefined !== options.name && '' !== options.name && null !== options.name) {
                                     $('#txtBxName'+options.cnt)[0].value = options.name;
+                                    //tgglTxtBx('txtBxName' + options.cnt);
                                     $('#txtBxName'+options.cnt).css({
-                                        'color': '#5233A6',
+                                        'color': colors().purple,
                                     });
                                 }
                             }]
                         },
+
                         {
                             type: 'textbox',
                             id: 'txtBxDivision' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'division',
                             functions: [function() {
-                                tgglTxtBx('txtBxDivision'+options.cnt);
-                                if(undefined !== options.division) {
+                                if(undefined !== options.division && '' !== options.division && null !== options.division) {
                                     $('#txtBxDivision'+options.cnt)[0].value = options.division;
+                                    //tgglTxtBx('txtBxDivision'+options.cnt);
                                     $('#txtBxDivision'+options.cnt).css({
-                                        'color': '#5233A6',
+                                        'color': colors().purple,
                                     });
                                 }
                             }]
                         },
+
                         {
                             type: 'textbox',
                             id: 'txtBxCoach' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'coach',
                             functions: [function() {
-                                tgglTxtBx('txtBxCoach'+options.cnt);
-                                if(undefined !== options.coach) {
+                                console.debug(options.coach);
+                                if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
                                     $('#txtBxCoach' + options.cnt)[0].value = options.coach;
-                                    $('#txtBxCoach' + options.cnt).css({
-                                        'color': '#5233A6',
+                                    //tgglTxtBx('txtBxCoach'+options.cnt);
+                                    $('#txtBxCoach'+options.cnt).css({
+                                        'color': colors().purple,
                                     });
                                 }
                             }]
                         },
+
                         {
                             type: 'textbox',
                             id: 'txtBxID' + options.cnt,
@@ -950,15 +955,16 @@ var forms = {
                                 $('#txtBxID' + options.cnt).css({
                                     'width': '60px',
                                 });
-                                tgglTxtBx('txtBxID'+options.cnt);
-                                if(undefined !== options.id) {
-                                    $('#txtBxID' + options.cnt)[0].value = options.id;
-                                    $('#txtBxID' + options.cnt).css({
-                                        'color': '#5233A6',
+                                
+                                if(undefined !== options.id && '' !== options.id && null !== options.id) {
+                                    $('#txtBxID'+options.cnt)[0].value = options.id;
+                                    $('#txtBxID'+options.cnt).css({
+                                        'color': colors().purple,
                                     });
                                 }
                             }]
                         },
+
                         {
                             type: 'div',
                             id: 'closeBtn' + options.cnt,
@@ -970,6 +976,7 @@ var forms = {
                                 });
                             }]
                         },
+
                         {
                             type: 'div',
                             id: 'maximizeBtn' + options.cnt,
@@ -980,7 +987,8 @@ var forms = {
                                     'background-color': 'green',
                                 });
                             }]
-                        }
+                        },
+
                     ],
                 },
             ],
