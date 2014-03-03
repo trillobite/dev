@@ -645,6 +645,8 @@ var forms = {
         class: 'fooTimes',
         functions:[function() {
             $('#defaultEvent').css({
+                'border-top': '1px solid '+colors().darkBlue,
+                'background-color': '#C5CCD9',
                 'height': '26px',
                 'margin-top': '10px',
             });
@@ -792,12 +794,12 @@ var forms = {
                 $('#fooTimes'+options.cnt).mouseover(function() {
                     $('#fooTimes'+options.cnt).css({
                         'background-color': '#3287CC',
-                        'border-bottom': '1px solid #32B7CC',
+                        //'border-bottom': '1px solid #32B7CC',
                     });
                 }).mouseout(function() {
                     $('#fooTimes'+options.cnt).css({
                         'background-color': 'white',
-                        'border-bottom': '1px solid black',
+                        //'border-bottom': '1px solid black',
                     });
                 }).css({
                     'height': '26px',
@@ -874,7 +876,8 @@ var forms = {
                             functions: [function() {
                                 tgglTxtBx('txtBxTime' + options.cnt);
                                 if(undefined !== options.time) {
-                                    $('#txtBxTime'+options.cnt)[0].value = options.time;
+                                    console.log(options.time);
+                                    $('#txtBxTime'+options.cnt)[0].value = options.time.substring(options.time.indexOf('T')+1, options.time.length);
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': '#5233A6',
                                     });
