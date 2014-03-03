@@ -24,7 +24,7 @@
     text-align: center;
 }
 #display-tbls {
-    border-bottom: 2px solid black;
+    /*border-bottom: 2px solid black;*/
     height: auto;
     width: 100%;
     /*margin: 0 auto;*/
@@ -99,6 +99,6 @@
     color: white;
     /*background-color: red;*/
     width: 25px;
-    height: 24px;
+    height: 25px;
     float: right;
 }

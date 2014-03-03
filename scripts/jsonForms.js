@@ -645,7 +645,8 @@ var forms = {
         class: 'fooTimes',
         functions:[function() {
             $('#defaultEvent').css({
-                'height': '25px',
+                'height': '26px',
+                'margin-top': '10px',
             });
         }],
         children: [
@@ -799,7 +800,7 @@ var forms = {
                         'border-bottom': '1px solid black',
                     });
                 }).css({
-                    'height': '25px',
+                    'height': '26px',
                 });
             }],
             children: [
