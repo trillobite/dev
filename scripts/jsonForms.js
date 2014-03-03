@@ -383,13 +383,13 @@ var forms = {
                 $('#'+prop.id).mouseover(function () {
                     $('#'+prop.id).css({
                         'background-color': '#3287CC',
-                        'border-bottom': '1px solid #3287CC',
+                        //'border-bottom': '1px solid #3287CC',
                     });
                 }).mouseout(function () {
                     if(prop.id != dataObjs.slctdObj) {
                         $('#'+prop.id).css({
                             'background-color': 'white',
-                            'border-bottom': '1px solid #D6B318',
+                            //'border-bottom': '1px solid #D6B318',
                         });
                     }
                 }).click(function() {
@@ -399,13 +399,12 @@ var forms = {
                                 'background-color': 'white',
                             });
                         });
+                        cmd.create.times(prop.evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
                     }
                     $('#'+prop.id).css({
                         'background-color': '#3287CC',
                     });
                     dataObjs.slctdObj = prop.id;
-                    //var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + prop.evntID;
-                    cmd.create.times(prop.evntID);
                 });
             }],
             children: [
@@ -889,7 +888,7 @@ var forms = {
                             functions: [function() {
                                 tgglTxtBx('txtBxTime' + options.cnt);
                                 if(undefined !== options.time) {
-                                    console.log(options.time);
+                                    //console.log(options.time);
                                     $('#txtBxTime'+options.cnt)[0].value = options.time.substring(options.time.indexOf('T')+1, options.time.length);
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': '#5233A6',
