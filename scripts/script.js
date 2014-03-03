@@ -199,9 +199,28 @@ var cmd = {
             console.log('undefined');
         },
     },
-    create: function () {
-        $.colorbox({html:'<div id="createForm0"></div>', width: '350px', height: '400px'});
-        appendHTML(forms['createEvent'],'createForm0');
+    create: {
+        times: function (evntID) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
+            $sql(url).get(function(data) {
+                //console.log(data);
+                $v('display-tblInfo').clear(); //clears the div in case there is existing data.
+                appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
+                $.each(JSON.parse(data).EventScheduleItems, function(indx, obj) {
+                    var prop = {
+                        cnt: indx,
+                        reserved: obj.blnOnlineFilledAllowed,
+                        checked: obj.blnCheckedIn,
+                        time: obj.dtDateTime,
+                        name: obj.strGroupName,
+                        division: obj.strGroupDivision,
+                        coach: obj.strGroupInstructor,
+                        id: obj.strOrganizationEventGroupCode,
+                    };
+                    appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
+                });
+            });
+        }
     },
     update: function (indx) {
         var jStr = JSON.stringify($v().events()[indx]);

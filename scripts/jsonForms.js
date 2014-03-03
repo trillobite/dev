@@ -383,25 +383,8 @@ var forms = {
                         'border-bottom': '1px solid #D6B318',
                     });
                 }).click(function() {
-                    var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + prop.evntID;
-                    $sql(url).get(function(data) {
-                        console.log(data);
-                        $v('display-tblInfo').clear(); //clears the div in case there is existing data.
-                        $.each(JSON.parse(data).EventScheduleItems, function(indx, obj) {
-                            var prop = {
-                                cnt: indx,
-                                reserved: obj.blnOnlineFilledAllowed,
-                                checked: obj.blnCheckedIn,
-                                time: obj.dtDateTime,
-                                name: obj.strGroupName,
-                                division: obj.strGroupDivision,
-                                coach: obj.strGroupInstructor,
-                                id: obj.strOrganizationEventGroupCode,
-                            };
-                            
-                            appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
-                        });
-                    });
+                    //var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + prop.evntID;
+                    cmd.create.times(prop.evntID);
                 });
             }],
             children: [
@@ -648,6 +631,129 @@ var forms = {
         };
     },
     
+    defaultEvntTime: { //NOOOOOOOO!!!! IT'S MORPHING THE FIRST TWO INTO ONE DIV!!! WHYYYYYYY????!!!!!
+        type: 'div',
+        id: 'defaultEvent',
+        class: 'fooTimes',
+        functions:[function() {
+            $('#defaultEvent').css({
+                'height': '25px',
+            });
+        }],
+        children: [
+            {
+                type: 'div',
+                id: 'statusContainer',
+                functions: [function() {
+                    $('#statusContainer').css({
+                        'float': 'left',
+                        //'border': '1px solid black',
+                        'text-align': 'center',
+                        'width': '30px',
+                        'height': 'auto',
+                    });
+                }],
+                children: [
+                    {
+                        type: 'checkbox',
+                        id: 'chkdIn',
+                        functions: [function() {
+                            $('#chkdIn').prop('checked', true);
+                        }]
+                    },
+                ]
+            },
+
+            {
+                type: 'div',
+                id: 'resrvd',
+                text: '<b>R</b>',
+                functions: [function() {
+                    $('#resrvd').css({
+                        'color': 'white',
+                        'background-color': '#D6B318',
+                        'border-radius': '5px',
+                        'text-align': 'center',
+                        'width': '25px',
+                        'height': 'auto',
+                        'float': 'left',
+                    });
+                }]
+            },
+
+            {
+                type: 'div',
+                id: 'timebox',
+                text: 'Time',
+                functions: [function() {
+                    $('#timebox').css({
+                        'color': 'black',
+                        'width': '100px',
+                        'text-align': 'center',
+                        'float': 'left',
+                    });
+                }]
+            }, 
+
+            {
+                type: 'div',
+                id: 'namebx',
+                text: 'Group Name',
+                functions: [function() {
+                    $('#namebx').css({
+                        'color': 'black',
+                        'width': '100px',
+                        'text-align': 'center',
+                        'float': 'left'
+                    });
+                }]
+            },
+
+            {
+                type: 'div',
+                id: 'division',
+                text: 'division',
+                functions: [function() {
+                    $('#division').css({
+                        'color': 'black',
+                        'width': '100px',
+                        'text-align': 'center',
+                        'float': 'left'
+                    });
+                }]
+            },
+
+            {
+                type: 'div',
+                id: 'defaultCoach',
+                text: 'coach',
+                functions: [function() {
+                    $('#defaultCoach').css({
+                        'color': 'black',
+                        'width': '100px',
+                        'text-align': 'center',
+                        'float': 'left'
+                    });
+                }]
+            },
+
+            {
+                type: 'div',
+                id: 'defaultID',
+                text: 'ID#',
+                functions: [function() {
+                    $('#defaultID').css({
+                        'color': 'black',
+                        'width': '100px',
+                        'text-align': 'center',
+                        'float': 'left'
+                    });
+                }]
+            }
+
+        ]
+    },
+
     defEvntTimes: function (options) {
         return {
             type: 'div',
@@ -664,6 +770,8 @@ var forms = {
                         'background-color': 'white',
                         'border-bottom': '1px solid black',
                     });
+                }).css({
+                    'height': '25px',
                 });
             }],
             children: [
