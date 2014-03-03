@@ -23,6 +23,14 @@ var dpData = {
     toggle: 1,
 };
 
+var colors = function() {
+    return {
+        blue: '#3287CC',
+        darkBlue: '#205480',
+        purple: '#5233A6',
+        gray: '#CCCCCC',
+    };
+};
 
 var dpToggle = 1;
 
@@ -31,13 +39,13 @@ function tgglTxtBx(id) {
     $('#'+id).focus(function() {
         $('#'+id)[0].value = '';
         $('#'+id).css({
-            'color': '#5233A6',
+            'color': colors().purple,
         });
     }).blur(function() {
         if($('#'+id)[0].value === '') {
             $('#'+id)[0].value = defTxt;
             $('#'+id).css({
-                'color': '#CCCCCC',
+                'color': colors().gray,
             });
         }
     });
@@ -47,13 +55,13 @@ function toggleTxtBx(id, txt) {
     if( $('#'+id)[0].value == txt ) {
         $('#'+id)[0].value = '';
         $('#'+id).css({
-            'color': '#5233A6',
+            'color': colors().purple,
         });
     } else {
         if( $('#'+id)[0].value === '' ) {
             $('#'+id)[0].value = txt;
             $('#'+id).css({
-                'color': '#CCCCCC',
+                'color': colors().gray,
             });
         }
     }
@@ -671,11 +679,12 @@ var forms = {
                 functions: [function() {
                     $('#resrvd').css({
                         'color': 'white',
-                        'background-color': '#D6B318',
+                        'background-color': colors().blue,//'#D6B318'
+                        'border': '1px solid '+colors().darkBlue,
                         'border-radius': '5px',
                         'text-align': 'center',
                         'width': '25px',
-                        'height': 'auto',
+                        'height': '23px',
                         'float': 'left',
                     });
                 }]
@@ -749,6 +758,25 @@ var forms = {
                         'float': 'left'
                     });
                 }]
+            },
+
+            {
+                type: 'div',
+                id: 'btnAddTimeToEvent',
+                text: 'Add times',
+                functions: [function() {
+                    $('#btnAddTimeToEvent').css({
+                        'border-radius': '5px',
+                        'background-color': colors().blue,
+                        'border': '1px solid '+colors().darkBlue,
+                        'margin-right': '5px',
+                        'color': 'white',
+                        'width': '100px',
+                        'height': '23px',
+                        'float': 'right',
+                        'cursor': 'pointer',
+                    });
+                }]
             }
 
         ]
@@ -810,11 +838,12 @@ var forms = {
                         if(undefined !== options.reserved) {
                             $('#resrvd'+options.cnt).css({
                                 'color': 'white',
-                                'background-color': '#D6B318',
+                                'background-color': colors().blue,
                                 'border-radius': '5px',
+                                'border': ('1px solid '+colors().darkBlue),
                                 'text-align': 'center',
                                 'width': '25px',
-                                'height': 'auto',
+                                'height': '23px',
                                 'float': 'left',
                             });
                         } else {
