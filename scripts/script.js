@@ -157,7 +157,16 @@ function appendHTML(jsonObj, container) {
 }
 
 var cmd = {
-    
+    componentToHex: function (c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    },
+
+    //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
+    rgbToHex: function (arrRGB) {
+        return '#' + cmd.componentToHex(arrRGB[0]) + cmd.componentToHex(arrRGB[1]) + cmd.componentToHex(arrRGB[2]);
+    },
+
     //each pt- is a sub div inside the element.
     createEvent: function (obj) {
         return {

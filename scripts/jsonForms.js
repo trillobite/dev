@@ -386,11 +386,24 @@ var forms = {
                         'border-bottom': '1px solid #3287CC',
                     });
                 }).mouseout(function () {
-                    $('#'+prop.id).css({
-                        'background-color': 'white',
-                        'border-bottom': '1px solid #D6B318',
-                    });
+                    if(prop.id != dataObjs.slctdObj) {
+                        $('#'+prop.id).css({
+                            'background-color': 'white',
+                            'border-bottom': '1px solid #D6B318',
+                        });
+                    }
                 }).click(function() {
+                    if(prop.id != dataObjs.slctdObj) {
+                        $('.foo').each(function() {
+                            $('#'+this.id).css({
+                                'background-color': 'white',
+                            });
+                        });
+                    }
+                    $('#'+prop.id).css({
+                        'background-color': '#3287CC',
+                    });
+                    dataObjs.slctdObj = prop.id;
                     //var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + prop.evntID;
                     cmd.create.times(prop.evntID);
                 });
