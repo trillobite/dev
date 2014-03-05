@@ -34,31 +34,49 @@ var colors = function() {
 
 var dpToggle = 1;
 
+var previousTxt;
 function tgglTxtBx(id, dbVal, defVal) {
-    $('#'+id).focus(function() {
-        if(cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase() == colors().purple) { //if this entry has been edited, by user or by function.
-            $('#'+id)[0].value = '';
+    var object = function (val, color) {
+        if(undefined !== val) {
+            if(undefined !== color) {
+                $('#'+id).css({
+                    'color': color,
+                });
+            }
+            $('#'+id)[0].value = val;
         } else {
-            $('#'+id).css({
-                'color': colors().purple,
-            })[0].value = '';
+            return { //if both parameters were undefined, returns this object.
+                color: cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase(), 
+                value: $('#'+id)[0].value,
+            };
+        }
+    };
+    $('#'+id).focus(function() {
+        if(object().color == colors().purple) { //if this entry has been edited, by user or by function.
+            previousTxt = object().value;
+            object('');
+        } else {
+            object('', colors().purple);
         }
     }).blur(function() {
-        if(cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase() == colors().purple) {
-            if($('#'+id)[0].value === '') {
-                if(undefined !== dbVal && '' !== dbVal && null !== dbVal) {
-                    if($('#'+id)[0].value === '') {
-                        $('#'+id)[0].value = dbVal; //options.time.substring(options.time.indexOf('T')+1, options.time.length)
+        if(object().color == colors().purple) { //purple if the entry was edited!
+            if(undefined !== dbVal && '' !== dbVal && null !== dbVal) {
+                if(object().value === '') {
+                    object(undefined !== previousTxt ? previousTxt : dbVal);
+                }
+            } else {
+                if(previousTxt !== defVal && undefined !== previousTxt) {
+                    if(object().value === '') {
+                        object(previousTxt, colors().purple);
                     }
                 } else {
-                    if($('#'+id)[0].value === '') {
-                        $('#'+id).css({
-                            'color': colors().gray,
-                        })[0].value = defVal;
+                    if(object().value === '') {
+                        object(defVal, colors().gray);
                     }
                 }
             }
         }
+        previousTxt = undefined;
     });
 }
 
