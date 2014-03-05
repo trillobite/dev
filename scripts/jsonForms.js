@@ -34,19 +34,30 @@ var colors = function() {
 
 var dpToggle = 1;
 
-function tgglTxtBx(id) {
-    var defTxt = $('#'+id)[0].value;
+function tgglTxtBx(id, dbVal, defVal) {
     $('#'+id).focus(function() {
-        $('#'+id)[0].value = '';
-        $('#'+id).css({
-            'color': colors().purple,
-        });
-    }).blur(function() {
-        if($('#'+id)[0].value === '') {
-            $('#'+id)[0].value = defTxt;
+        if(cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase() == colors().purple) { //if this entry has been edited, by user or by function.
+            $('#'+id)[0].value = '';
+        } else {
             $('#'+id).css({
-                'color': colors().gray,
-            });
+                'color': colors().purple,
+            })[0].value = '';
+        }
+    }).blur(function() {
+        if(cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase() == colors().purple) {
+            if($('#'+id)[0].value === '') {
+                if(undefined !== dbVal && '' !== dbVal && null !== dbVal) {
+                    if($('#'+id)[0].value === '') {
+                        $('#'+id)[0].value = dbVal; //options.time.substring(options.time.indexOf('T')+1, options.time.length)
+                    }
+                } else {
+                    if($('#'+id)[0].value === '') {
+                        $('#'+id).css({
+                            'color': colors().gray,
+                        })[0].value = defVal;
+                    }
+                }
+            }
         }
     });
 }
@@ -886,8 +897,9 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
+                                var time = undefined !== options.time ? options.time.substring(options.time.indexOf('T')+1, options.time.length) : undefined;
+                                tgglTxtBx('txtBxTime' + options.cnt, time, 'time');
                                 if(undefined !== options.time && '' !== options.time && null !== options.time) {
-                                    var time = options.time.substring(options.time.indexOf('T')+1, options.time.length);
                                     $('#txtBxTime'+options.cnt)[0].value = time;
                                     //tgglTxtBx('txtBxTime' + options.cnt);
                                     $('#txtBxTime'+options.cnt).css({
@@ -896,12 +908,14 @@ var forms = {
                                 }
                             }]
                         },
+
                         {
                             type: 'textbox',
                             id: 'txtBxName' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'name',
                             functions: [function() {
+                                tgglTxtBx('txtBxName'+options.cnt, options.name, 'name');
                                 //console.log(options.name);
                                 if(undefined !== options.name && '' !== options.name && null !== options.name) {
                                     $('#txtBxName'+options.cnt)[0].value = options.name;
@@ -919,6 +933,7 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'division',
                             functions: [function() {
+                                tgglTxtBx('txtBxDivision'+options.cnt, options.division, 'division');
                                 if(undefined !== options.division && '' !== options.division && null !== options.division) {
                                     $('#txtBxDivision'+options.cnt)[0].value = options.division;
                                     //tgglTxtBx('txtBxDivision'+options.cnt);
@@ -935,6 +950,7 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'coach',
                             functions: [function() {
+                                tgglTxtBx('txtBxCoach'+options.cnt, options.coach, 'coach');
                                 console.debug(options.coach);
                                 if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
                                     $('#txtBxCoach' + options.cnt)[0].value = options.coach;
@@ -952,6 +968,7 @@ var forms = {
                             class: 'txtBxTimes',
                             text: '#ID',
                             functions: [function() {
+                                tgglTxtBx('txtBxID'+options.cnt, options.id, '#ID');
                                 $('#txtBxID' + options.cnt).css({
                                     'width': '60px',
                                 });
