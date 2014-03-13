@@ -401,7 +401,42 @@ var forms = {
             });
         }]
     },
-    
+
+    evntEditBx: function (data) {
+        return {
+            type: 'textbox',
+            id: 'evntEditBx',
+            text: data.text,
+            functions: [function () {
+                $('#evntEditBx').css({
+                    'width': 'inherit',
+                    //'padding-left': '10px',
+                    'text-align': 'center',
+                    'color': colors().purple,
+                });
+                $('#evntEditBx').focus(function() {
+                    $('#evntEditBx')[0].value = '';
+                    dataObjs.slctdObj = data.parentID;
+                }).blur(function () {
+                    if($('#evntEditBx')[0].value != data.text && $('#evntEditBx')[0].value !== '') {
+                        console.log(data);
+                        $v().events()[data.indx].strScheduleTitle = $('#evntEditBx')[0].value;
+                        cmd.update(data.indx);
+                        /*$v('display-tbls').clear();
+                        cmd.events.drawJSON(dataObjs.srvdTbls);*/
+                    } else {
+                        $('#evntEditBx').remove();
+                        //appendHTML(data.nonRaw, data.parentID);
+                        $('#'+data.parentID).append(data.nonRaw);
+                        /*$v(data.parentID).clear();
+                        $('#'+data.parentID)[0].value = data.nonRaw;*/
+                    }
+                });
+
+            }]
+        };
+    },
+
     genEvnt: function (prop) {
         return {
             type: 'div',
@@ -440,8 +475,8 @@ var forms = {
                 {
                     type: 'div',
                     id: prop.id + 'pt1',
-                    text: '<div style="padding-left: 10px">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
-                    functions:[function () {
+                    text: '<div id="pt1Obj'+prop.id+'" style="padding-left: 10px">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
+                    functions:[function() {
                         $('#'+prop.id+'pt1').css({
                             'width': '45%',
                             'height': '50%',
@@ -449,6 +484,21 @@ var forms = {
                             'text-align': 'left',
                             'float': 'left',
                             'z-index': '0',
+                        });
+                        $('#'+prop.id+'pt1').click(function() {
+                            if(dataObjs.slctdObj != prop.id + 'pt1') {
+                                //$v(prop.id+'pt1').clear();
+                                $('#pt1Obj'+prop.id).remove();
+                                console.log(prop);
+                                appendHTML(forms['evntEditBx']({
+                                    text: prop.pt1.raw,
+                                    nonRaw: '<div id="pt1Obj'+prop.id+'" style="padding-left: 10px">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
+                                    indx: prop.indx,
+                                    parentID: prop.id+'pt1',
+                                }), prop.id+"pt1");
+                                $('#evntEditBx').focus();
+                            }
+                            dataObjs.slctdObj = prop.id + 'pt1';
                         });
                     }],
                     children: undefined !== prop.pt1.children ? prop.pt1.children : undefined,
@@ -466,7 +516,7 @@ var forms = {
                             'text-align': 'left',
                             'float': 'left',
                             'z-index': '0',
-                        })
+                        });
                     }]
                 },
                 
@@ -680,7 +730,7 @@ var forms = {
         };
     },
     
-    defaultEvntTime: { //NOOOOOOOO!!!! IT'S MORPHING THE FIRST TWO INTO ONE DIV!!! WHYYYYYYY????!!!!!
+    defaultEvntTime: { 
         type: 'div',
         id: 'defaultEvent',
         class: 'fooTimes',
@@ -793,7 +843,7 @@ var forms = {
             {
                 type: 'div',
                 id: 'defaultID',
-                text: 'ID#',
+                text: '#',
                 functions: [function() {
                     $('#defaultID').css({
                         'color': 'black',
@@ -984,14 +1034,14 @@ var forms = {
                             type: 'textbox',
                             id: 'txtBxID' + options.cnt,
                             class: 'txtBxTimes',
-                            text: '#ID',
+                            text: "0",
                             functions: [function() {
-                                tgglTxtBx('txtBxID'+options.cnt, options.id, '#ID');
+                                tgglTxtBx('txtBxID'+options.cnt, options.id, "0");
                                 $('#txtBxID' + options.cnt).css({
                                     'width': '60px',
                                 });
-                                
-                                if(undefined !== options.id && '' !== options.id && null !== options.id) {
+                                //if not undefined, not empty string, not null, not 0
+                                if(undefined !== options.id && '' !== options.id && null !== options.id && 0 !== options.id) {
                                     $('#txtBxID'+options.cnt)[0].value = options.id;
                                     $('#txtBxID'+options.cnt).css({
                                         'color': colors().purple,

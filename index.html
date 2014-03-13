@@ -38,18 +38,19 @@
   </head>
   <body>
     <div id="display">
-        <div id='defaultMenu'>
+        <div id='defaultMenu'> <!-- Little menu box at the top -->
             <div class='button' id='btnNwEvnt' onclick="defaultColorbox('newEvent', 'createEventMinimal', { width: '350px', height: '370px' })">New Event</div>
+            <div class='button' id='btnHelp'>Help</div>
             <script>
+                $('#btnHelp').css({
+                    'float': 'left',
+                    //'margin-right': '10px',
+                });
+                $('#btnNwEvnt').css({
+                    'float': 'left',
+                });
                 $('#btnNwEvnt').focus(function() {
-                    $('#btnNwEvnt').css({
-                        'border': '4px inset #003DBF',
-                    });
                    defaultColorbox('newEvent', 'createEventMinimal', { width: '350px', height: '370px' }); 
-                }).blur(function () {
-                    $('#btnNwEvnt').css({
-                        'border': '4px outset #003DBF',
-                    })
                 });
             </script>
             

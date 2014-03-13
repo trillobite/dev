@@ -29,6 +29,7 @@ var undef;
 var dataObjs = {
     slctdObj: undefined,
     srvdTbls: [], //Array, the names of the tables in which the user will edit.
+    evntTimes: [], //Array, the times for the event (srvdTbls).
     tblsData: [], //Array, the data contained in each table from the DB.
     currTblElemns: [], //Array, an array of div id's for the dynamically created tables.
     currDtaElemens: [], //Array, an array of div id's for the dynamically created times/table data.
@@ -178,15 +179,19 @@ var cmd = {
             evntID: obj.data.indxScheduleID,
             pt0: {
                 text: '<font color="#241DAB">Description: ' + obj.data.strScheduleDescription + '</font>',
+                raw: obj.data.strScheduleDescription,
             },
             pt1: {
                 text: '<b><u>' + obj.data.strScheduleTitle + '</b></u>',
+                raw: obj.data.strScheduleTitle,
             },
             pt15: {
                 text: '<font color="white">'+obj.data.dtScheduleDate+'</font>',  
+                raw: obj.data.dtScheduleDate,
             },
             pt2: {
                 text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
+                raw: obj.data.blnActive,
             },
         };
     }, 
@@ -215,9 +220,10 @@ var cmd = {
             var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
             $sql(url).get(function(data) {
                 //console.log(data);
+                dataObjs.evntTimes = JSON.parse(data);
                 $v('display-tblInfo').clear(); //clears the div in case there is existing data.
                 appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
-                $.each(JSON.parse(data).EventScheduleItems, function(indx, obj) {
+                $.each(dataObjs.evntTimes.EventScheduleItems, function(indx, obj) {
                     var prop = {
                         cnt: indx,
                         reserved: obj.blnOnlineFilledAllowed,
@@ -226,7 +232,8 @@ var cmd = {
                         name: obj.strGroupName,
                         division: obj.strGroupDivision,
                         coach: obj.strGroupInstructor,
-                        id: obj.strOrganizationEventGroupCode,
+                        //id: obj.strOrganizationEventGroupCode,
+                        id: obj.intScheduleOverRideNumPaticipants,
                     };
                     appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
                 });
