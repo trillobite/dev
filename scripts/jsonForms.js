@@ -401,42 +401,27 @@ var forms = {
             });
         }]
     },
-
-    evntEditBx: function (data) {
+    
+    mDiv: function (element) { //A generic mutable JSON Div.
         return {
-            type: 'textbox',
-            id: 'evntEditBx',
-            text: data.text,
-            functions: [function () {
-                $('#evntEditBx').css({
-                    'width': 'inherit',
-                    //'padding-left': '10px',
-                    'text-align': 'center',
-                    'color': colors().purple,
-                });
-                $('#evntEditBx').focus(function() {
-                    $('#evntEditBx')[0].value = '';
-                    dataObjs.slctdObj = data.parentID;
-                }).blur(function () {
-                    if($('#evntEditBx')[0].value != data.text && $('#evntEditBx')[0].value !== '') {
-                        console.log(data);
-                        $v().events()[data.indx].strScheduleTitle = $('#evntEditBx')[0].value;
-                        cmd.update(data.indx);
-                        /*$v('display-tbls').clear();
-                        cmd.events.drawJSON(dataObjs.srvdTbls);*/
-                    } else {
-                        $('#evntEditBx').remove();
-                        //appendHTML(data.nonRaw, data.parentID);
-                        $('#'+data.parentID).append(data.nonRaw);
-                        /*$v(data.parentID).clear();
-                        $('#'+data.parentID)[0].value = data.nonRaw;*/
-                    }
-                });
-
-            }]
+            type: 'div',
+            id: element.id,
+            text: element.text,
+            functions: [element.css, element.event],
+            children: undefined !== element.children ? element.children : undefined,
         };
     },
-
+    
+    mTxt: function (element) { //A generic mutable JSON Text Box.
+        return {
+            type: 'textbox',
+            id: element.id,
+            text: element.text,
+            functions: [element.css, element.event],
+            children: undefined !== element.children ? element.children : undefined,
+        };
+    },
+    
     genEvnt: function (prop) {
         return {
             type: 'div',
@@ -447,13 +432,11 @@ var forms = {
                 $('#'+prop.id).mouseover(function () {
                     $('#'+prop.id).css({
                         'background-color': '#3287CC',
-                        //'border-bottom': '1px solid #3287CC',
                     });
                 }).mouseout(function () {
                     if(prop.id != dataObjs.slctdObj) {
                         $('#'+prop.id).css({
                             'background-color': 'white',
-                            //'border-bottom': '1px solid #D6B318',
                         });
                     }
                 }).click(function() {
@@ -472,51 +455,78 @@ var forms = {
                 });
             }],
             children: [
-                {
-                    type: 'div',
+                forms.mDiv({
                     id: prop.id + 'pt1',
-                    text: '<div id="pt1Obj'+prop.id+'" style="padding-left: 10px">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
-                    functions:[function() {
+                    text: '<div id="pt1Obj'+prop.id+'">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
+                    css: function () {
                         $('#'+prop.id+'pt1').css({
                             'width': '45%',
                             'height': '50%',
-                            //'border': '1px solid black',
                             'text-align': 'left',
                             'float': 'left',
-                            'z-index': '0',
                         });
-                        $('#'+prop.id+'pt1').click(function() {
-                            if(dataObjs.slctdObj != prop.id + 'pt1') {
-                                //$v(prop.id+'pt1').clear();
-                                $('#pt1Obj'+prop.id).remove();
-                                console.log(prop);
-                                appendHTML(forms['evntEditBx']({
-                                    text: prop.pt1.raw,
-                                    nonRaw: '<div id="pt1Obj'+prop.id+'" style="padding-left: 10px">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
-                                    indx: prop.indx,
-                                    parentID: prop.id+'pt1',
-                                }), prop.id+"pt1");
-                                $('#evntEditBx').focus();
-                            }
-                            dataObjs.slctdObj = prop.id + 'pt1';
+                        $('#pt1Obj'+prop.id).css({
+                            'padding-left': '10px',
+                            'width': 'auto',
                         });
-                    }],
-                    children: undefined !== prop.pt1.children ? prop.pt1.children : undefined,
-                },
-                
+                    },
+                    event: function () {
+                        $('#pt1Obj'+prop.id+' u').click(function() {  //only when the text is clicked. jQuery wrapped the text object with <u></u>.
+                            $('#pt1Obj'+prop.id).remove(); //remove for mutation.
+                            console.log(prop);
+                            appendHTML(forms.mTxt({ //mutates to this.
+                                id: 'evntEditBx',
+                                text: prop.pt1.raw,
+                                css: function() {
+                                    $('#evntEditBx').css({
+                                        'width': 'inherit',
+                                        'text-align': 'center',
+                                        'color': colors().purple,
+                                    });
+                                },
+                                event: function () {
+                                    $('#evntEditBx').focus(function() {
+                                        $('#evntEditBx')[0].value = '';
+                                        dataObjs.slctdObj = prop.id+'pt1';
+                                    }).blur(function () {
+                                        if($('#evntEditBx')[0].value != prop.pt1.raw && $('#evntEditBx')[0].value !== '') {
+                                            $v().events()[prop.indx].strScheduleTitle = $('#evntEditBx')[0].value; //edit object title.
+                                            cmd.update(prop.indx); //comment out if debugging so db wont be hit. <-- saves current state to the db.
+                                        } else {
+                                            $('#evntEditBx').remove(); //if no changes to be made, simply return the original object state.
+                                            appendHTML(forms.genEvnt(prop).children[0], prop.id + 'pt1'); //add back original object.
+                                        }
+                                    });
+                                }
+                            }), prop.id+"pt1");
+                            $('#evntEditBx').focus();
+                        });
+                    }
+                }),
+
                 {
                     type: 'div',
                     id: prop.id + 'pt15',
-                    text: undefined !== prop.pt15.text ? new Date(prop.pt15.text.substring(0, prop.pt15.text.indexOf('T'))).toDateString() : undefined,
                     functions: [function () {
+                        var d = new Date(prop.pt15.text.substring(0, prop.pt15.text.indexOf('T')));
+                        d = d.toDateString();
                         $('#'+prop.id+'pt15').css({
                             'width': '25%',
                             'height': '50%',
-                            //'border': '1px solid black',
                             'text-align': 'left',
                             'float': 'left',
-                            'z-index': '0',
                         });
+                        appendHTML({ //strange bug, cannot use jQuery append function directly here, must use appendHTML.
+                            type: 'div', //div that opens the date picker.
+                            id: 'pt1Date'+prop.id,
+                            text: '<a>' + d + '</a>', //surround in a tags for jQuery to know exactly what to grab.
+                            functions:[function () {
+                                $('#pt1Date'+prop.id+' a').click(function() { //opens date picker object when the text is clicked.
+                                    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
+                                    appendHTML(forms['datePicker'](prop.indx), 'cbDateEdit');
+                                });
+                            }]
+                        }, prop.id+'pt15');
                     }]
                 },
                 
@@ -528,9 +538,7 @@ var forms = {
                         $('#'+prop.id+'pt2').css({
                             'width': '20%',
                             'height': '50%',
-                            //'border': '1px solid black',
                             'float': 'right',
-                            'z-index': '0',
                         });
                         $('#'+prop.id + 'pt2').append(parseMenu(genMenObj({
                             title: 'edit', 
@@ -547,7 +555,53 @@ var forms = {
                     children: undefined !== prop.pt2.children ? prop.pt2.children : undefined,
                 },
                 
-                {
+                forms.mDiv({
+                    id: prop.id + 'pt0',
+                    text: '<div id="description'+prop.id+'"><a>' + (undefined !== prop.pt0.text ? prop.pt0.text : undefined) + '</a></div>',
+                    css: function () {
+                        $('#'+prop.id+'pt0').css({
+                            'width': '100%',
+                            'height': '50%',
+                            'text-align': 'left',
+                            'float': 'left',
+                            'padding-left': '10px',
+                        });
+                    },
+                    event: function () {
+                        $('#description'+prop.id+' a').click(function () {
+                            $('#description'+prop.id).remove(); //remove for mutation.
+                            //console.log(prop);
+                            appendHTML(forms.mTxt({ //mutates to this.
+                                id: 'descriptEditBx',
+                                text: prop.pt0.raw,
+                                css: function() {
+                                    $('#descriptEditBx').css({
+                                        'width': '70%',
+                                        'text-align': 'center',
+                                        'color': colors().purple,
+                                    });
+                                },
+                                event: function () {
+                                    $('#descriptEditBx').focus(function() {
+                                        $('#descriptEditBx')[0].value = '';
+                                        dataObjs.slctdObj = prop.id+'pt0';
+                                    }).blur(function () {
+                                        if($('#descriptEditBx')[0].value != prop.pt0.raw && $('#descriptEditBx')[0].value !== '') {
+                                            $v().events()[prop.indx].strScheduleDescription = $('#descriptEditBx')[0].value; //edit object description.
+                                            cmd.update(prop.indx); //comment out if debugging so db wont be hit. <-- saves current state to the db.
+                                        } else {
+                                            $('#descriptEditBx').remove(); //if no edits to be made, just return the original state.
+                                            appendHTML(forms.genEvnt(prop).children[3], prop.id + 'pt0'); //add back original object.
+                                        }
+                                    });
+                                }
+                            }), prop.id+"pt0");
+                            $('#descriptEditBx').focus();
+                        });
+                    }
+                }),
+
+                /*{
                     type: 'div',
                     id: prop.id + 'pt0',
                     text: '<div style="padding-left: 10px">' + (undefined !== prop.pt0.text ? prop.pt0.text : undefined) + '</div>',
@@ -555,14 +609,13 @@ var forms = {
                         $('#'+prop.id+'pt0').css({
                             'width': '100%',
                             'height': '50%',
-                            //'border': '1px solid black',
+                            'border': '1px solid black',
                             'text-align': 'left',
                             'float': 'left',
-                            'z-index': '0',
                         });
                     }],
                     children: undefined !== prop.pt0.children ? prop.pt0.children : undefined,
-                },
+                },*/
             ]
         };
     },

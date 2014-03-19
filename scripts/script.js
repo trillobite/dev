@@ -179,19 +179,19 @@ var cmd = {
             evntID: obj.data.indxScheduleID,
             pt0: {
                 text: '<font color="#241DAB">Description: ' + obj.data.strScheduleDescription + '</font>',
-                raw: obj.data.strScheduleDescription,
+                raw: obj.data.strScheduleDescription, //the data without html tags.
             },
             pt1: {
                 text: '<b><u>' + obj.data.strScheduleTitle + '</b></u>',
-                raw: obj.data.strScheduleTitle,
+                raw: obj.data.strScheduleTitle,  //the data without html tags.
             },
             pt15: {
                 text: '<font color="white">'+obj.data.dtScheduleDate+'</font>',  
-                raw: obj.data.dtScheduleDate,
+                raw: obj.data.dtScheduleDate, //the data without html tags.
             },
             pt2: {
                 text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
-                raw: obj.data.blnActive,
+                raw: obj.data.blnActive, //the data without html tags.
             },
         };
     }, 
