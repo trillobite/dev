@@ -663,20 +663,35 @@ var forms = {
         };
     },
     
-    cbConfirmDel: {
-        type: 'div',
-        id: 'cbDel',
-        text: '<h3>This will delete everything!</h3>',
-        children: [
-            {
-                type: 'button',
-                id: 'btnOk',
-                text: 'Ok',
-                functions: [function() {
-                    console.log('you clicked ok!');
-                }],
-            },  
-        ],
+    confirmPopUp: function(properties) {
+        return {
+            type: 'div',
+            id: 'cbDel',
+            class: 'container',
+            text: properties.text,
+            children: [
+                {
+                    type: 'button',
+                    id: 'btnOk',
+                    text: 'Yes',
+                    functions: [function() {
+                        $('#btnOk').click(function () {
+                            properties.func(); //execute the defined function on click.
+                        });
+                    }],
+                },
+                {
+                    type: 'button',
+                    id: 'btnCancel',
+                    text: 'Cancel',
+                    functions: [function () {
+                        $('#btnCancel').click(function() {
+                            $.colorbox.close();//close the pop up and do nothing.
+                        });
+                    }],
+                }
+            ],
+        };
     },
     
     editTitle: function (indx) {

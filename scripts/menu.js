@@ -24,7 +24,7 @@ var genMenObj = function (prop) {
                 options: [
                     {
                         title: 'This', //Text for child option.
-                        onclick: "cmd.del("+prop.index+")", //Standard function call just in quotes.
+                        onclick: "confirmDel("+prop.index+")", //Standard function call just in quotes.
                     },
                     /*{
                         title: 'Time', //Text for child option.
@@ -84,6 +84,17 @@ var dateFunc = function () {
         });
     }
 };
+
+var confirmDel = function (indx) {
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '450px', height: '120px'});
+    appendHTML(forms['confirmPopUp']({
+        text: '<h3> Are you sure you wish to delete this Event? </h3>',
+        func: function () {
+            cmd.del(indx);
+            $.colorbox.close(); 
+        }
+    }), 'cbConfirm');
+}
 
 //opens a colorbox to edit the date of one of the events.
 var dateEdit = function (indx) {
