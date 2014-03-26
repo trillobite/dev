@@ -1,28 +1,8 @@
-var dpData = {
-    /*{
-                        onSelect: function(dtTxt, inst) {
-                        console.log('datePicker clicked!', dtTxt);
-                        $('#dpStartEnd').css({
-                            'visibility': 'visible',
-                        });
-                        if(dpToggle) {
-                            console.log('txbStartDt');
-                            $('#txbStartDt').css({
-                                'color': '#5233A6',
-                            })[0].value = dtTxt.toString();
-                        } else {
-                            console.log('txbEndDt');
-                            $('#txbEndDt').css({
-                                'color': '#5233A6',
-                            })[0].value = dtTxt.toString();
-                        }
-                        dpToggle = dpToggle ? 0 : 1;
-                    }}*/
-    start: '',
-    end: '',
-    toggle: 1,
-};
-
+/*
+    File: jsonForms.js
+    Description: Contains all of the json type objects which will be converted into html.
+                 they are templates aka "Forms."
+*/
 var colors = function() {
     return {
         blue: '#3287CC',
@@ -112,190 +92,6 @@ function dynFoo(prop) {
     return form;
 }
 var forms = {
-    foo: {
-        type: 'div',
-        id: undefined,
-        children: [
-            {
-                type: 'div',
-                text: undefined,
-            },
-            {
-                type: 'div',
-                children: [
-                    {
-                        type: 'button',
-                        id: undefined,
-                        text: 'edit',
-                        onclick: "",
-                    }    
-                ]
-            }
-        ]
-    },
-    
-    createEventMaximal: {
-        type: 'div',
-        id: 'createForm',
-        functions: [function () {
-            $('#createForm').css({
-                'font-family': 'sans-serif',
-            });
-        }],
-        children: [
-            { 
-                type: 'textbox',  
-                id: 'scheduleTitle',
-                text: 'Schedule Title',
-                onclick: "toggleTxtBx('scheduleTitle', 'Schedule Title')",
-                onblur: "toggleTxtBx('scheduleTitle', 'Schedule Title')",
-                functions: [function () {
-                    $('#scheduleTitle').focus(function() {
-                       toggleTxtBx('scheduleTitle', 'Schedule Title') 
-                    });
-                    $('#scheduleTitle').css({
-                        'color': '#CCCCCC',
-                    }); 
-                }],
-            },  
-            {
-                type: 'textbox',
-                id: 'scheduleDescription',
-                text: 'Schedule Description',
-                onclick: "toggleTxtBx('scheduleDescription', 'Schedule Description')",
-                onblur: "toggleTxtBx('scheduleDescription', 'Schedule Description')",
-                functions: [function () {
-                    $('#scheduleDescription').focus(function() {
-                       toggleTxtBx('scheduleDescription', 'Schedule Description') 
-                    });
-                    
-                    $('#scheduleDescription').css({
-                        'color': '#CCCCCC',
-                    }); 
-                }],
-            },
-            {
-                active: false,
-                type: 'div',
-                id: 'dpStartEnd',
-                functions: [function () {
-                    $('#dpStartEnd').css({
-                        'visibility': 'collapse',
-                    });
-                }],
-                children: [
-                    {
-                        type: 'textbox',
-                        id: 'txbStartDt',
-                        text: 'Start Date',
-                        functions: [function () {
-                            $('#txbStartDt').css({
-                                'visibility': 'collapse',
-                                'color': '#CCCCCC',
-                            }).click(function() {
-                                dpToggle = 1;
-                                toggleTxtBx('txbStartDt', 'Start Date');
-                            });
-                        }]
-                    },
-                    {
-                        type: 'textbox',
-                        id: 'txbEndDt',
-                        text: 'Click again for end date!',
-                        functions: [function () {
-                            $('#txbEndDt').css({
-                                'visibility': 'collapse',
-                                'color': '#AD021B',
-                            }).click(function() {
-                                dpToggle = 0;
-                                toggleTxtBx('txbEndDt', 'End Date');
-                            });
-                        }]
-                    }
-                ],
-            },
-            {
-                type: 'div',
-                id: 'mkSchedDtPkr',
-                functions: [function () {
-                    $('#mkSchedDtPkr').datepicker({
-                        onSelect: function(dtTxt, inst) {
-                        console.log('datePicker clicked!', dtTxt);
-                        $('#dpStartEnd').css({
-                            'visibility': 'visible',
-                        });
-                        if(dpToggle) {
-                            console.log('txbStartDt');
-                            $('#txbStartDt').css({
-                                'color': '#5233A6',
-                            })[0].value = dtTxt.toString();
-                        } else {
-                            console.log('txbEndDt');
-                            $('#txbEndDt').css({
-                                'color': '#5233A6',
-                            })[0].value = dtTxt.toString();
-                        }
-                        dpToggle = dpToggle ? 0 : 1;
-                    }});
-                }],
-                children: [
-                    {
-                        type: 'div',
-                        id: 'date',
-                    },
-                ]
-            },
-            {
-                type: 'div',
-                id: 'checkboxContainer',
-                functions: [function () {
-                    $('#checkboxContainer').css({
-                        'width': '50%',
-                        'text-align': 'center',
-                        'float': 'right',
-                    });
-                }],
-                children: [
-                    {
-                        type: 'checkbox',
-                        id: 'checkboxActive',
-                        text: 'Make Active',
-                        functions: [function () {
-                            $('#checkboxActive')[0].checked = true;
-                        }]
-                    }
-                ]
-            },
-            {
-                type: 'div',
-                id: 'buttonContainer',
-                functions: [function () {
-                    $('#buttonContainer').css({
-                        'width': '50%',
-                        'float': 'left',
-                    });
-                }],
-                children: [
-                    {
-                        type: 'button',
-                        id: 'formSubmit',   
-                        text: 'submit',
-                        functions: [function() {
-                            $('#formSubmit').click(function () {
-                                console.log({
-                                   strScheduleTitle: $('#scheduleTitle')[0].value,
-                                   strScheduleDescription: $('#scheduleDescription')[0].value,
-                                   dtScheduleDate: $('#mkSchedDtPkr').datepicker('getDate').toString(),
-                                   //blnActive: $('#checkboxActive')[0].checked,
-                                });
-                            });
-                        }]
-                    }
-                ]
-            },
-        ],        
-    },
-    
     createEventMinimal: {
         type: 'div',
         id: 'createForm',
@@ -342,7 +138,7 @@ var forms = {
                     },
                 ]
             },
-            {
+            { //holds the buttons.
                 type: 'div',
                 id: 'buttonContainer',
                 functions: [function () {
@@ -352,7 +148,7 @@ var forms = {
                     });
                 }],
                 children: [
-                    {
+                    { //submit button
                         type: 'button',
                         id: 'formSubmit',   
                         text: 'submit',
@@ -385,21 +181,20 @@ var forms = {
                                 });
                             });
                         }]
+                    },
+                    { //cancel button
+                        type: 'button',
+                        id: 'formCancel',
+                        text: 'cancel',
+                        functions: [function () {
+                            $('#formCancel').click(function () {
+                                $.colorbox.close();//close the pop up and do nothing.
+                            })
+                        }]
                     }
                 ]
             },
         ],        
-    },
-    
-    defEvntOptions: {
-        type: 'div',
-        id: 'options',
-        text: '<h3>Options<h3>',
-        functions:[function () {
-            $('#options').css({
-                
-            });
-        }]
     },
     
     mDiv: function (element) { //A generic mutable JSON Div.
@@ -533,8 +328,12 @@ var forms = {
                 {
                     type: 'div',
                     id: prop.id + 'pt2',
-                    text: undefined !== prop.pt2.text ? prop.pt2.text : undefined,
+                    text: undefined !== prop.pt2.text ? '<a>'+prop.pt2.text+'</a>' : undefined,
                     functions: [function () {
+                        $('#'+prop.id+'pt2 a').click(function() {
+                            $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
+                            cmd.update(prop.indx);
+                        });
                         $('#'+prop.id+'pt2').css({
                             'width': '20%',
                             'height': '50%',
@@ -600,22 +399,6 @@ var forms = {
                         });
                     }
                 }),
-
-                /*{
-                    type: 'div',
-                    id: prop.id + 'pt0',
-                    text: '<div style="padding-left: 10px">' + (undefined !== prop.pt0.text ? prop.pt0.text : undefined) + '</div>',
-                    functions: [function () {
-                        $('#'+prop.id+'pt0').css({
-                            'width': '100%',
-                            'height': '50%',
-                            'border': '1px solid black',
-                            'text-align': 'left',
-                            'float': 'left',
-                        });
-                    }],
-                    children: undefined !== prop.pt0.children ? prop.pt0.children : undefined,
-                },*/
             ]
         };
     },
@@ -657,6 +440,16 @@ var forms = {
                                 });
                             }],
                         },  
+                        {
+                            type: 'button',
+                            id: 'dpkrCancelBtn',
+                            text: 'cancel',
+                            functions: [function() {
+                                $('#dpkrCancelBtn').click(function() {
+                                    $.colorbox.close();//close the pop up and do nothing.
+                                })
+                            }]
+                        }
                     ],
                 },
             ],
@@ -1087,7 +880,6 @@ var forms = {
                             text: 'coach',
                             functions: [function() {
                                 tgglTxtBx('txtBxCoach'+options.cnt, options.coach, 'coach');
-                                console.debug(options.coach);
                                 if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
                                     $('#txtBxCoach' + options.cnt)[0].value = options.coach;
                                     //tgglTxtBx('txtBxCoach'+options.cnt);

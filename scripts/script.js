@@ -164,9 +164,8 @@ var cmd = {
     },
 
     //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
-    rgbToHex: function (rgb) {
+    rgbToHex: function (rgb) { //converts rgb color definition to HEX.
         var arrRGB = rgb.substring(4, rgb.length-1).split(', ');
-        console.log(arrRGB, rgb);
         return "#" + ((1 << 24) + ( parseInt(arrRGB[0]) << 16) + ( parseInt(arrRGB[1]) << 8) + parseInt(arrRGB[2]) ).toString(16).slice(1);
     },
 
@@ -208,11 +207,6 @@ var cmd = {
                     data: obj,
                 })), 'display-tbls');
             });
-        },
-    },
-    eventTimes: { //display-tblInfo DIV.
-        drawJSON: function () {
-            console.log('undefined');
         },
     },
     create: {
