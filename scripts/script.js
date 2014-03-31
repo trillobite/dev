@@ -5,6 +5,11 @@
 
 */
 
+var id = {
+    photographer: undefined,
+    event: undefined,
+};
+
 var $v = function (div) {
     return {
         events: function () {
@@ -211,7 +216,7 @@ var cmd = {
     },
     create: {
         times: function (evntID) {
-            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
+            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + id.event;
             $sql(url).get(function(data) {
                 //console.log(data);
                 dataObjs.evntTimes = JSON.parse(data);
@@ -247,16 +252,20 @@ var cmd = {
         });
     },
     get: function () {
-        var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=1';
+        var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + id.event;
         $sql(url).get(function(dta) {
-            //console.log(dta);
+            console.log(dta);
             var parsed = JSON.parse(dta);
             dataObjs.srvdTbls = parsed;
-            $v('display-tbls').clear();
-            dataObjs.evntSchdl.indxPhotographerID = parsed.EventSchedules[0].indxPhotographerID;
-            dataObjs.evntSchdl.indxOrganizationEventID = parsed.EventSchedules[0].indxOrganizationEventID;
-            dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
-            cmd.events.drawJSON(parsed);
+            if(undefined !== dataObjs.evntSchdl) {
+                $v('display-tbls').clear();
+                //dataObjs.evntSchdl.indxPhotographerID = parsed.EventSchedules[0].indxPhotographerID;
+                //dataObjs.evntSchdl.indxOrganizationEventID = parsed.EventSchedules[0].indxOrganizationEventID;
+                dataObjs.evntSchdl.indxPhotographerID = id.photographer;
+                dataObjs.evntSchdl.indxOrganizationEventID = id.event;
+                dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
+                cmd.events.drawJSON(parsed);
+            }
         });
     },
     getEvent: function(id) {
@@ -277,7 +286,6 @@ var cmd = {
         $sql(url).get(function(dta) {
             console.log(dta);
             if(dta) {
-                
                 dataObjs.srvdTbls.EventSchedules.splice(indx, 1);
             }
             $v('display-tbls').clear();
@@ -286,7 +294,10 @@ var cmd = {
     },
 };
 
+//cut and paste this anywhere, and modify the ID's below. Has not been tested for bugs extensively yet.
 //this is how to tell when the code should start.
 $(document).ready(function() {
+    id.photographer = 7; //override photographer ID here.
+    id.event = 1; //override event ID here.
     cmd.get();
 });
