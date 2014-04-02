@@ -216,9 +216,10 @@ var cmd = {
     },
     create: {
         times: function (evntID) {
-            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + id.event;
+            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
+            console.log(url);
             $sql(url).get(function(data) {
-                //console.log(data);
+                console.log(data);
                 dataObjs.evntTimes = JSON.parse(data);
                 $v('display-tblInfo').clear(); //clears the div in case there is existing data.
                 appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
@@ -268,7 +269,8 @@ var cmd = {
             }
         });
     },
-    getEvent: function(id) {
+    /*getEvent: function(id) {
+        console.log('foo clicked2');
         var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + id;
         $sql(url).get(function(data) {
             var parsed = JSON.parse(data);
@@ -276,7 +278,7 @@ var cmd = {
             //$v('display-tblInfo').clear(); clear the event data section.
             console.log(dataObjs.tblsData);
         });
-    },
+    },*/
     del: function (indx) {
         console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
         var rmObj = $v().events()[indx];
