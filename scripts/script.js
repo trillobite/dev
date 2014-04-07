@@ -104,17 +104,13 @@ var parsetype = function (type) {
             onclick: undefined !== element.onclick ? ' onclick="'+element.onclick+'"' : '',
             onblur: undefined !== element.onblur ? ' onblur="' + element.onblur + '"' : '',
             onfocus: undefined !== element.onfocus ? ' onfocus="' + element.onfocus + '"' : '',
+            max: undefined !== element.max ? ' max="' + element.max + '"' : '',
+            min: undefined !== element.min ? ' min="' + element.min + '"' : '',
+            name: undefined !== element.name ? ' name="' + element.name + '"' : '',
         }; 
-        return html.id + html.class + html.onclick + html.onblur + html.onfocus;
+        return html.id + html.class + html.onclick + html.onblur + html.onfocus + html.max + html.min + html.name;
     }
     var options = {
-        textbox: function (element) {
-            var html = {
-                start: '<input type="text"',
-                end: undefined !== element.text ? ' value="' + element.text + '">' : '>',
-            };
-            return html.start + ico(element) + html.end;
-        },
         button: function (element) {
             var html = {
                 start: '<button type="button"',
@@ -138,7 +134,22 @@ var parsetype = function (type) {
         },
         html: function (element) {
             return element.data;
-        }
+        },
+        spinner: function (element) {
+            var html = {
+                start: undefined !== element.text ? element.text+'<input type="number"' : '<input type="number"',
+                end: '/>',
+            };
+            return html.start + ico(element) + html.end;
+        },
+        textbox: function (element) {
+            var html = {
+                start: '<input type="text"',
+                end: undefined !== element.text ? ' value="' + element.text + '">' : '>',
+            };
+            return html.start + ico(element) + html.end;
+        },
+
     };
     return undefined !== options[type] ? options[type] : undefined;
 };
@@ -242,11 +253,7 @@ var cmd = {
     },
     update: function (indx) {
         var jStr = JSON.stringify($v().events()[indx]);
-        //jStr = jStr.replace(/"/g, '\\"');
-        //var url = "https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='"+jStr+"'";
         var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+jStr;
-        console.log(jStr);
-        console.log(url);
         $sql(url).get(function(dta) {
             console.log(dta);
             cmd.get();
@@ -255,13 +262,11 @@ var cmd = {
     get: function () {
         var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + id.event;
         $sql(url).get(function(dta) {
-            console.log(dta);
+            //console.log(dta);
             var parsed = JSON.parse(dta);
             dataObjs.srvdTbls = parsed;
             if(undefined !== dataObjs.evntSchdl) {
                 $v('display-tbls').clear();
-                //dataObjs.evntSchdl.indxPhotographerID = parsed.EventSchedules[0].indxPhotographerID;
-                //dataObjs.evntSchdl.indxOrganizationEventID = parsed.EventSchedules[0].indxOrganizationEventID;
                 dataObjs.evntSchdl.indxPhotographerID = id.photographer;
                 dataObjs.evntSchdl.indxOrganizationEventID = id.event;
                 dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
@@ -269,16 +274,6 @@ var cmd = {
             }
         });
     },
-    /*getEvent: function(id) {
-        console.log('foo clicked2');
-        var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + id;
-        $sql(url).get(function(data) {
-            var parsed = JSON.parse(data);
-            dataObjs.tblsData = parsed;
-            //$v('display-tblInfo').clear(); clear the event data section.
-            console.log(dataObjs.tblsData);
-        });
-    },*/
     del: function (indx) {
         console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
         var rmObj = $v().events()[indx];
