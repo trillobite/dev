@@ -986,10 +986,14 @@ var forms = {
                                         $('#groupNameBox').hide();
                                         $('#divisionBox').hide();
                                         $('#coachBox').hide();
+                                        $('#groupInstructorBox').hide();
+                                        $('#groupCodeBox').hide();
                                     } else {
                                         $('#groupNameBox').show();
                                         $('#divisionBox').show();
                                         $('#coachBox').show();
+                                        $('#groupInstructorBox').show();
+                                        $('#groupCodeBox').show();
                                     }
                                 })
                             }]
@@ -1011,15 +1015,26 @@ var forms = {
                                 });
                             }]
                         },
+                        {//strGroupInstructor
+                            type: 'textbox',
+                            id: 'groupInstructorBox',
+                            class: 'txtCenter',
+                            text: 'Group Instructor',
+                            //functions:[],
+                        },
+                        {//strOrganizationEventGroupCode
+                            type: 'textbox',
+                            id: 'groupCodeBox',
+                            class: 'txtCenter',
+                            text: 'Group Code',
+                            //functions: [],
+                        },
                         {//StrGroupDivision
                             type: 'textbox',
                             id: 'divisionBox',
+                            class: 'txtCenter',
                             text: 'Group Division',
                             functions: [function () {
-                                $('#divisionBox').css({
-                                    //set colors and stuff.
-                                    'text-align': 'center',
-                                });
                                 $('#divisionBox').focus(function() {
                                     //change color to purple, and clear text box.
                                 }).blur(function() {
@@ -1031,14 +1046,19 @@ var forms = {
                         {//dtDateTime <--update time part.
                             type: 'textbox',
                             id: 'timeBox',
+                            class: 'txtCenter',
+                            name: 'time',
                             text: 'time',
                             functions: [function () {
-                                $('#timeBox').css({
-                                    //set colors and stuff.
-                                    'text-align': 'center',
-                                });
+                                $('input[name="time"]').ptTimeSelect();
                                 $('#timeBox').focus(function () {
                                     //change color to purple, and clear the box.
+                                    $('#cboxOverlay').css({ //so the time select will appear over the shadow.
+                                        'z-Index': '8',
+                                    });
+                                    $('#colorbox').css({ //so the time select will appear over the colorbox.
+                                        'z-Index': '9',
+                                    });
                                 }).blur(function () {
                                     //change color back to default if no new data was entered.
                                     //check the time format, format correctly if possible, throw error else.
@@ -1049,11 +1069,9 @@ var forms = {
                         {//input name of coach.
                             type: 'textbox',
                             id: 'coachBox',
+                            class: 'txtCenter',
                             text: 'Coach',
                             functions: [function () {
-                                $('#coachBox').css({
-                                    'text-align': 'center',
-                                })
                             }],
                         },
                         {//input how many are participating.

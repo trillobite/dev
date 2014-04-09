@@ -174,6 +174,21 @@ function appendHTML(jsonObj, container) {
 }
 
 var cmd = {
+    time: {
+        format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
+            var date = new Date();
+            var hour = parseInt(input.substring(0, input.indexOf(':')), 10);
+            var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
+            var amPm = input.substring(input.indexOf(' ')+1, input.length);
+            if(amPm == 'PM') {
+                hour += 12;
+            }
+            date.setHours(hour);
+            date.setMinutes(minutes);
+            date.setSeconds(0);
+            return date.getTime();
+        }  
+    },
     componentToHex: function (c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
@@ -292,7 +307,7 @@ var cmd = {
 };
 
 //cut and paste this anywhere, and modify the ID's below. Has not been tested for bugs extensively yet.
-//this is how to tell when the code should start.
+//this is the object to properly call this project.
 $(document).ready(function() {
     id.photographer = 7; //override photographer ID here.
     id.event = 1; //override event ID here.

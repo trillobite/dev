@@ -58,6 +58,9 @@
     text-align: right;
     border: 1px solid black;
 }
+.txtCenter {
+    text-align: center;
+}
 .container {
     font-family: sans-serif;
 }
