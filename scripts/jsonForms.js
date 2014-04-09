@@ -732,7 +732,7 @@ var forms = {
                         'cursor': 'pointer',
                     });
                     $('#btnAddTimeToEvent').click(function() {
-                        $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '250px'});
+                        $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '400px'});
                         appendHTML(forms['addTimeForm']({
                             indx: 0,
                         }), 'tmp');                    
@@ -963,98 +963,120 @@ var forms = {
                     type: 'div',
                     text: '<h3> Add schedule time </h3>'
                 },
-                { //blnOnlineFilledAllowed
-                    type: 'checkbox',
-                    id: 'reservedCheckBox',
-                    text: 'reservation?',
-                    functions: [function () {
-                        $('#reservedCheckBox').click(function () {
-                            //if checked, hide all objects that do not have to do with a reservation object.
-                            //else, show all objects that have to do with a static object.
-                        })
-                    }]
-                },
-                {//StrGroupName
-                    type: 'textbox',
-                    id: 'groupNameBox',
-                    text: 'Group Name',
+                {
+                    type: 'div',
+                    id: 'textboxContainer',
                     functions:[function () {
-                        $('#groupNameBox').css({
-                            //set colors and stuff
-                            'text-align': 'center',
-                        });
-                        $('#groupNameBox').focus(function() {
-                            //change color to purple, and clear text box
-                        }).blur(function () {
-                            //change color back to default if no new data was entered.
-                            //else keep the color purple.
-                        });
-                    }]
-                },
-                {//StrGroupDivision
-                    type: 'textbox',
-                    id: 'divisionBox',
-                    text: 'Group Division',
-                    functions: [function () {
-                        $('#divisionBox').css({
-                            //set colors and stuff.
-                            'text-align': 'center',
-                        });
-                        $('#divisionBox').focus(function() {
-                            //change color to purple, and clear text box.
-                        }).blur(function() {
-                            //change color back to default if no new data was entered.
-                            //else keep the color purple.
-                        });
-                    }]
-                },
-                {//dtDateTime <--update time part.
-                    type: 'textbox',
-                    id: 'timeBox',
-                    text: 'time',
-                    functions: [function () {
-                        $('#timeBox').css({
-                            //set colors and stuff.
-                            'text-align': 'center',
-                        });
-                        $('#timeBox').focus(function () {
-                            //change color to purple, and clear the box.
-                        }).blur(function () {
-                            //change color back to default if no new data was entered.
-                            //check the time format, format correctly if possible, throw error else.
-                            //else keep the color purple.
-                        });
-                    }]
-                },
-                {//input name of coach.
-                    type: 'textbox',
-                    id: 'coachBox',
-                    text: 'Coach',
-                    functions: [function () {
-                        $('#coachBox').css({
-                            'text-align': 'center',
+                        $('#textboxContainer').css({
+                            'width': '200px',
+                            'text-align': 'left',
+                            'margin-left': '30px',
                         })
                     }],
-                },
-                {//input how many are participating.
-                    type: 'spinner',
-                    id: 'numParticipantsSpnr',
-                    text: 'Participants',
-                    min: 0,
-                    max: 10000,
-                    functions: [function () {
-                        $('#numParticipantsSpnr')[0].value = "0";
-                    }]
-                },
-                {//how many times to repeat the data.
-                    type: 'spinner',
-                    id: 'duplicateSpnr',
-                    text: 'copies:',
-                    min: 0,
-                    max: 30,
-                    functions: [function () {
-                        $('#duplicateSpnr')[0].value = "1";
-                    }]
+                    children: [
+                        { //blnOnlineFilledAllowed
+                            type: 'checkbox',
+                            id: 'reservedCheckBox',
+                            text: 'reservation?',
+                            functions: [function () {
+                                $('#reservedCheckBox').click(function () {
+                                    //if checked, hide all objects that do not have to do with a reservation object.
+                                    //else, show all objects that have to do with a static object.
+                                    if($('#reservedCheckBox')[0].checked) {
+                                        $('#groupNameBox').hide();
+                                        $('#divisionBox').hide();
+                                        $('#coachBox').hide();
+                                    } else {
+                                        $('#groupNameBox').show();
+                                        $('#divisionBox').show();
+                                        $('#coachBox').show();
+                                    }
+                                })
+                            }]
+                        },
+                        {//StrGroupName
+                            type: 'textbox',
+                            id: 'groupNameBox',
+                            text: 'Group Name',
+                            functions:[function () {
+                                $('#groupNameBox').css({
+                                    //set colors and stuff
+                                    'text-align': 'center',
+                                });
+                                $('#groupNameBox').focus(function() {
+                                    //change color to purple, and clear text box
+                                }).blur(function () {
+                                    //change color back to default if no new data was entered.
+                                    //else keep the color purple.
+                                });
+                            }]
+                        },
+                        {//StrGroupDivision
+                            type: 'textbox',
+                            id: 'divisionBox',
+                            text: 'Group Division',
+                            functions: [function () {
+                                $('#divisionBox').css({
+                                    //set colors and stuff.
+                                    'text-align': 'center',
+                                });
+                                $('#divisionBox').focus(function() {
+                                    //change color to purple, and clear text box.
+                                }).blur(function() {
+                                    //change color back to default if no new data was entered.
+                                    //else keep the color purple.
+                                });
+                            }]
+                        },
+                        {//dtDateTime <--update time part.
+                            type: 'textbox',
+                            id: 'timeBox',
+                            text: 'time',
+                            functions: [function () {
+                                $('#timeBox').css({
+                                    //set colors and stuff.
+                                    'text-align': 'center',
+                                });
+                                $('#timeBox').focus(function () {
+                                    //change color to purple, and clear the box.
+                                }).blur(function () {
+                                    //change color back to default if no new data was entered.
+                                    //check the time format, format correctly if possible, throw error else.
+                                    //else keep the color purple.
+                                });
+                            }]
+                        },
+                        {//input name of coach.
+                            type: 'textbox',
+                            id: 'coachBox',
+                            text: 'Coach',
+                            functions: [function () {
+                                $('#coachBox').css({
+                                    'text-align': 'center',
+                                })
+                            }],
+                        },
+                        {//input how many are participating.
+                            type: 'spinner',
+                            id: 'numParticipantsSpnr',
+                            text: 'Participants',
+                            min: 0,
+                            max: 10000,
+                            functions: [function () {
+                                $('#numParticipantsSpnr')[0].value = "0";
+                            }]
+                        },
+                        {//how many times to repeat the data.
+                            type: 'spinner',
+                            id: 'duplicateSpnr',
+                            text: 'copies:',
+                            min: 0,
+                            max: 30,
+                            functions: [function () {
+                                $('#duplicateSpnr')[0].value = "1";
+                            }]
+                        },
+                    ]
                 },
                 {
                     type: 'div',
