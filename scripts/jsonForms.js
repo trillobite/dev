@@ -732,7 +732,7 @@ var forms = {
                         'cursor': 'pointer',
                     });
                     $('#btnAddTimeToEvent').click(function() {
-                        $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '400px'});
+                        $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '450px'});
                         appendHTML(forms['addTimeForm']({
                             indx: 0,
                         }), 'tmp');                    
@@ -988,12 +988,14 @@ var forms = {
                                         $('#coachBox').hide();
                                         $('#groupInstructorBox').hide();
                                         $('#groupCodeBox').hide();
+                                        $('#notesBox').hide();
                                     } else {
                                         $('#groupNameBox').show();
                                         $('#divisionBox').show();
                                         $('#coachBox').show();
                                         $('#groupInstructorBox').show();
                                         $('#groupCodeBox').show();
+                                        $('#notesBox').show();
                                     }
                                 })
                             }]
@@ -1001,12 +1003,9 @@ var forms = {
                         {//StrGroupName
                             type: 'textbox',
                             id: 'groupNameBox',
+                            class: 'txtCenter',
                             text: 'Group Name',
                             functions:[function () {
-                                $('#groupNameBox').css({
-                                    //set colors and stuff
-                                    'text-align': 'center',
-                                });
                                 $('#groupNameBox').focus(function() {
                                     //change color to purple, and clear text box
                                 }).blur(function () {
@@ -1066,7 +1065,7 @@ var forms = {
                                 });
                             }]
                         },
-                        {//input name of coach.
+                        {//strGroupInstructor
                             type: 'textbox',
                             id: 'coachBox',
                             class: 'txtCenter',
@@ -1074,12 +1073,19 @@ var forms = {
                             functions: [function () {
                             }],
                         },
-                        {//input how many are participating.
+                        {//strNotes
+                            type: 'textarea',
+                            id: 'notesBox',
+                            text: 'Notes...',
+                            rows: '6',
+                            cols: '20',
+                        },
+                        {//intScheduleOverRideNumPaticipants
                             type: 'spinner',
                             id: 'numParticipantsSpnr',
                             text: 'Participants',
                             min: 0,
-                            max: 10000,
+                            max: 100,
                             functions: [function () {
                                 $('#numParticipantsSpnr')[0].value = "0";
                             }]
@@ -1106,8 +1112,29 @@ var forms = {
                             id: 'submitBtn',
                             text: 'submit',
                             functions: [function () {
-                                $('#submitBtn').click(function() {
-                                    //submit the form data to the data base... make sure to pull the selected object div id.
+                                $('#submitBtn').click(function() { //submit the form data to the data base... make sure to pull the selected object div id.
+                                    function getText(value, defVal) {
+                                        return value !== defVal ? value : "";
+                                    }
+                                    
+                                    var strJson = dataObjs.evntTime();
+                                    strJson.blnOnlineFilledAllowed = $('#reservedCheckBox')[0].checked;
+                                    strJson.strGroupName = getText($('#groupNameBox')[0].value, 'Group Name');
+                                    strJson.strGroupInstructor = getText($('#groupInstructorBox')[0].value, 'Group Instructor');
+                                    strJson.strOrganizationEventGroupCode = getText($('#groupCodeBox')[0].value, 'Group Code');
+                                    strJson.strGroupDivision = getText($('#divisionBox')[0].value, 'Group Division');
+                                    strJson.strGroupInstructor = getText($('#coachBox')[0].value, 'Coach');
+                                    strJson.intScheduleOverRideNumPaticipants = $('#numParticipantsSpnr')[0].value;
+                                    strJson.strNotes = getText($('#notesBox')[0].value, 'Notes...');
+                                    var d = new Date(strJson.dtDateTime);
+                                    if(getText($('#timeBox')[0].value, 'time') !== "") {
+                                        d.setTime(cmd.time.format($('#timeBox')[0].value));
+                                        strJson.dtDateTime = d;
+                                    }
+                                    console.log(strJson);
+                                    $sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
+                                        console.log(data);
+                                    });
                                 });
                             }]
                         },

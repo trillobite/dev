@@ -71,6 +71,32 @@ var dataObjs = {
             strScheduleTitle: undef,
             strSortOrderDefault: '',
     },
+    evntTime: function () { //returns a partially pre-filled new event time object.
+        var event = dataObjs.srvdTbls.EventSchedules[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length), 10)];
+        return {
+            indxPhotographerID: event.indxPhotographerID,
+            indxOrganizationEventID: event.indxOrganizationEventID,
+            indxScheduleID: event.indxScheduleID,
+            indxScheduleDateID: 0,
+            dtDateTime: event.dtScheduleDate.substring(0, event.dtScheduleDate.indexOf('T')),
+            blnOnlineFilledAllowed: true,
+            blnOnlineFilled: false,
+            indxOrganizationEventGroupInfoID: 0,
+            strGroupName: "",
+            strOrganizationEventGroupName: "",
+            strScheduleOverRideGroupName: "",
+            strGroupDivision: "",
+            strScheduleOverRideGroupDivision: "",
+            strOrganizationEventGroupDivision: "",
+            strGroupInstructor: "",
+            strScheduleOverRideGroupInstructor: "",
+            strOrganizationEventGroupInstructorName: "",
+            strOrganizationEventGroupCode: "",
+            intScheduleOverRideNumPaticipants: 0,
+            blnCheckedIn: false,
+            strNotes: "",
+        };
+    },
     /*
         Function: tblElemClick()
         Description: Used by createDivElemens(array, string); returns a function which will fire
@@ -107,8 +133,14 @@ var parsetype = function (type) {
             max: undefined !== element.max ? ' max="' + element.max + '"' : '',
             min: undefined !== element.min ? ' min="' + element.min + '"' : '',
             name: undefined !== element.name ? ' name="' + element.name + '"' : '',
+            rows: undefined !== element.rows ? ' rows="' + element.rows + '"' : '',
+            cols: undefined !== element.cols ? ' cols="' + element.cols + '"' : '',
         }; 
-        return html.id + html.class + html.onclick + html.onblur + html.onfocus + html.max + html.min + html.name;
+        var retVal = "";
+        $.each(html, function () { //for each property.
+            retVal += this;
+        });
+        return retVal;
     }
     var options = {
         button: function (element) {
@@ -139,6 +171,13 @@ var parsetype = function (type) {
             var html = {
                 start: undefined !== element.text ? element.text+'<input type="number"' : '<input type="number"',
                 end: '/>',
+            };
+            return html.start + ico(element) + html.end;
+        },
+        textarea: function (element) {
+            var html = { 
+                start: '<textarea ',
+                end: undefined !== element.text ? '>' + element.text + '</textarea>' : '></textarea>',
             };
             return html.start + ico(element) + html.end;
         },
@@ -174,6 +213,12 @@ function appendHTML(jsonObj, container) {
 }
 
 var cmd = {
+    jsonBuild: {
+        jsonTime: function (input) {
+            return {
+            }
+        }
+    },
     time: {
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
             var date = new Date();

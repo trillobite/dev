@@ -92,6 +92,12 @@
     line-height: 25px;
     border-radius: 5px;
 }
+.floatLeft { 
+    float: left;
+}
+.floatRight {
+    float: right;
+}
 .txtBxTimes {
     color: #CCCCCC;
     width: 100px;
