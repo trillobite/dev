@@ -1105,6 +1105,13 @@ var forms = {
                             text: 'Notes...',
                             rows: '6',
                             cols: '20',
+                            functions: [function () {
+                                $('#notesBox').css({
+                                    'color': colors().gray,
+                                });
+                                tgglTxtBx('notesBox', undefined, 'Notes...');
+
+                            }]
                         },
                         {//intScheduleOverRideNumPaticipants
                             type: 'spinner',
