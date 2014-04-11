@@ -83,14 +83,14 @@ var dataObjs = {
             blnOnlineFilled: false,
             indxOrganizationEventGroupInfoID: 0,
             strGroupName: "",
-            strOrganizationEventGroupName: "",
-            strScheduleOverRideGroupName: "",
+            strOrganizationEventGroupName: "", //handled by server
+            strScheduleOverRideGroupName: "", //handled by server
             strGroupDivision: "",
-            strScheduleOverRideGroupDivision: "",
-            strOrganizationEventGroupDivision: "",
+            strScheduleOverRideGroupDivision: "", //handled by server
+            strOrganizationEventGroupDivision: "", //handled by server
             strGroupInstructor: "",
-            strScheduleOverRideGroupInstructor: "",
-            strOrganizationEventGroupInstructorName: "",
+            strScheduleOverRideGroupInstructor: "", //handled by server
+            strOrganizationEventGroupInstructorName: "", //handled by server
             strOrganizationEventGroupCode: "",
             intScheduleOverRideNumPaticipants: 0,
             blnCheckedIn: false,

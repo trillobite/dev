@@ -1003,51 +1003,82 @@ var forms = {
                         {//StrGroupName
                             type: 'textbox',
                             id: 'groupNameBox',
-                            class: 'txtCenter',
+                            //class: 'txtCenter',
                             text: 'Group Name',
                             functions:[function () {
-                                $('#groupNameBox').focus(function() {
+                                $('#groupNameBox').css({
+                                    'color': colors().gray,
+                                })
+                                tgglTxtBx('groupNameBox', /*'Group Name',*/ undefined, 'Group Name');
+                                /*$('#groupNameBox').focus(function() {
                                     //change color to purple, and clear text box
                                 }).blur(function () {
                                     //change color back to default if no new data was entered.
                                     //else keep the color purple.
-                                });
+                                });*/
                             }]
                         },
                         {//strGroupInstructor
                             type: 'textbox',
                             id: 'groupInstructorBox',
-                            class: 'txtCenter',
+                            //class: 'txtCenter',
                             text: 'Group Instructor',
-                            //functions:[],
+                            functions:[function () {
+                                $('#groupInstructorBox').css({
+                                    'color': colors().gray,
+                                });
+                                tgglTxtBx('groupInstructorBox', undefined, 'Group Instructor');
+                            }],
                         },
                         {//strOrganizationEventGroupCode
                             type: 'textbox',
                             id: 'groupCodeBox',
-                            class: 'txtCenter',
+                            //class: 'txtCenter',
                             text: 'Group Code',
-                            //functions: [],
+                            functions: [function () {
+                                $('#groupCodeBox').css({
+                                    'color': colors().gray,
+                                });
+                                tgglTxtBx('groupCodeBox', undefined, 'Group Code');
+                            }],
                         },
                         {//StrGroupDivision
                             type: 'textbox',
                             id: 'divisionBox',
-                            class: 'txtCenter',
+                            //class: 'txtCenter',
                             text: 'Group Division',
                             functions: [function () {
-                                $('#divisionBox').focus(function() {
+                                $('#divisionBox').css({
+                                    'color': colors().gray,
+                                });
+                                tgglTxtBx('divisionBox', undefined, 'Group Division');
+                                /*$('#divisionBox').focus(function() {
                                     //change color to purple, and clear text box.
                                 }).blur(function() {
                                     //change color back to default if no new data was entered.
                                     //else keep the color purple.
-                                });
+                                });*/
                             }]
                         },
+                        {//strGroupInstructor
+                            type: 'textbox',
+                            id: 'coachBox',
+                            //class: 'txtCenter',
+                            text: 'Coach',
+                            functions: [function () {
+                                $('#coachBox').css({
+                                    'color': colors().gray,
+                                });
+                                tgglTxtBx('coachBox', undefined, 'Coach');
+                            }],
+                        },
+                        
                         {//dtDateTime <--update time part.
                             type: 'textbox',
                             id: 'timeBox',
-                            class: 'txtCenter',
+                            //class: 'txtCenter',
                             name: 'time',
-                            text: 'time',
+                            text: 'click to set time.',
                             functions: [function () {
                                 $('input[name="time"]').ptTimeSelect();
                                 $('#timeBox').focus(function () {
@@ -1058,21 +1089,16 @@ var forms = {
                                     $('#colorbox').css({ //so the time select will appear over the colorbox.
                                         'z-Index': '9',
                                     });
-                                }).blur(function () {
+                                }).css({
+                                    'color': colors().purple,
+                                })/*.blur(function () {
                                     //change color back to default if no new data was entered.
                                     //check the time format, format correctly if possible, throw error else.
                                     //else keep the color purple.
-                                });
+                                })*/;
                             }]
                         },
-                        {//strGroupInstructor
-                            type: 'textbox',
-                            id: 'coachBox',
-                            class: 'txtCenter',
-                            text: 'Coach',
-                            functions: [function () {
-                            }],
-                        },
+
                         {//strNotes
                             type: 'textarea',
                             id: 'notesBox',
@@ -1131,14 +1157,14 @@ var forms = {
                                         d.setTime(cmd.time.format($('#timeBox')[0].value));
                                         strJson.dtDateTime = d;
                                     }
-                                    console.log(strJson);
+                                    console.log(JSON.stringify(strJson));
                                     $sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
                                         console.log(data);
                                     });
                                 });
                             }]
                         },
-                        {//close the colorbox, ignore everything.
+                        {//close the colorbox, ignore everything button.
                             type: 'button',
                             id: 'cancelBtn',
                             text: 'cancel',
