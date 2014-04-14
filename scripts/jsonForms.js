@@ -3,12 +3,12 @@
     Description: Contains all of the json type objects which will be converted into html.
                  they are templates aka "Forms."
 */
-var colors = function() {
+var colors = function() { //depricated use $p('color');
     return {
-        blue: '#3287CC',
-        darkBlue: '#205480',
-        purple: '#5233A6',
-        gray: '#CCCCCC',
+        blue: $p('blue'),
+        darkBlue: $p('darkBlue'),
+        purple: $p('purple'),
+        gray: $p('gray'),
     };
 };
 
@@ -64,13 +64,13 @@ function toggleTxtBx(id, txt) {
     if( $('#'+id)[0].value == txt ) {
         $('#'+id)[0].value = '';
         $('#'+id).css({
-            'color': colors().purple,
+            'color': $p('purple'),
         });
     } else {
         if( $('#'+id)[0].value === '' ) {
             $('#'+id)[0].value = txt;
             $('#'+id).css({
-                'color': colors().gray,
+                'color': $p('gray'),
             });
         }
     }
@@ -109,7 +109,7 @@ var forms = {
                 onblur: "toggleTxtBx('scheduleTitle', 'Schedule Title')",
                 functions: [function () {
                     $('#scheduleTitle').css({
-                        'color': '#CCCCCC',
+                        'color': $p('gray'),
                     }); 
                 }],
             },  
@@ -121,7 +121,7 @@ var forms = {
                 onblur: "toggleTxtBx('scheduleDescription', 'Schedule Description')",
                 functions: [function () {
                     $('#scheduleDescription').css({
-                        'color': '#CCCCCC',
+                        'color': $p('gray'),
                     }); 
                 }],
             },
@@ -226,7 +226,7 @@ var forms = {
             functions: [function () {
                 $('#'+prop.id).mouseover(function () {
                     $('#'+prop.id).css({
-                        'background-color': '#3287CC',
+                        'background-color': $p('blue'),
                     });
                 }).mouseout(function () {
                     if(prop.id != dataObjs.slctdObj) {
@@ -234,20 +234,12 @@ var forms = {
                             'background-color': 'white',
                         });
                     }
-                }).click(function() {
-                    if(prop.id != dataObjs.slctdObj) {
-                        $('.foo').each(function() {
-                            $('#'+this.id).css({
-                                'background-color': 'white',
-                            });
-                        });
-                        //console.log(prop.evntID, dataObjs.slctdObj);
-                        cmd.create.times(prop.evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
-                    }
-                    $('#'+prop.id).css({
-                        'background-color': '#3287CC',
-                    });
-                    dataObjs.slctdObj = prop.id;
+                })/*.focus(function() {
+                    cmd.scheduleFocus(prop.id, prop.evntID);
+                    //mkFocus();
+                })*/.click(function() {
+                    cmd.scheduleFocus(prop.id, prop.evntID);
+                    //mkFocus();
                 });
             }],
             children: [
@@ -277,7 +269,7 @@ var forms = {
                                     $('#evntEditBx').css({
                                         'width': 'inherit',
                                         'text-align': 'center',
-                                        'color': colors().purple,
+                                        'color': $p('purple'),
                                     });
                                 },
                                 event: function () {
@@ -378,7 +370,7 @@ var forms = {
                                     $('#descriptEditBx').css({
                                         'width': '70%',
                                         'text-align': 'center',
-                                        'color': colors().purple,
+                                        'color': $p("purple"),
                                     });
                                 },
                                 event: function () {
@@ -418,7 +410,7 @@ var forms = {
                         $('#dpkr').css({
                             'text-align': 'center',
                             'font-family': 'sans-serif',
-                            'color': '#5233A6',
+                            'color': $p('purple'),
                         });
                     }],
                 },
@@ -436,7 +428,7 @@ var forms = {
                                     console.log(d);
                                     $v().events()[indx].dtScheduleDate = d;
                                     $v().events()[indx].dtOnLineFilledEndDate = dataObjs.timeMidnight(d);
-                                    cmd.update(indx);
+                                    cmd.update(indx, $v().events()[indx].indxScheduleID); //updates the data, second parameter focuses the object.
                                     $.colorbox.close();
                                 });
                             }],
@@ -508,7 +500,7 @@ var forms = {
                                 $('#titleEditTB')[0].value = 'Enter new Title';
                             }
                         }).css({
-                            'color': 'gray',
+                            'color': $p('gray'),
                         });
                     }]
                 },
@@ -560,7 +552,7 @@ var forms = {
                                 $('#descriptionEditTB')[0].value = 'Enter new Description';
                             }
                         }).css({
-                            'color': 'gray',
+                            'color': $p('gray'),
                         });
                     }],
                 },
@@ -598,7 +590,7 @@ var forms = {
         class: 'fooTimes',
         functions:[function() {
             $('#defaultEvent').css({
-                'border-top': '1px solid '+colors().darkBlue,
+                'border-top': '1px solid '+$p('darkBlue'),
                 'background-color': '#C5CCD9',
                 'height': '26px',
                 'margin-top': '10px',
@@ -635,8 +627,8 @@ var forms = {
                 functions: [function() {
                     $('#resrvd').css({
                         'color': 'white',
-                        'background-color': colors().blue,//'#D6B318'
-                        'border': '1px solid '+colors().darkBlue,
+                        'background-color': $p('blue'),//'#D6B318'
+                        'border': '1px solid '+$p('darkBlue'),
                         'border-radius': '5px',
                         'text-align': 'center',
                         'width': '25px',
@@ -723,8 +715,8 @@ var forms = {
                 functions: [function() {
                     $('#btnAddTimeToEvent').css({
                         'border-radius': '5px',
-                        'background-color': colors().blue,
-                        'border': '1px solid '+colors().darkBlue,
+                        'background-color': $p('blue'),
+                        'border': '1px solid '+$p('darkBlue'),
                         'margin-right': '5px',
                         'color': 'white',
                         'width': '100px',
@@ -752,7 +744,7 @@ var forms = {
             functions:[function() {
                 $('#fooTimes'+options.cnt).mouseover(function() {
                     $('#fooTimes'+options.cnt).css({
-                        'background-color': '#3287CC',
+                        'background-color': $p('blue'),
                         //'border-bottom': '1px solid #32B7CC',
                     });
                 }).mouseout(function() {
@@ -801,13 +793,13 @@ var forms = {
                         if(undefined !== options.reserved) {
                             if(options.reserved) { //switches the color of the reservation key.
                                 $('#resrvd'+options.cnt).css({
-                                    'background-color': colors().blue,
-                                    'border': ('1px solid '+colors().darkBlue),
+                                    'background-color': $p('blue'),
+                                    'border': ('1px solid '+$p('darkBlue')),
                                 });
                             } else {
                                 $('#resrvd'+options.cnt).css({
-                                    'background-color': colors().gray,
-                                    'border': ('1px solid'+colors().darkBlue),
+                                    'background-color': $p('gray'),
+                                    'border': ('1px solid'+$p('darkBlue')),
                                 });
                             }
                         } else {
@@ -841,7 +833,7 @@ var forms = {
                                     $('#txtBxTime'+options.cnt)[0].value = time;
                                     //tgglTxtBx('txtBxTime' + options.cnt);
                                     $('#txtBxTime'+options.cnt).css({
-                                        'color': colors().purple,
+                                        'color': $p('purple'),
                                     });
                                 }
                             }]
@@ -859,7 +851,7 @@ var forms = {
                                     $('#txtBxName'+options.cnt)[0].value = options.name;
                                     //tgglTxtBx('txtBxName' + options.cnt);
                                     $('#txtBxName'+options.cnt).css({
-                                        'color': colors().purple,
+                                        'color': $p('purple'),
                                     });
                                 }
                             }]
@@ -876,7 +868,7 @@ var forms = {
                                     $('#txtBxDivision'+options.cnt)[0].value = options.division;
                                     //tgglTxtBx('txtBxDivision'+options.cnt);
                                     $('#txtBxDivision'+options.cnt).css({
-                                        'color': colors().purple,
+                                        'color': $p('purple'),
                                     });
                                 }
                             }]
@@ -893,7 +885,7 @@ var forms = {
                                     $('#txtBxCoach' + options.cnt)[0].value = options.coach;
                                     //tgglTxtBx('txtBxCoach'+options.cnt);
                                     $('#txtBxCoach'+options.cnt).css({
-                                        'color': colors().purple,
+                                        'color': $p('purple'),
                                     });
                                 }
                             }]
@@ -913,7 +905,7 @@ var forms = {
                                 if(undefined !== options.id && '' !== options.id && null !== options.id && 0 !== options.id) {
                                     $('#txtBxID'+options.cnt)[0].value = options.id;
                                     $('#txtBxID'+options.cnt).css({
-                                        'color': colors().purple,
+                                        'color': $p('purple'),
                                     });
                                 }
                             }]
@@ -1010,7 +1002,7 @@ var forms = {
                             text: 'Group Name',
                             functions:[function () {
                                 $('#groupNameBox').css({
-                                    'color': colors().gray,
+                                    'color': $p("gray"),
                                 })
                                 tgglTxtBx('groupNameBox', /*'Group Name',*/ undefined, 'Group Name');
                                 /*$('#groupNameBox').focus(function() {
@@ -1028,7 +1020,7 @@ var forms = {
                             text: 'Group Instructor',
                             functions:[function () {
                                 $('#groupInstructorBox').css({
-                                    'color': colors().gray,
+                                    'color': $p("gray"),
                                 });
                                 tgglTxtBx('groupInstructorBox', undefined, 'Group Instructor');
                             }],
@@ -1040,7 +1032,7 @@ var forms = {
                             text: 'Group Code',
                             functions: [function () {
                                 $('#groupCodeBox').css({
-                                    'color': colors().gray,
+                                    'color': $p("gray"),
                                 });
                                 tgglTxtBx('groupCodeBox', undefined, 'Group Code');
                             }],
@@ -1052,7 +1044,7 @@ var forms = {
                             text: 'Group Division',
                             functions: [function () {
                                 $('#divisionBox').css({
-                                    'color': colors().gray,
+                                    'color': $p("gray"),
                                 });
                                 tgglTxtBx('divisionBox', undefined, 'Group Division');
                                 /*$('#divisionBox').focus(function() {
@@ -1070,7 +1062,7 @@ var forms = {
                             text: 'Coach',
                             functions: [function () {
                                 $('#coachBox').css({
-                                    'color': colors().gray,
+                                    'color': $p("gray"),
                                 });
                                 tgglTxtBx('coachBox', undefined, 'Coach');
                             }],
@@ -1093,7 +1085,7 @@ var forms = {
                                         'z-Index': '9',
                                     });
                                 }).css({
-                                    'color': colors().purple,
+                                    'color': $p('purple'),
                                 })/*.blur(function () {
                                     //change color back to default if no new data was entered.
                                     //check the time format, format correctly if possible, throw error else.
@@ -1110,7 +1102,7 @@ var forms = {
                             cols: '20',
                             functions: [function () {
                                 $('#notesBox').css({
-                                    'color': colors().gray,
+                                    'color': $p("gray"),
                                 });
                                 tgglTxtBx('notesBox', undefined, 'Notes...');
 

@@ -10,7 +10,18 @@ var id = {
     event: undefined,
 };
 
-var $v = function (div) {
+//colors used most often in this project. colors can be tweaked here.
+var $p = function (obj) {
+    var options = {
+        blue: '#3287CC',  
+        darkBlue: '#205480',
+        purple: '#5233A6',
+        gray: '#CCCCCC',
+    };
+    return undefined !== options[obj] ? options[obj] : undefined;
+};
+
+var $v = function (obj) {
     return {
         events: function () {
             return dataObjs.srvdTbls.EventSchedules;  
@@ -19,10 +30,10 @@ var $v = function (div) {
             return dataObjs.tblsData;
         },
         html: function () {
-            return $('#'+div);
+            return $('#'+obj);
         },
         clear: function () {
-            $('#'+div).empty();  
+            $('#'+obj).empty();  
         },
     };  
 };
@@ -212,78 +223,10 @@ function appendHTML(jsonObj, container) {
     }
 }
 
-var cmd = {
-    jsonBuild: {
-        jsonTime: function (input) {
-            return {
-            }
-        }
-    },
-    time: {
-        format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
-            var date = new Date();
-            var hour = parseInt(input.substring(0, input.indexOf(':')), 10);
-            var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
-            var amPm = input.substring(input.indexOf(' ')+1, input.length);
-            if(amPm == 'PM') {
-                hour += 12;
-            }
-            date.setHours(hour);
-            date.setMinutes(minutes);
-            date.setSeconds(0);
-            return date.getTime();
-        }  
-    },
+var cmd = { //project commands sorted alphabetically.
     componentToHex: function (c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
-    },
-
-    //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
-    rgbToHex: function (rgb) { //converts rgb color definition to HEX.
-        var arrRGB = rgb.substring(4, rgb.length-1).split(', ');
-        return "#" + ((1 << 24) + ( parseInt(arrRGB[0]) << 16) + ( parseInt(arrRGB[1]) << 8) + parseInt(arrRGB[2]) ).toString(16).slice(1);
-    },
-
-    //each pt- is a sub div inside the element.
-    createEvent: function (obj) {
-        return {
-            id: 'foo' + obj.cntr,
-            class: 'foo',
-            indx: obj.cntr,
-            evntID: obj.data.indxScheduleID,
-            pt0: {
-                text: '<font color="#241DAB">Description: ' + obj.data.strScheduleDescription + '</font>',
-                raw: obj.data.strScheduleDescription, //the data without html tags.
-            },
-            pt1: {
-                text: '<b><u>' + obj.data.strScheduleTitle + '</b></u>',
-                raw: obj.data.strScheduleTitle,  //the data without html tags.
-            },
-            pt15: {
-                text: '<font color="white">'+obj.data.dtScheduleDate+'</font>',  
-                raw: obj.data.dtScheduleDate, //the data without html tags.
-            },
-            pt2: {
-                text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
-                raw: obj.data.blnActive, //the data without html tags.
-            },
-        };
-    }, 
-
-    events: { //display-tbls DIV.
-        drawJSON: function (jsonDta) {
-            jsonDta.EventSchedules.sort(function(a,b) { //sort by date.
-                return new Date(a.dtScheduleDate) - new Date(b.dtScheduleDate); 
-            });
-
-            $.each(jsonDta.EventSchedules, function(indx, obj) {
-                appendHTML(forms['genEvnt'](cmd.createEvent({
-                    cntr: indx,
-                    data: obj,
-                })), 'display-tbls');
-            });
-        },
     },
     create: {
         times: function (evntID) {
@@ -311,28 +254,54 @@ var cmd = {
             });
         }
     },
-    update: function (indx) {
-        var jStr = JSON.stringify($v().events()[indx]);
-        var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+jStr;
-        $sql(url).get(function(dta) {
-            console.log(dta);
-            cmd.get();
-        });
-    },
-    get: function () {
-        var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + id.event;
-        $sql(url).get(function(dta) {
-            //console.log(dta);
-            var parsed = JSON.parse(dta);
-            dataObjs.srvdTbls = parsed;
-            if(undefined !== dataObjs.evntSchdl) {
-                $v('display-tbls').clear();
-                dataObjs.evntSchdl.indxPhotographerID = id.photographer;
-                dataObjs.evntSchdl.indxOrganizationEventID = id.event;
-                dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
-                cmd.events.drawJSON(parsed);
+    //each pt- is a sub div inside the element.
+    createEvent: function (obj) {
+        return {
+            id: 'foo' + obj.cntr,
+            class: 'foo',
+            indx: obj.cntr,
+            evntID: obj.data.indxScheduleID,
+            pt0: {
+                text: '<font color="#241DAB">Description: ' + obj.data.strScheduleDescription + '</font>',
+                raw: obj.data.strScheduleDescription, //the data without html tags.
+            },
+            pt1: {
+                text: '<b><u>' + obj.data.strScheduleTitle + '</b></u>',
+                raw: obj.data.strScheduleTitle,  //the data without html tags.
+            },
+            pt15: {
+                text: '<font color="white">'+obj.data.dtScheduleDate+'</font>',  
+                raw: obj.data.dtScheduleDate, //the data without html tags.
+            },
+            pt2: {
+                text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
+                raw: obj.data.blnActive, //the data without html tags.
+            },
+        };
+    }, 
+    events: { //display-tbls DIV.
+        drawJSON: function (jsonDta, idSelect) {
+            jsonDta.EventSchedules.sort(function(a,b) { //sort by date.
+                return new Date(a.dtScheduleDate) - new Date(b.dtScheduleDate); 
+            });
+
+            $.each(jsonDta.EventSchedules, function(indx, obj) {
+                appendHTML(forms['genEvnt'](cmd.createEvent({
+                    cntr: indx,
+                    data: obj,
+                })), 'display-tbls');
+            });
+            if(undefined !== idSelect) { //can specify which object to have focus after drawing the json data.
+                $.each($v().events(), function (index, obj) {
+                    console.log(index, obj);
+                    if(obj.indxScheduleID == idSelect) {
+                        console.log('found', index);
+                        //$('#foo'+index).focus();
+                        cmd.scheduleFocus('foo'+index, obj.indxScheduleID);
+                    }
+                });
             }
-        });
+        },
     },
     del: function (indx) {
         console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
@@ -348,6 +317,75 @@ var cmd = {
             $v('display-tbls').clear();
             cmd.events.drawJSON(dataObjs.srvdTbls);
         });
+    },
+    get: function (idSelect) {
+        var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + id.event;
+        $sql(url).get(function(dta) {
+            //console.log(dta);
+            var parsed = JSON.parse(dta);
+            dataObjs.srvdTbls = parsed;
+            if(undefined !== dataObjs.evntSchdl) {
+                $v('display-tbls').clear();
+                dataObjs.evntSchdl.indxPhotographerID = id.photographer;
+                dataObjs.evntSchdl.indxOrganizationEventID = id.event;
+                dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
+                if(undefined !== idSelect) {
+                    cmd.events.drawJSON(parsed, idSelect);
+                } else {
+                    cmd.events.drawJSON(parsed);
+                }
+                //cmd.events.drawJSON(parsed);
+            }
+        });
+    },
+    scheduleFocus: function (id, evntID) { //prop.id, prop.evntID
+        if(id != dataObjs.slctdObj) {
+            $('.foo').each(function() {
+                $('#'+this.id).css({
+                    'background-color': 'white',
+                });
+            });
+            console.log(evntID, dataObjs.slctdObj);
+            cmd.create.times(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
+        }
+        $('#'+id).css({
+            'background-color': $p('blue'),
+        });
+        dataObjs.slctdObj = id;
+    },
+    update: function (indx, idSelect) {
+        var jStr = JSON.stringify($v().events()[indx]);
+        var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+jStr;
+        $sql(url).get(function(dta) {
+            console.log(dta);
+            //cmd.get();
+            if(undefined !== idSelect) {
+                //id select.
+                cmd.get(idSelect); //focus on specified object.
+            } else {
+                cmd.get(); //nothing defined to focus on after update.
+            }
+        });
+    },
+    //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
+    rgbToHex: function (rgb) { //converts rgb color definition to HEX.
+        var arrRGB = rgb.substring(4, rgb.length-1).split(', ');
+        return "#" + ((1 << 24) + ( parseInt(arrRGB[0]) << 16) + ( parseInt(arrRGB[1]) << 8) + parseInt(arrRGB[2]) ).toString(16).slice(1);
+    },
+    time: {
+        format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
+            var date = new Date();
+            var hour = parseInt(input.substring(0, input.indexOf(':')), 10);
+            var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
+            var amPm = input.substring(input.indexOf(' ')+1, input.length);
+            if(amPm == 'PM') {
+                hour += 12;
+            }
+            date.setHours(hour);
+            date.setMinutes(minutes);
+            date.setSeconds(0);
+            return date.getTime();
+        }  
     },
 };
 
