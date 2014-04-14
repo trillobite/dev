@@ -241,6 +241,7 @@ var forms = {
                                 'background-color': 'white',
                             });
                         });
+                        //console.log(prop.evntID, dataObjs.slctdObj);
                         cmd.create.times(prop.evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
                     }
                     $('#'+prop.id).css({
@@ -794,19 +795,21 @@ var forms = {
                 {
                     type: 'div',
                     id: 'resrvd' + options.cnt,
+                    class: 'reservationKey',
                     text: '<b>R</b>',
                     functions: [function() {
                         if(undefined !== options.reserved) {
-                            $('#resrvd'+options.cnt).css({
-                                'color': 'white',
-                                'background-color': colors().blue,
-                                'border-radius': '5px',
-                                'border': ('1px solid '+colors().darkBlue),
-                                'text-align': 'center',
-                                'width': '25px',
-                                'height': '23px',
-                                'float': 'left',
-                            });
+                            if(options.reserved) { //switches the color of the reservation key.
+                                $('#resrvd'+options.cnt).css({
+                                    'background-color': colors().blue,
+                                    'border': ('1px solid '+colors().darkBlue),
+                                });
+                            } else {
+                                $('#resrvd'+options.cnt).css({
+                                    'background-color': colors().gray,
+                                    'border': ('1px solid'+colors().darkBlue),
+                                });
+                            }
                         } else {
                             $('#resrvd'+options.cnt).remove();
                         }
@@ -1167,6 +1170,8 @@ var forms = {
                                     console.log(JSON.stringify(strJson));
                                     $sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
                                         console.log(data);
+                                        cmd.create.times(strJson.indxScheduleID);
+                                        $.colorbox.close();
                                     });
                                 });
                             }]

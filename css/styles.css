@@ -114,3 +114,11 @@
     height: 25px;
     float: right;
 }
+.reservationKey {
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    width: 25px;
+    height: 23px;
+    float: left;
+}

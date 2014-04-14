@@ -290,7 +290,7 @@ var cmd = {
             var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
             console.log(url);
             $sql(url).get(function(data) {
-                console.log(data);
+                //console.log(data);
                 dataObjs.evntTimes = JSON.parse(data);
                 $v('display-tblInfo').clear(); //clears the div in case there is existing data.
                 appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
