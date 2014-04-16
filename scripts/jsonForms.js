@@ -156,20 +156,16 @@ var forms = {
                             //All date fields need to exclude GMT.
                             $('#formSubmit').click(function () {
                                 var obj = dataObjs.evntSchdl;
-                                var dtObj = {
-                                    added: new Date().toString(),
-                                    filled: obj.dtOnLineFilledStartDate().toString(),
-                                    schedule: $('#mkSchedDtPkr').datepicker('getDate').toString(),
-                                    end: dataObjs.timeMidnight($('#mkSchedDtPkr').datepicker('getDate')).toString(),
-                                }
-                                obj.dtDateAdded = dtObj.added.substring(0, dtObj.added.indexOf('GMT') - 1);
-                                obj.dtOnLineFilledStartDate = dtObj.filled.substring(0, dtObj.filled.indexOf('GMT') - 1);
+                                var t = cmd.time;
+
+                                obj.dtDateAdded = t.today().toISOString();
+                                obj.dtOnLineFilledStartDate = t.midnightAm(t.today()).toISOString(); //12:00AM
                                 obj.strScheduleTitle = $('#scheduleTitle')[0].value;
                                 obj.strScheduleDescription = $('#scheduleDescription')[0].value;
-                                obj.dtScheduleDate = dtObj.schedule.substring(0, dtObj.schedule.indexOf('GMT') - 1);
-                                obj.dtOnLineFilledEndDate = dtObj.end.substring(0, dtObj.end.indexOf('GMT') - 1);
-                                var jStr = JSON.stringify(obj);
-                                var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+jStr;
+                                obj.dtScheduleDate = $('#mkSchedDtPkr').datepicker('getDate').toISOString();
+                                obj.dtOnLineFilledEndDate = t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')).toISOString(); //11:55PM
+
+                                var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
                                 console.log(url);
                                 $sql(url).get(function(data){
                                     console.log(dataObjs.srvdTbls.EventSchedules);
@@ -182,6 +178,7 @@ var forms = {
                             });
                         }]
                     },
+                    
                     { //cancel button
                         type: 'button',
                         id: 'formCancel',
@@ -234,12 +231,8 @@ var forms = {
                             'background-color': 'white',
                         });
                     }
-                })/*.focus(function() {
+                }).click(function() {
                     cmd.scheduleFocus(prop.id, prop.evntID);
-                    //mkFocus();
-                })*/.click(function() {
-                    cmd.scheduleFocus(prop.id, prop.evntID);
-                    //mkFocus();
                 });
             }],
             children: [
@@ -296,8 +289,8 @@ var forms = {
                     type: 'div',
                     id: prop.id + 'pt15',
                     functions: [function () {
-                        var d = new Date(prop.pt15.text.substring(0, prop.pt15.text.indexOf('T')));
-                        d = d.toDateString();
+                        /*var d = new Date(prop.pt15.text.substring(0, prop.pt15.text.indexOf('T')));
+                        d = d.toDateString();*/
                         $('#'+prop.id+'pt15').css({
                             'width': '25%',
                             'height': '50%',
@@ -307,7 +300,7 @@ var forms = {
                         appendHTML({ //strange bug, cannot use jQuery append function directly here, must use appendHTML.
                             type: 'div', //div that opens the date picker.
                             id: 'pt1Date'+prop.id,
-                            text: '<a>' + d + '</a>', //surround in a tags for jQuery to know exactly what to grab.
+                            text: '<a>' + prop.pt15.text + '</a>', //surround in a tags for jQuery to know exactly what to grab.
                             functions:[function () {
                                 $('#pt1Date'+prop.id+' a').click(function() { //opens date picker object when the text is clicked.
                                     $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
@@ -827,10 +820,13 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
-                                var time = undefined !== options.time ? options.time.substring(options.time.indexOf('T')+1, options.time.length) : undefined;
-                                tgglTxtBx('txtBxTime' + options.cnt, time, 'time');
+                                console.log(options.time);
+                                var date = new Date(options.time);
+                                /*var time = undefined !== options.time ? options.time.substring(options.time.indexOf('T')+1, options.time.length) : undefined;
+                                time = cmd.time.db2LocaleTime(time);*/ //convert from 24hr to am/pm.
+                                tgglTxtBx('txtBxTime' + options.cnt, date.toLocaleTimeString(), 'time');
                                 if(undefined !== options.time && '' !== options.time && null !== options.time) {
-                                    $('#txtBxTime'+options.cnt)[0].value = time;
+                                    $('#txtBxTime'+options.cnt)[0].value = date.toLocaleTimeString();
                                     //tgglTxtBx('txtBxTime' + options.cnt);
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': $p('purple'),
@@ -998,25 +994,17 @@ var forms = {
                         {//StrGroupName
                             type: 'textbox',
                             id: 'groupNameBox',
-                            //class: 'txtCenter',
                             text: 'Group Name',
                             functions:[function () {
                                 $('#groupNameBox').css({
                                     'color': $p("gray"),
                                 })
                                 tgglTxtBx('groupNameBox', /*'Group Name',*/ undefined, 'Group Name');
-                                /*$('#groupNameBox').focus(function() {
-                                    //change color to purple, and clear text box
-                                }).blur(function () {
-                                    //change color back to default if no new data was entered.
-                                    //else keep the color purple.
-                                });*/
                             }]
                         },
                         {//strGroupInstructor
                             type: 'textbox',
                             id: 'groupInstructorBox',
-                            //class: 'txtCenter',
                             text: 'Group Instructor',
                             functions:[function () {
                                 $('#groupInstructorBox').css({
@@ -1028,7 +1016,6 @@ var forms = {
                         {//strOrganizationEventGroupCode
                             type: 'textbox',
                             id: 'groupCodeBox',
-                            //class: 'txtCenter',
                             text: 'Group Code',
                             functions: [function () {
                                 $('#groupCodeBox').css({
@@ -1047,18 +1034,11 @@ var forms = {
                                     'color': $p("gray"),
                                 });
                                 tgglTxtBx('divisionBox', undefined, 'Group Division');
-                                /*$('#divisionBox').focus(function() {
-                                    //change color to purple, and clear text box.
-                                }).blur(function() {
-                                    //change color back to default if no new data was entered.
-                                    //else keep the color purple.
-                                });*/
                             }]
                         },
                         {//strGroupInstructor
                             type: 'textbox',
                             id: 'coachBox',
-                            //class: 'txtCenter',
                             text: 'Coach',
                             functions: [function () {
                                 $('#coachBox').css({
@@ -1071,7 +1051,6 @@ var forms = {
                         {//dtDateTime <--update time part.
                             type: 'textbox',
                             id: 'timeBox',
-                            //class: 'txtCenter',
                             name: 'time',
                             text: 'click to set time.',
                             functions: [function () {
@@ -1086,11 +1065,7 @@ var forms = {
                                     });
                                 }).css({
                                     'color': $p('purple'),
-                                })/*.blur(function () {
-                                    //change color back to default if no new data was entered.
-                                    //check the time format, format correctly if possible, throw error else.
-                                    //else keep the color purple.
-                                })*/;
+                                });
                             }]
                         },
 
@@ -1157,11 +1132,12 @@ var forms = {
                                     var d = new Date(strJson.dtDateTime);
                                     if(getText($('#timeBox')[0].value, 'time') !== "") {
                                         d.setTime(cmd.time.format($('#timeBox')[0].value));
-                                        strJson.dtDateTime = d;
+                                        strJson.dtDateTime = d.toISOString();
+                                        console.log(strJson.dtDateTime);
                                     }
-                                    console.log(JSON.stringify(strJson));
+                                    //console.log(JSON.stringify(strJson));
                                     $sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
-                                        console.log(data);
+                                        //console.log(data);
                                         cmd.create.times(strJson.indxScheduleID);
                                         $.colorbox.close();
                                     });

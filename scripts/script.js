@@ -26,11 +26,11 @@ var $v = function (obj) {
         events: function () {
             return dataObjs.srvdTbls.EventSchedules;  
         },
-        eventTimes: function () {
-            return dataObjs.tblsData;
+        times: function () {
+            return dataObjs.evntTimes.EventScheduleItems;
         },
         html: function () {
-            return $('#'+obj);
+            return $('#'+obj)[0];
         },
         clear: function () {
             $('#'+obj).empty();  
@@ -231,9 +231,9 @@ var cmd = { //project commands sorted alphabetically.
     create: {
         times: function (evntID) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
-            console.log(url);
+            //console.log(url);
             $sql(url).get(function(data) {
-                //console.log(data);
+                console.log(data);
                 dataObjs.evntTimes = JSON.parse(data);
                 $v('display-tblInfo').clear(); //clears the div in case there is existing data.
                 appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
@@ -256,6 +256,8 @@ var cmd = { //project commands sorted alphabetically.
     },
     //each pt- is a sub div inside the element.
     createEvent: function (obj) {
+        console.log(obj.data.dtScheduleDate);
+        var d = new Date(obj.data.dtScheduleDate);
         return {
             id: 'foo' + obj.cntr,
             class: 'foo',
@@ -270,7 +272,7 @@ var cmd = { //project commands sorted alphabetically.
                 raw: obj.data.strScheduleTitle,  //the data without html tags.
             },
             pt15: {
-                text: '<font color="white">'+obj.data.dtScheduleDate+'</font>',  
+                text: /*'<font color="white">'+*/d.toLocaleDateString()/*+'</font>'*/,  
                 raw: obj.data.dtScheduleDate, //the data without html tags.
             },
             pt2: {
@@ -345,7 +347,7 @@ var cmd = { //project commands sorted alphabetically.
                     'background-color': 'white',
                 });
             });
-            console.log(evntID, dataObjs.slctdObj);
+            //console.log(evntID, dataObjs.slctdObj);
             cmd.create.times(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
         }
         $('#'+id).css({
@@ -379,12 +381,43 @@ var cmd = { //project commands sorted alphabetically.
             var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
             var amPm = input.substring(input.indexOf(' ')+1, input.length);
             if(amPm == 'PM') {
+                console.log(hour, 'before');
                 hour += 12;
+                console.log(hour, 'after');
             }
-            date.setHours(hour);
-            date.setMinutes(minutes);
+            date.setHours(hour.toString());
+            date.setMinutes(minutes.toString());
             date.setSeconds(0);
+            console.log(date.toLocaleTimeString());
             return date.getTime();
+        },
+        today: function () {
+            return new Date();
+        },
+        midnightAm: function (d) {
+            d.setHours(0);
+            d.setMinutes(0);
+            d.setSeconds(0);
+            return d;
+        },
+        midnightPm: function (d) {
+            d.setHours(23);
+            d.setMinutes(55);
+            d.setSeconds(0);
+            return d;
+        },
+        midnightTonight: function () {
+            return cmd.time.midnightPm(cmd.time.today());
+        },
+        midnightToday: function () {
+            return cmd.time.midnightAm(cmd.time.today());
+        },
+        db2LocaleTime: function(obj) {
+            var date = new Date();
+            date.setHours(obj.substring(0, obj.indexOf(':')));
+            date.setMinutes(obj.substring(obj.indexOf(':')+1, obj.indexOf(':')+3));
+            date.setSeconds('0');
+            return date.toLocaleTimeString();
         }  
     },
 };
