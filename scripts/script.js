@@ -15,8 +15,9 @@ var $p = function (obj) {
     var options = {
         blue: '#3287CC',  
         darkBlue: '#205480',
-        purple: '#5233A6',
         gray: '#CCCCCC',
+        purple: '#5233A6',
+        red: '#A8150D',
     };
     return undefined !== options[obj] ? options[obj] : undefined;
 };
@@ -89,7 +90,7 @@ var dataObjs = {
             indxOrganizationEventID: event.indxOrganizationEventID,
             indxScheduleID: event.indxScheduleID,
             indxScheduleDateID: 0,
-            dtDateTime: event.dtScheduleDate.substring(0, event.dtScheduleDate.indexOf('T')),
+            dtDateTime: event.dtScheduleDate.toLocaleTimeString(),
             blnOnlineFilledAllowed: true,
             blnOnlineFilled: false,
             indxOrganizationEventGroupInfoID: 0,
@@ -144,6 +145,7 @@ var parsetype = function (type) {
             max: undefined !== element.max ? ' max="' + element.max + '"' : '',
             min: undefined !== element.min ? ' min="' + element.min + '"' : '',
             name: undefined !== element.name ? ' name="' + element.name + '"' : '',
+            readonly: undefined !== element.readonly ? ' readonly="' + element.readonly + '"' : '',
             rows: undefined !== element.rows ? ' rows="' + element.rows + '"' : '',
             cols: undefined !== element.cols ? ' cols="' + element.cols + '"' : '',
         }; 
@@ -223,6 +225,152 @@ function appendHTML(jsonObj, container) {
     }
 }
 
+var $db = {
+    schedules: {
+        create: function (json, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(json);
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+        get: function(indx, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + indx; //id.event
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+        remove: function(json, func) { //$v().events()[indx]
+            var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + json.indxScheduleID;
+            url += '&Data2=' + json.indxOrganizationEventID;
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+        update: function(json, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+JSON.stringify(json);
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+    },
+    scheduleItems: {
+        create: function (json, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(json);
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+        get: function (indx, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data='+indx; //evntID
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+        remove: function(json, func) {
+            //not created yet.
+        },
+        update: function(json, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateItemData.aspx?Data='+JSON.stringify(json);
+            $sql(url).get(function (data) {
+                func(data);
+            });
+        },
+    },
+};
+//$project.draw('scheduleItems')();
+var $project = {
+    create: function(selection) {
+        var objects = {
+            schedules: function (json) {
+                $db.schedules.create(json, function(data) {
+
+                });
+            },
+            scheduleItems: function (json) {
+                $db.scheduleItems.create(json, function(data) {
+
+                });
+            }
+        };
+        return undefined !== objects[selection] ? objects[selection] : undefined;
+    },
+    draw: function(selection) {
+        var objects = {
+            schedules: function (indx) {
+                $db.schedules.get(indx, function(data) {
+                    var parsed = JSON.parse(data);
+                    dataObjs.srvdTbls = parsed;
+                    if(undefined !== dataObjs.evntSchdl) {
+                        $v('display-tbls').clear();
+                        dataObjs.evntSchdl.indxPhotographerID = id.photographer;
+                        dataObjs.evntSchdl.indxOrganizationEventID = id.event;
+                        dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
+                        if(undefined !== indx) {
+                            cmd.events.drawJSON(parsed, indx);
+                        } else {
+                            cmd.events.drawJSON(parsed);
+                        }
+                    }
+                });
+            },
+            scheduleItems: function (indx) {
+                $db.scheduleItems.get(indx, function (data) {
+                    dataObjs.evntTimes = JSON.parse(data);
+                    dataObjs.evntTimes.EventScheduleItems.sort(function(a,b) { //sort by time.
+                        return new Date(a.dtDateTime).getTime() - new Date(b.dtDateTime).getTime(); 
+                    });
+                    $v('display-tblInfo').clear(); //clears the div in case there is existing data.
+                    appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
+                    $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
+                        var prop = {
+                            cnt: count,
+                            reserved: obj.blnOnlineFilledAllowed,
+                            checked: obj.blnCheckedIn,
+                            time: obj.dtDateTime,
+                            name: obj.strGroupName,
+                            division: obj.strGroupDivision,
+                            coach: obj.strGroupInstructor,
+                            id: obj.intScheduleOverRideNumPaticipants,
+                        };
+                        appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
+                    });
+                });
+            }
+        };
+        return undefined !== objects[selection] ? objects[selection] : undefined;
+    },
+    update: function(selection) {
+        var objects = {
+            schedules: function (json) {
+                $db.schedules.update(json, function (data) {
+
+                });
+            },
+            scheduleItems: function (json) {
+                $db.scheduleItems.update(json, function (data) {
+
+                });
+            }
+        };
+        return undefined !== objects[selection] ? objects[selection] : undefined;
+    },
+    remove: function(selection) {
+        var objects = {
+            schedules: function (json) {
+                $db.schedules.remove(json, function (data) {
+
+                });
+            },
+            scheduleItems: function (json) {
+                $db.scheduleItems.remove(json, function (data) {
+
+                });
+            }
+        };
+        return undefined !== objects[selection] ? objects[selection] : undefined;
+    },
+}
+
 var cmd = { //project commands sorted alphabetically.
     componentToHex: function (c) {
         var hex = c.toString(16);
@@ -230,33 +378,11 @@ var cmd = { //project commands sorted alphabetically.
     },
     create: {
         times: function (evntID) {
-            var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data=' + evntID;
-            //console.log(url);
-            $sql(url).get(function(data) {
-                console.log(data);
-                dataObjs.evntTimes = JSON.parse(data);
-                $v('display-tblInfo').clear(); //clears the div in case there is existing data.
-                appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
-                $.each(dataObjs.evntTimes.EventScheduleItems, function(indx, obj) {
-                    var prop = {
-                        cnt: indx,
-                        reserved: obj.blnOnlineFilledAllowed,
-                        checked: obj.blnCheckedIn,
-                        time: obj.dtDateTime,
-                        name: obj.strGroupName,
-                        division: obj.strGroupDivision,
-                        coach: obj.strGroupInstructor,
-                        //id: obj.strOrganizationEventGroupCode,
-                        id: obj.intScheduleOverRideNumPaticipants,
-                    };
-                    appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
-                });
-            });
+            $project.draw('scheduleItems')(evntID);
         }
     },
     //each pt- is a sub div inside the element.
     createEvent: function (obj) {
-        console.log(obj.data.dtScheduleDate);
         var d = new Date(obj.data.dtScheduleDate);
         return {
             id: 'foo' + obj.cntr,
@@ -272,7 +398,7 @@ var cmd = { //project commands sorted alphabetically.
                 raw: obj.data.strScheduleTitle,  //the data without html tags.
             },
             pt15: {
-                text: /*'<font color="white">'+*/d.toLocaleDateString()/*+'</font>'*/,  
+                text: d.toLocaleDateString(),  
                 raw: obj.data.dtScheduleDate, //the data without html tags.
             },
             pt2: {
@@ -295,7 +421,6 @@ var cmd = { //project commands sorted alphabetically.
             });
             if(undefined !== idSelect) { //can specify which object to have focus after drawing the json data.
                 $.each($v().events(), function (index, obj) {
-                    console.log(index, obj);
                     if(obj.indxScheduleID == idSelect) {
                         console.log('found', index);
                         //$('#foo'+index).focus();
@@ -306,7 +431,7 @@ var cmd = { //project commands sorted alphabetically.
         },
     },
     del: function (indx) {
-        console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
+        //console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
         var rmObj = $v().events()[indx];
         var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + rmObj.indxScheduleID;
         url += '&Data2=' + rmObj.indxOrganizationEventID;
@@ -321,24 +446,7 @@ var cmd = { //project commands sorted alphabetically.
         });
     },
     get: function (idSelect) {
-        var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + id.event;
-        $sql(url).get(function(dta) {
-            //console.log(dta);
-            var parsed = JSON.parse(dta);
-            dataObjs.srvdTbls = parsed;
-            if(undefined !== dataObjs.evntSchdl) {
-                $v('display-tbls').clear();
-                dataObjs.evntSchdl.indxPhotographerID = id.photographer;
-                dataObjs.evntSchdl.indxOrganizationEventID = id.event;
-                dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
-                if(undefined !== idSelect) {
-                    cmd.events.drawJSON(parsed, idSelect);
-                } else {
-                    cmd.events.drawJSON(parsed);
-                }
-                //cmd.events.drawJSON(parsed);
-            }
-        });
+        
     },
     scheduleFocus: function (id, evntID) { //prop.id, prop.evntID
         if(id != dataObjs.slctdObj) {
@@ -359,7 +467,7 @@ var cmd = { //project commands sorted alphabetically.
         var jStr = JSON.stringify($v().events()[indx]);
         var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+jStr;
         $sql(url).get(function(dta) {
-            console.log(dta);
+            //console.log(dta);
             //cmd.get();
             if(undefined !== idSelect) {
                 //id select.
@@ -381,14 +489,11 @@ var cmd = { //project commands sorted alphabetically.
             var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
             var amPm = input.substring(input.indexOf(' ')+1, input.length);
             if(amPm == 'PM') {
-                console.log(hour, 'before');
                 hour += 12;
-                console.log(hour, 'after');
             }
-            date.setHours(hour.toString());
-            date.setMinutes(minutes.toString());
+            date.setHours(hour);
+            date.setMinutes(minutes);
             date.setSeconds(0);
-            console.log(date.toLocaleTimeString());
             return date.getTime();
         },
         today: function () {
@@ -427,5 +532,5 @@ var cmd = { //project commands sorted alphabetically.
 $(document).ready(function() {
     id.photographer = 7; //override photographer ID here.
     id.event = 1; //override event ID here.
-    cmd.get();
+    $project.draw('schedules')(id.event);
 });

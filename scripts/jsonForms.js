@@ -16,7 +16,7 @@ var dpToggle = 1;
 
 var previousTxt;
 function tgglTxtBx(id, dbVal, defVal) {
-    var object = function (val, color) {
+    var object = function (val, color) { //getter setter awesomeness!!!
         if(undefined !== val) {
             if(undefined !== color) {
                 $('#'+id).css({
@@ -32,14 +32,14 @@ function tgglTxtBx(id, dbVal, defVal) {
         }
     };
     $('#'+id).focus(function() {
-        if(object().color == colors().purple) { //if this entry has been edited, by user or by function.
+        if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
             previousTxt = object().value;
             object('');
         } else {
-            object('', colors().purple);
+            object('', $p('purple'));
         }
     }).blur(function() {
-        if(object().color == colors().purple) { //purple if the entry was edited!
+        if(object().color == $p('purple')) { //purple if the entry was edited!
             if(undefined !== dbVal && '' !== dbVal && null !== dbVal) {
                 if(object().value === '') {
                     object(undefined !== previousTxt ? previousTxt : dbVal);
@@ -47,14 +47,17 @@ function tgglTxtBx(id, dbVal, defVal) {
             } else {
                 if(previousTxt !== defVal && undefined !== previousTxt) {
                     if(object().value === '') {
-                        object(previousTxt, colors().purple);
+                        object(previousTxt, $p('purple'));
                     }
                 } else {
                     if(object().value === '') {
-                        object(defVal, colors().gray);
+                        object(defVal, $p('gray'));
                     }
                 }
             }
+        }
+        if('' !== previousTxt && '' !== object().value && object().value != previousTxt && object().value != defVal) { //if it's been edited and does not match the db.
+            object(object().value, $p('red'));
         }
         previousTxt = undefined;
     });
@@ -769,7 +772,7 @@ var forms = {
                             functions: [function() {
                                 if(undefined !== options.checked) {
                                     if(options.checked) {
-                                        $('#chkdIn'+options.cnt).prop('checked', true);
+                                        $('#chkdIn'+options.cnt).toggle(this.checked);
                                     }
                                 }
                             }]
@@ -820,21 +823,17 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
-                                console.log(options.time);
                                 var date = new Date(options.time);
-                                /*var time = undefined !== options.time ? options.time.substring(options.time.indexOf('T')+1, options.time.length) : undefined;
-                                time = cmd.time.db2LocaleTime(time);*/ //convert from 24hr to am/pm.
                                 tgglTxtBx('txtBxTime' + options.cnt, date.toLocaleTimeString(), 'time');
                                 if(undefined !== options.time && '' !== options.time && null !== options.time) {
                                     $('#txtBxTime'+options.cnt)[0].value = date.toLocaleTimeString();
-                                    //tgglTxtBx('txtBxTime' + options.cnt);
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
                                 }
                             }]
                         },
-
+                        //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
                         {
                             type: 'textbox',
                             id: 'txtBxName' + options.cnt,
@@ -849,7 +848,17 @@ var forms = {
                                     $('#txtBxName'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
+                                    if(!(options.reserved)) {
+                                        $('#txtBxName'+options.cnt).attr('disabled', 'disabled');
+                                    }
                                 }
+                                $('#txtBxName'+options.cnt).blur(function () { //if the text is red, update it!
+                                    //console.log(cmd.rgbToHex($('#txtBxName' + options.cnt)[0].style['color']).toUpperCase());
+                                    if(cmd.rgbToHex($('#txtBxName' + options.cnt)[0].style['color']).toUpperCase() == $p('red')) {
+                                        console.log('UPDATE IT!');
+                                    }
+                                });
+
                             }]
                         },
 
@@ -866,6 +875,9 @@ var forms = {
                                     $('#txtBxDivision'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
+                                    if(!(options.reserved)) {
+                                        $('#txtBxDivision'+options.cnt).attr('disabled', 'disabled');
+                                    }
                                 }
                             }]
                         },
@@ -883,6 +895,9 @@ var forms = {
                                     $('#txtBxCoach'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
+                                    if(!(options.reserved)) {
+                                        $('#txtBxCoach'+options.cnt).attr('disabled', 'disabled');
+                                    }
                                 }
                             }]
                         },
@@ -903,6 +918,9 @@ var forms = {
                                     $('#txtBxID'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
+                                    if(!(options.reserved)) {
+                                        $('#txtBxID'+options.cnt).attr('disabled', 'disabled');
+                                    }
                                 }
                             }]
                         },
