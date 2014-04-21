@@ -90,7 +90,7 @@ var dataObjs = {
             indxOrganizationEventID: event.indxOrganizationEventID,
             indxScheduleID: event.indxScheduleID,
             indxScheduleDateID: 0,
-            dtDateTime: event.dtScheduleDate.toLocaleTimeString(),
+            dtDateTime: event.dtScheduleDate.toLocaleTimeString, //executes as a function later
             blnOnlineFilledAllowed: true,
             blnOnlineFilled: false,
             indxOrganizationEventGroupInfoID: 0,
@@ -339,17 +339,13 @@ var $project = {
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
     },
-    update: function(selection) {
+    update: function(selection) { //$project.update('scheduleItem')('{json}', function () {});
         var objects = {
-            schedules: function (json) {
-                $db.schedules.update(json, function (data) {
-
-                });
+            schedules: function (json, func) {
+                $db.schedules.update(json, func);
             },
-            scheduleItems: function (json) {
-                $db.scheduleItems.update(json, function (data) {
-
-                });
+            scheduleItem: function (json, func) {
+                $db.scheduleItems.update(json, func);
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;

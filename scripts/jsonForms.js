@@ -15,7 +15,7 @@ var colors = function() { //depricated use $p('color');
 var dpToggle = 1;
 
 var previousTxt;
-function tgglTxtBx(id, dbVal, defVal) {
+function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
     var object = function (val, color) { //getter setter awesomeness!!!
         if(undefined !== val) {
             if(undefined !== color) {
@@ -56,8 +56,10 @@ function tgglTxtBx(id, dbVal, defVal) {
                 }
             }
         }
-        if('' !== previousTxt && '' !== object().value && object().value != previousTxt && object().value != defVal) { //if it's been edited and does not match the db.
-            object(object().value, $p('red'));
+        if(updateEnabled) {
+            if('' !== previousTxt && '' !== object().value && object().value != previousTxt && object().value != defVal) { //if it's been edited and does not match the db.
+                object(object().value, $p('red'));
+            }
         }
         previousTxt = undefined;
     });
@@ -840,11 +842,9 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'name',
                             functions: [function() {
-                                tgglTxtBx('txtBxName'+options.cnt, options.name, 'name');
-                                //console.log(options.name);
+                                tgglTxtBx('txtBxName'+options.cnt, options.name, 'name', true);
                                 if(undefined !== options.name && '' !== options.name && null !== options.name) {
                                     $('#txtBxName'+options.cnt)[0].value = options.name;
-                                    //tgglTxtBx('txtBxName' + options.cnt);
                                     $('#txtBxName'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
@@ -853,9 +853,20 @@ var forms = {
                                     }
                                 }
                                 $('#txtBxName'+options.cnt).blur(function () { //if the text is red, update it!
-                                    //console.log(cmd.rgbToHex($('#txtBxName' + options.cnt)[0].style['color']).toUpperCase());
                                     if(cmd.rgbToHex($('#txtBxName' + options.cnt)[0].style['color']).toUpperCase() == $p('red')) {
                                         console.log('UPDATE IT!');
+                                        $v().times()[options.cnt].strGroupName = $('#txtBxName'+options.cnt)[0].value;
+                                        console.log($v().times()[options.cnt]);
+                                        $project.update('scheduleItem')($v().times()[options.cnt], function (data) {
+                                            if('0' !== data && 0 !== data) {
+                                                $('#txtBxName'+options.cnt).css({
+                                                    'color': $p('purple'),
+                                                });
+                                                console.log('OK!', data);
+                                            } else {
+                                                console.log('error:', data);
+                                            }
+                                        });
                                     }
                                 });
 
