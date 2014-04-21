@@ -18,6 +18,9 @@ var $p = function (obj) {
         gray: '#CCCCCC',
         purple: '#5233A6',
         red: '#A8150D',
+        color: function (id) {
+            return cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase();
+        },
     };
     return undefined !== options[obj] ? options[obj] : undefined;
 };
@@ -346,21 +349,40 @@ var $project = {
             },
             scheduleItem: function (json, func) {
                 $db.scheduleItems.update(json, func);
+            },
+            /*scheduleTextBoxUpdater: function (obj) {
+                
+            },*/
+            scheduleItemTextBoxUpdater: function (obj) {
+                var txtBxData = $('#'+obj.txtBxID)[0].value;
+                if($v().times()[obj.indx][obj.property] != txtBxData) {
+                    $v().times()[obj.indx][obj.property] = txtBxData;
+                    $project.update('scheduleItem')($v().times()[obj.indx], function (data) {
+                        if(data) { //if not 0 or null etc...
+                            if(JSON.parse(data)[obj.property] == txtBxData) {
+                                console.log('OK!', data);
+                                $('#'+obj.txtBxID).css({
+                                    'color': obj.color,
+                                });
+                            } else {
+                                console.log('error1!', data);
+                            }
+                        } else {
+                            console.log('error0!', data);
+                        }
+                    });
+                }
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
     },
     remove: function(selection) {
         var objects = {
-            schedules: function (json) {
-                $db.schedules.remove(json, function (data) {
-
-                });
+            schedule: function (json, func) {
+                $db.schedules.remove(json, func);
             },
-            scheduleItems: function (json) {
-                $db.scheduleItems.remove(json, function (data) {
-
-                });
+            scheduleItem: function (json, func) {
+                $db.scheduleItems.remove(json, func);
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;

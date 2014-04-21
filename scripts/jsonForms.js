@@ -819,7 +819,7 @@ var forms = {
                         });
                     }],
                     children: [
-                        {
+                        { //dtDateTime
                             type: 'textbox',
                             id: 'txtBxTime' + options.cnt,
                             class: 'txtBxTimes',
@@ -836,90 +836,120 @@ var forms = {
                             }]
                         },
                         //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-                        {
+                        { //strGroupName
                             type: 'textbox',
                             id: 'txtBxName' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'name',
                             functions: [function() {
-                                tgglTxtBx('txtBxName'+options.cnt, options.name, 'name', true);
+                                if(!(options.reserved)) {
+                                    tgglTxtBx('txtBxName'+options.cnt, options.name, 'name', true); //set true for editable
+                                } else {
+                                    $('#txtBxName'+options.cnt).attr('disabled', 'disabled').css({
+                                        'color': $p('gray'),
+                                    });
+                                    
+                                }
+                                
                                 if(undefined !== options.name && '' !== options.name && null !== options.name) {
                                     $('#txtBxName'+options.cnt)[0].value = options.name;
                                     $('#txtBxName'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
-                                    if(!(options.reserved)) {
-                                        $('#txtBxName'+options.cnt).attr('disabled', 'disabled');
-                                    }
                                 }
                                 $('#txtBxName'+options.cnt).blur(function () { //if the text is red, update it!
                                     if(cmd.rgbToHex($('#txtBxName' + options.cnt)[0].style['color']).toUpperCase() == $p('red')) {
-                                        console.log('UPDATE IT!');
-                                        $v().times()[options.cnt].strGroupName = $('#txtBxName'+options.cnt)[0].value;
-                                        console.log($v().times()[options.cnt]);
-                                        $project.update('scheduleItem')($v().times()[options.cnt], function (data) {
-                                            if('0' !== data && 0 !== data) {
-                                                $('#txtBxName'+options.cnt).css({
-                                                    'color': $p('purple'),
-                                                });
-                                                console.log('OK!', data);
-                                            } else {
-                                                console.log('error:', data);
-                                            }
+                                        $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
+                                            color: $p('purple'),
+                                            indx: options.cnt,
+                                            property: 'strGroupName',
+                                            txtBxID: 'txtBxName'+options.cnt,
                                         });
                                     }
                                 });
-
                             }]
                         },
 
-                        {
+                        { //strGroupDivision
                             type: 'textbox',
                             id: 'txtBxDivision' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'division',
                             functions: [function() {
-                                tgglTxtBx('txtBxDivision'+options.cnt, options.division, 'division');
+                                if(!(options.reserved)) {
+                                    tgglTxtBx('txtBxDivision'+options.cnt, options.division, 'division', true); //set true for editable
+                                } else {
+                                    $('#txtBxDivision'+options.cnt).attr('disabled', 'disabled').css({
+                                        'color': $p('gray'),
+                                    });
+                                }
+                                
                                 if(undefined !== options.division && '' !== options.division && null !== options.division) {
                                     $('#txtBxDivision'+options.cnt)[0].value = options.division;
-                                    //tgglTxtBx('txtBxDivision'+options.cnt);
                                     $('#txtBxDivision'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
-                                    if(!(options.reserved)) {
-                                        $('#txtBxDivision'+options.cnt).attr('disabled', 'disabled');
-                                    }
                                 }
+                                $('#txtBxDivision'+options.cnt).blur(function () {
+                                    if($p('color')('txtBxDivision'+options.cnt) == $p('red')) {
+                                        $project.update('scheduleItemTextBoxUpdater')({
+                                            color: $p('purple'),
+                                            indx: options.cnt,
+                                            property: 'strGroupDivision',
+                                            txtBxID: 'txtBxDivision'+options.cnt,
+                                        });
+                                    }
+                                })
                             }]
                         },
 
-                        {
+                        { //strGroupInstructor
                             type: 'textbox',
                             id: 'txtBxCoach' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'coach',
                             functions: [function() {
-                                tgglTxtBx('txtBxCoach'+options.cnt, options.coach, 'coach');
+                                if(!(options.reserved)) {
+                                    tgglTxtBx('txtBxCoach'+options.cnt, options.coach, 'coach', true); //set true for editable
+                                } else {
+                                    $('#txtBxCoach'+options.cnt).attr('disabled', 'disabled').css({
+                                        'color': $p('gray'),
+                                    });
+                                }
+                                
                                 if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
                                     $('#txtBxCoach' + options.cnt)[0].value = options.coach;
-                                    //tgglTxtBx('txtBxCoach'+options.cnt);
                                     $('#txtBxCoach'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
-                                    if(!(options.reserved)) {
-                                        $('#txtBxCoach'+options.cnt).attr('disabled', 'disabled');
-                                    }
                                 }
+                                $('#txtBxCoach'+options.cnt).blur(function () {
+                                    if($p('color')('txtBxCoach'+options.cnt) == $p('red')) {
+                                        $project.update('scheduleItemTextBoxUpdater')({
+                                            color: $p('purple'),
+                                            indx: options.cnt,
+                                            property: 'strGroupInstructor',
+                                            txtBxID: 'txtBxCoach'+options.cnt,
+                                        });
+                                    }
+                                })
                             }]
                         },
 
-                        {
+                        { //intScheduleOverRideNumPaticipants
                             type: 'textbox',
                             id: 'txtBxID' + options.cnt,
                             class: 'txtBxTimes',
                             text: "0",
                             functions: [function() {
-                                tgglTxtBx('txtBxID'+options.cnt, options.id, "0");
+                                if(!(options.reserved)) {
+                                    tgglTxtBx('txtBxID'+options.cnt, options.id, "0", true); //set true for editable
+                                } else {
+                                    $('#txtBxID'+options.cnt).attr('disabled', 'disabled').css({
+                                        'color': $p('gray'),
+                                    });
+                                }
+                                
                                 $('#txtBxID' + options.cnt).css({
                                     'width': '60px',
                                 });
@@ -929,10 +959,17 @@ var forms = {
                                     $('#txtBxID'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
-                                    if(!(options.reserved)) {
-                                        $('#txtBxID'+options.cnt).attr('disabled', 'disabled');
-                                    }
                                 }
+                                $('#txtBxID'+options.id).blur(function () {
+                                    if($p('color')('txtBxID'+options.cnt) == $p('red')) {
+                                        $project.update('scheduleItemTextBoxUpdater')({
+                                            color: $p('purple'),
+                                            indx: options.cnt,
+                                            property: 'intScheduleOverRideNumPaticipants',
+                                            txtBxID: 'txtBxID'+options.cnt,
+                                        });
+                                    }
+                                })
                             }]
                         },
 
