@@ -32,6 +32,7 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
         }
     };
     $('#'+id).focus(function() {
+        dataObjs.slctdDiv = id;
         if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
             previousTxt = object().value;
             object('');
@@ -822,17 +823,24 @@ var forms = {
                         { //dtDateTime
                             type: 'textbox',
                             id: 'txtBxTime' + options.cnt,
+                            name: 'time',
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
+                                $('input[name="time"]').ptTimeSelect();
                                 var date = new Date(options.time);
-                                tgglTxtBx('txtBxTime' + options.cnt, date.toLocaleTimeString(), 'time');
+                                tgglTxtBx('txtBxTime' + options.cnt, date.toLocaleTimeString(), 'time', true);
                                 if(undefined !== options.time && '' !== options.time && null !== options.time) {
                                     $('#txtBxTime'+options.cnt)[0].value = date.toLocaleTimeString();
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
                                 }
+                                
+                                
+                                $('#txtBxTime'+options.cnt).blur(function () {
+                                    cmd.reportSelected('txtBxTime'+options.cnt);
+                                });
                             }]
                         },
                         //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1

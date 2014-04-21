@@ -48,6 +48,7 @@ var undef;
 */
 var dataObjs = {
     slctdObj: undefined,
+    slctdDiv: undefined,
     srvdTbls: [], //Array, the names of the tables in which the user will edit.
     evntTimes: [], //Array, the times for the event (srvdTbls).
     tblsData: [], //Array, the data contained in each table from the DB.
@@ -372,7 +373,7 @@ var $project = {
                         }
                     });
                 }
-            }
+            },
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
     },
@@ -389,7 +390,30 @@ var $project = {
     },
 }
 
+
+
+/*
+    almost there to figuring out how to force the time picker to close when tab is hit.
+    this was to monitor when the div id changed from the current with the date picker to
+    something else. Then, if it did not switch to the time picker, the time picker would
+    close.
+*/
 var cmd = { //project commands sorted alphabetically.
+    reportSelected: function (id) {
+        var checkStatus = function() {
+            console.log(id);
+            var d = new $.Deferred();
+            if(dataObjs.slctdDiv != id) {
+                d.resolve(dataObjs.slctdDiv);
+            }
+            return d.promise();
+        };
+                                    
+        $.when(checkStatus()).done(function(data) {
+            console.log('focus changed!', data); 
+        });
+  
+    },
     componentToHex: function (c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
@@ -448,7 +472,7 @@ var cmd = { //project commands sorted alphabetically.
             }
         },
     },
-    del: function (indx) {
+    del: function (indx) { //depricated
         //console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
         var rmObj = $v().events()[indx];
         var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + rmObj.indxScheduleID;
@@ -463,7 +487,7 @@ var cmd = { //project commands sorted alphabetically.
             cmd.events.drawJSON(dataObjs.srvdTbls);
         });
     },
-    get: function (idSelect) {
+    get: function (idSelect) { //depricated
         
     },
     scheduleFocus: function (id, evntID) { //prop.id, prop.evntID
@@ -481,7 +505,7 @@ var cmd = { //project commands sorted alphabetically.
         });
         dataObjs.slctdObj = id;
     },
-    update: function (indx, idSelect) {
+    update: function (indx, idSelect) { //depricated
         var jStr = JSON.stringify($v().events()[indx]);
         var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+jStr;
         $sql(url).get(function(dta) {
