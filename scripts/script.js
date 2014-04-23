@@ -355,7 +355,7 @@ var $project = {
                 
             },*/
             scheduleItemTextBoxUpdater: function (obj) {
-                var txtBxData = $('#'+obj.txtBxID)[0].value;
+                var txtBxData = undefined == obj.dt ? $('#'+obj.txtBxID)[0].value : obj.dt; //if there is a date time object in the input, update that.
                 if($v().times()[obj.indx][obj.property] != txtBxData) {
                     $v().times()[obj.indx][obj.property] = txtBxData;
                     $project.update('scheduleItem')($v().times()[obj.indx], function (data) {

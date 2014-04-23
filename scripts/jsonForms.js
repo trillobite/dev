@@ -33,7 +33,7 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
     };
     $('#'+id).focus(function() {
         dataObjs.slctdDiv = id;
-        console.log('focus:', id);
+        //console.log('focus:', id);
         if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
             previousTxt = object().value;
             object('');
@@ -842,8 +842,18 @@ var forms = {
                                 
                                 $('#txtBxTime'+options.cnt).blur(function () {
                                     var time = cmd.time.parse($('#txtBxTime'+options.cnt)[0].value);
-                                    console.log(time);
-                                    if(time.toLocaleTimeString !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
+                                    //console.log(time);
+                                    if(time.toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
+                                        console.log(time.toLocaleTimeString());
+                                        if(time.toLocaleTimeString() != "Invalid Date") {
+                                            $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
+                                                color: $p('purple'),
+                                                indx: options.cnt,
+                                                property: 'dtDateTime',
+                                                txtBxID: 'txtBxTime'+options.cnt,
+                                                dt: time.toISOString(),
+                                            });
+                                        }
                                         $('#txtBxTime'+options.cnt)[0].value = time.toLocaleTimeString();
                                     }
                                 });
