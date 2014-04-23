@@ -33,6 +33,7 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
     };
     $('#'+id).focus(function() {
         dataObjs.slctdDiv = id;
+        console.log('focus:', id);
         if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
             previousTxt = object().value;
             object('');
@@ -827,9 +828,10 @@ var forms = {
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
-                                $('input[name="time"]').ptTimeSelect();
+                                //$('input[name="time"]').ptTimeSelect();
                                 var date = new Date(options.time);
                                 tgglTxtBx('txtBxTime' + options.cnt, date.toLocaleTimeString(), 'time', true);
+                                //cmd.reportSelected('txtBxTime'+options.cnt);
                                 if(undefined !== options.time && '' !== options.time && null !== options.time) {
                                     $('#txtBxTime'+options.cnt)[0].value = date.toLocaleTimeString();
                                     $('#txtBxTime'+options.cnt).css({
@@ -839,7 +841,11 @@ var forms = {
                                 
                                 
                                 $('#txtBxTime'+options.cnt).blur(function () {
-                                    cmd.reportSelected('txtBxTime'+options.cnt);
+                                    var time = cmd.time.parse($('#txtBxTime'+options.cnt)[0].value);
+                                    console.log(time);
+                                    if(time.toLocaleTimeString !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
+                                        $('#txtBxTime'+options.cnt)[0].value = time.toLocaleTimeString();
+                                    }
                                 });
                             }]
                         },

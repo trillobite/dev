@@ -403,16 +403,16 @@ var cmd = { //project commands sorted alphabetically.
         var checkStatus = function() {
             console.log(id);
             var d = new $.Deferred();
-            if(dataObjs.slctdDiv != id) {
+            if(dataObjs.slctdDiv !== id) {
                 d.resolve(dataObjs.slctdDiv);
             }
             return d.promise();
         };
-                                    
         $.when(checkStatus()).done(function(data) {
             console.log('focus changed!', data); 
+            $.ptTimeSelect.closeCntr();
+            //$('#ptTimeSelectCntr').hide();
         });
-  
     },
     componentToHex: function (c) {
         var hex = c.toString(16);
@@ -525,6 +525,101 @@ var cmd = { //project commands sorted alphabetically.
         return "#" + ((1 << 24) + ( parseInt(arrRGB[0]) << 16) + ( parseInt(arrRGB[1]) << 8) + parseInt(arrRGB[2]) ).toString(16).slice(1);
     },
     time: {
+        parse: function(input) {
+            input = input.toLowerCase(); //very first thing, make sure all characters are lowercase.
+            var timeStore = {
+                hour: 0,
+                minutes: 0,
+                morning: true, //AM
+                date: function () {
+                    var valid = parseInt(timeStore.hour) && !(parseInt(timeStore.hour) > 12) ? true : false; //if it's anything but 0, and not greater than 24, it is valid;
+                    valid = valid ? parseInt(timeStore.minutes) >= 0 && parseInt(timeStore.minutes) <= 60 ? true : false : false; //minutes is not a negative, and no more than 60.
+                    var dt = new Date();
+                    function to24(tHour) {
+                        if(!(timeStore.morning) && parseInt(tHour) != 12) { //it's assumed if one enteres 12, they mean noon unless specified.
+                            var tHour = parseInt(tHour) + 12;
+                        }else if(timeStore.morning && parseInt(tHour) == 12) { //if it's midnight (12) specified am.
+                            var tHour = 0; //will be 00 in 24hr time.
+                        }
+                        return tHour.toString();
+                    }
+                    timeStore.hour = valid ? to24(timeStore.hour) : 'e'; //force return error invalid date if time is not valid, by inserting char to make it invalid.
+                    console.log(timeStore.hour);
+                    dt.setHours(parseInt(timeStore.hour));
+                    dt.setMinutes(parseInt(timeStore.minutes));
+                    dt.setSeconds(0);
+                    if(dt == "Invalid Date") {
+                        alert("check your input time format!");
+                    }
+                    return dt;
+                }
+            };
+            function removeAlphabetical() {
+                if(input.indexOf('a') >= 0) {
+                    input = input.replace('a', '');
+                }
+                if(input.indexOf('m') >= 0) {
+                    input = input.replace('m', '');
+                }
+                if(input.indexOf('p') >= 0) {
+                    input = input.replace('p', '');
+                }
+                if(input.indexOf(' ') >= 0) {
+                    input = input.replace(' ', '');
+                }
+            }
+            function setMorning(determine) {
+                if(determine.indexOf('m') >= 0) { //if there is no am or pm marked, skip.
+                    determine = determine.substring(determine.indexOf('m')-1, determine.indexOf('m')+1);
+                    return determine == 'am' ? true : false;
+                }
+                return true; //default to am.
+            }
+            var parseWith = {
+                noColon: function () {
+                    console.log('colon does not exist');
+                    timeStore.morning = setMorning(input); //first identify if am or pm.
+                    removeAlphabetical();
+                    console.log(input, 'length:', input.length);
+                    if(parseInt(input.length / 2) == 1) { //after alphabetical removed, still has 2 or 3 digits.
+                        console.log('executing two or three digit process');
+                        if(!(parseInt(input) > 12)) { //user must be implying two digit time.
+                            timeStore.hour = input;
+                        } else { //user must be implying hour and minutes.
+                            if(input.length == 2) { //if length is 2, make length 3.
+                                input += "0";
+                            }
+                            timeStore.hour = input.substring(0, 1);
+                            timeStore.minutes = input.substring(1, input.length);
+                        }
+                    } else if(parseInt(input.length / 2) == 2) { //after alphabetical removed, still has has 4 digits.
+                        console.log('executing four digit');
+                        timeStore.hour = input.substring(0, 2);
+                        timeStore.minutes = input.substring(2, input.length);
+                    } else if(input.length == 1) { //after alphabetical removed, still has only has one digit.
+                        console.log('executing one digit');
+                        timeStore.hour = input;
+                    } //else it's an invalid time.
+                },
+                colon: function () {
+                    console.log('colon exists');
+                    timeStore.morning = setMorning(input);
+                    input = input.replace(':', ''); //just remove the colon, and operate as if none ever existed.
+                    if(input.indexOf(':') >= 0) {
+                        input = input.substring(0, input.indexOf(':')); //if seconds is included, destroy it.
+                        input += timeStore.morning ? 'am' : 'pm'; //if it had seconds, am or pm is likely to have been stripped from time.
+                    }
+                    parseWith.noColon();
+                }
+            };
+
+            if(input.indexOf(':') >= 0) { //has colon
+                parseWith.colon();
+            } else { //does not have colon.
+                parseWith.noColon();
+            }
+            return timeStore.date();
+        },
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
             var date = new Date();
             var hour = parseInt(input.substring(0, input.indexOf(':')), 10);
