@@ -301,6 +301,7 @@ var $project = {
     draw: function(selection) {
         var objects = {
             schedules: function (indx) { //event id, and current selected schedule, if any.
+                var dfd = new $.Deferred();
                 $db.schedules.get(indx, function(data) {
                     var parsed = JSON.parse(data);
                     dataObjs.srvdTbls = parsed;
@@ -315,12 +316,15 @@ var $project = {
                             cmd.events.drawJSON(parsed);
                         }
                     }
+                    dfd.resolve(); //everything is done here.
                     /*if(slctdEvent) { //select the current selected schedule.
                         cmd.scheduleFocus('foo'+indx, $v().events()[indx].indxScheduleID);
                     }*/
                 });
+                return dfd.promise();
             },
             scheduleItems: function (indx) {
+                var dfd = new $.Deferred();
                 $db.scheduleItems.get(indx, function (data) {
                     dataObjs.evntTimes = JSON.parse(data);
                     dataObjs.evntTimes.EventScheduleItems.sort(function(a,b) { //sort by time.
@@ -341,7 +345,9 @@ var $project = {
                         };
                         appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
                     });
+                    dfd.resolve(); //everything is done here.
                 });
+                return dfd.promise();
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
@@ -362,9 +368,14 @@ var $project = {
                         if(data) { //if the data returned is not 0, undefined, null, [], etc...
                             if(JSON.parse(data)[obj.property] == txtBxData) {
                                 console.log('OK!', data); //success.
-                                $('#'+obj.txtBxID).css({
+                                /*$project.draw('schedules')(id.event).done(function() {
+
+                                });*/
+
+
+                                /*$('#'+obj.txtBxID).css({
                                     'color': obj.color, //change color of text after update.
-                                });
+                                });*/
                             } else {
                                 console.log('error1: Retured data from db does not match entry.', data); //new data was not entered.
                             }
@@ -499,6 +510,22 @@ var cmd = { //project commands sorted alphabetically.
             cmd.events.drawJSON(dataObjs.srvdTbls);
         });
     },
+    selectSchedule: function(id) {
+        if(id != dataObjs.slctdObj) {
+            $('.foo').each(function() {
+                if(this.id == id) {
+                    $('#'+this.id).css({
+                        'background-color': $p('blue'),
+                    });
+                    dataObjs.slctdObj = id;
+                } else {
+                    $('#'+this.id).css({
+                        'background-color': 'white',
+                    });
+                }
+            });
+        }
+    },
     scheduleFocus: function (id, evntID) { //prop.id, prop.evntID
         if(id != dataObjs.slctdObj) {
             $('.foo').each(function() {
@@ -516,7 +543,13 @@ var cmd = { //project commands sorted alphabetically.
     },
     update: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         $db.schedules.update($v().events()[indx], function(data) {
-            $project.draw('schedules')(id.event);
+            $project.draw('schedules')(id.event).done(function() {
+                $.each($v().events(), function(cnt, obj) { //make sure after update, if objects resorted, correct schedule is still in focus.
+                    if(obj.strScheduleTitle == JSON.parse(data).strScheduleTitle) {
+                        cmd.selectSchedule('foo'+cnt);
+                    }
+                });
+            });
         })
     },
     //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
