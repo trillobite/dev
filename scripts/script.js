@@ -300,7 +300,7 @@ var $project = {
     },
     draw: function(selection) {
         var objects = {
-            schedules: function (indx, slctdEvent) { //event id, and current selected schedule, if any.
+            schedules: function (indx) { //event id, and current selected schedule, if any.
                 $db.schedules.get(indx, function(data) {
                     var parsed = JSON.parse(data);
                     dataObjs.srvdTbls = parsed;
@@ -315,13 +315,9 @@ var $project = {
                             cmd.events.drawJSON(parsed);
                         }
                     }
-                    if(slctdEvent) { //select the current selected schedule.
-                        cmd.scheduleFocus('foo'+index, dataObjs.evntschdl.indxScheduleID);
-                        //$('#'+slctdEvent).click();
-                        /*$('#'+slctdEvent).css({
-                            'background-color': $p('blue'),
-                        });*/
-                    }
+                    /*if(slctdEvent) { //select the current selected schedule.
+                        cmd.scheduleFocus('foo'+indx, $v().events()[indx].indxScheduleID);
+                    }*/
                 });
             },
             scheduleItems: function (indx) {
@@ -415,7 +411,7 @@ var $project = {
 }
 
 var cmd = { //project commands sorted alphabetically.
-    reportSelected: function (id) {
+    /*reportSelected: function (id) {
         var checkStatus = function() {
             console.log(id);
             var d = new $.Deferred();
@@ -429,7 +425,7 @@ var cmd = { //project commands sorted alphabetically.
             $.ptTimeSelect.closeCntr();
             //$('#ptTimeSelectCntr').hide();
         });
-    },
+    },*/
     componentToHex: function (c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
@@ -518,25 +514,11 @@ var cmd = { //project commands sorted alphabetically.
         });
         dataObjs.slctdObj = id;
     },
-
-
-
-    update: function (indx, idSelect) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        console.log(idSelect);
+    update: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         $db.schedules.update($v().events()[indx], function(data) {
             $project.draw('schedules')(id.event);
-            if(idSelect) {
-                console.log('doing selection stuffness!');
-                cmd.scheduleFocus(idSelect, id.event);
-                /*$('#'+idSelect).css({
-                    'background-color': $p('blue'),
-                });*/
-            }
         })
     },
-
-
-
     //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
     rgbToHex: function (rgb) { //converts rgb color definition to HEX.
         var arrRGB = rgb.substring(4, rgb.length-1).split(', ');
@@ -571,7 +553,7 @@ var cmd = { //project commands sorted alphabetically.
                 return tHour.toString();
             }
             timeStore.hour = valid ? to24(timeStore.hour) : 'e'; //force return error invalid date if time is not valid, by inserting char to make it invalid.
-            console.log(timeStore.hour);
+            //console.log(timeStore.hour);
             dt.setHours(parseInt(timeStore.hour));
             dt.setMinutes(parseInt(timeStore.minutes));
             dt.setSeconds(0);

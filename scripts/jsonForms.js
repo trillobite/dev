@@ -228,6 +228,11 @@ var forms = {
             class: undefined !== prop.class ? prop.class : undefined,
             text: undefined !== prop.text ? prop.text : undefined,
             functions: [function () {
+                if(dataObjs.slctdObj == prop.id) { //if there was an update, the object would be hilighted blue.
+                    $('#'+prop.id).css({
+                        'background-color': $p('blue'),
+                    });
+                }
                 $('#'+prop.id).mouseover(function () {
                     $('#'+prop.id).css({
                         'background-color': $p('blue'),
