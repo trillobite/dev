@@ -279,7 +279,7 @@ var forms = {
                                     }).blur(function () {
                                         if($('#evntEditBx')[0].value != prop.pt1.raw && $('#evntEditBx')[0].value !== '') {
                                             $v().events()[prop.indx].strScheduleTitle = $('#evntEditBx')[0].value; //edit object title.
-                                            cmd.update(prop.indx); //comment out if debugging so db wont be hit. <-- saves current state to the db.
+                                            cmd.update(prop.indx, prop.id); //comment out if debugging so db wont be hit. <-- saves current state to the db.
                                         } else {
                                             $('#evntEditBx').remove(); //if no changes to be made, simply return the original object state.
                                             appendHTML(forms.genEvnt(prop).children[0], prop.id + 'pt1'); //add back original object.
