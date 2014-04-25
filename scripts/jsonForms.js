@@ -1214,7 +1214,7 @@ var forms = {
                                     function getText(value, defVal) {
                                         return value !== defVal ? value : "";
                                     }
-                                    
+                                    //generate the proper json object to send to the create function.
                                     var strJson = dataObjs.evntTime();
                                     strJson.blnOnlineFilledAllowed = $('#reservedCheckBox')[0].checked;
                                     strJson.strGroupName = getText($('#groupNameBox')[0].value, 'Group Name');
@@ -1230,12 +1230,16 @@ var forms = {
                                         strJson.dtDateTime = d.toISOString();
                                         console.log(strJson.dtDateTime);
                                     }
+
+                                    $project.create('scheduleItem')(strJson).done(function() { //make the new schedule item (aka time).
+                                        $.colorbox.close(); //close the color box.
+                                    });
                                     //console.log(JSON.stringify(strJson));
-                                    $sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
+                                    /*$sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
                                         //console.log(data);
                                         cmd.create.times(strJson.indxScheduleID);
                                         $.colorbox.close();
-                                    });
+                                    });*/
                                 });
                             }]
                         },

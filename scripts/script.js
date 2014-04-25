@@ -88,13 +88,13 @@ var dataObjs = {
             strSortOrderDefault: '',
     },
     evntTime: function () { //returns a partially pre-filled new event time object.
-        var event = dataObjs.srvdTbls.EventSchedules[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length), 10)];
+        var currentScheduleItem = $v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length), 10)];
         return {
-            indxPhotographerID: event.indxPhotographerID,
-            indxOrganizationEventID: event.indxOrganizationEventID,
-            indxScheduleID: event.indxScheduleID,
+            indxPhotographerID: currentScheduleItem.indxPhotographerID,
+            indxOrganizationEventID: currentScheduleItem.indxOrganizationEventID,
+            indxScheduleID: currentScheduleItem.indxScheduleID,
             indxScheduleDateID: 0,
-            dtDateTime: event.dtScheduleDate.toLocaleTimeString, //executes as a function later
+            dtDateTime: currentScheduleItem.dtScheduleDate.toLocaleTimeString, //executes as a function later
             blnOnlineFilledAllowed: true,
             blnOnlineFilled: false,
             indxOrganizationEventGroupInfoID: 0,
@@ -285,15 +285,22 @@ var $db = {
 var $project = {
     create: function(selection) {
         var objects = {
-            schedules: function (json) {
+            schedule: function (json) {
+                var dfd = new $.Deferred();
                 $db.schedules.create(json, function(data) {
 
+                    dfd.resolve();
                 });
+                return dfd.promise();
             },
-            scheduleItems: function (json) {
+            scheduleItem: function (json) {
+                var dfd = new $.Deferred();
                 $db.scheduleItems.create(json, function(data) {
-
+                    $project.draw('scheduleItems')(json.indxScheduleID).done(function() {
+                        dfd.resolve();
+                    });
                 });
+                return dfd.promise();
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
@@ -321,7 +328,7 @@ var $project = {
                         cmd.scheduleFocus('foo'+indx, $v().events()[indx].indxScheduleID);
                     }*/
                 });
-                return dfd.promise();
+                return dfd.promise(); //.done to determine when finished drawing.
             },
             scheduleItems: function (indx) {
                 var dfd = new $.Deferred();
@@ -347,7 +354,7 @@ var $project = {
                     });
                     dfd.resolve(); //everything is done here.
                 });
-                return dfd.promise();
+                return dfd.promise(); //.done to determine when finished drawing.
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
@@ -361,6 +368,7 @@ var $project = {
                 $db.scheduleItems.update(json, func);
             },
             scheduleTextBoxUpdater: function (obj) {
+                var dfd = new $.Deferred();
                 var txtBxData = $('#'+obj.txtBxID)[0].value;
                 if($v().events()[obj.indx][obj.property] != txtBxData) {
                     $v().events()[obj.indx][obj.property] = txtBxData; //update the data in the existing object.
@@ -382,10 +390,13 @@ var $project = {
                         } else {
                             console.log('error0: Update failure, bad data entry formt or bad update string.', data); //bad update string.
                         }
-                    })
+                        dfd.resolve();
+                    });
                 }
+                return dfd.promise();
             },
             scheduleItemTextBoxUpdater: function (obj) {
+                var dfd = new $.Deferred();
                 var txtBxData = undefined == obj.dt ? $('#'+obj.txtBxID)[0].value : obj.dt; //if there is a date time object in the input, update that.
                 if($v().times()[obj.indx][obj.property] != txtBxData) {
                     $v().times()[obj.indx][obj.property] = txtBxData; //update the data in the existing object.
@@ -402,8 +413,10 @@ var $project = {
                         } else {
                             console.log('error0: Update failure, bad data entry formt or bad update string.', data); //bad update string.
                         }
+                        dfd.resolve();
                     });
                 }
+                return dfd.promise();
             },
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
@@ -422,21 +435,6 @@ var $project = {
 }
 
 var cmd = { //project commands sorted alphabetically.
-    /*reportSelected: function (id) {
-        var checkStatus = function() {
-            console.log(id);
-            var d = new $.Deferred();
-            if(dataObjs.slctdDiv !== id) {
-                d.resolve(dataObjs.slctdDiv);
-            }
-            return d.promise();
-        };
-        $.when(checkStatus()).done(function(data) {
-            console.log('focus changed!', data); 
-            $.ptTimeSelect.closeCntr();
-            //$('#ptTimeSelectCntr').hide();
-        });
-    },*/
     componentToHex: function (c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
