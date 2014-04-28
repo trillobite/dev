@@ -595,6 +595,9 @@ var cmd = { //project commands sorted alphabetically.
             /*var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
             return new Date(utc + (3600000 * d.getTimezoneOffset()));*/ //would convert daytime also from AM to PM.
         },
+        getRelevantDate: function() {
+            return $dt.read($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].dtScheduleDate);
+        },
         obj: {
             hour: 0,
             minutes: 0,
@@ -613,7 +616,7 @@ var cmd = { //project commands sorted alphabetically.
         mkTimeStr: function(timeStore) {
             var valid = parseInt(timeStore.hour) && !(parseInt(timeStore.hour) > 12) ? true : false; //if it's anything but 0, and not greater than 24, it is valid;
             valid = valid ? parseInt(timeStore.minutes) >= 0 && parseInt(timeStore.minutes) <= 60 ? true : false : false; //minutes is not a negative, and no more than 60.
-            var dt = new Date();
+            var dt = cmd.time.getRelevantDate();
             function to24(tHour) {
                 if(!(timeStore.morning) && parseInt(tHour) != 12) { //it's assumed if one enteres 12, they mean noon unless specified.
                     var tHour = parseInt(tHour) + 12;
@@ -706,7 +709,8 @@ var cmd = { //project commands sorted alphabetically.
             return timeStore.date();
         },
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
-            var date = new Date();
+            var date = cmd.time.getRelevantDate();
+            console.log(date.toISOString());
             var hour = parseInt(input.substring(0, input.indexOf(':')), 10);
             var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
             var amPm = input.substring(input.indexOf(' ')+1, input.length);
@@ -753,6 +757,6 @@ var cmd = { //project commands sorted alphabetically.
 //this is the object to properly call this project.
 $(document).ready(function() {
     id.photographer = 7; //override photographer ID here.
-    id.event = 1; //override event ID here. 659
+    id.event = 659; //override event ID here. 659
     $project.draw('schedules')(id.event);
 });
