@@ -430,9 +430,10 @@ var forms = {
                             functions: [function () {
                                 $('#dpkrBtn').click(function(){
                                     var d = dataObjs.clearTime(new Date($('#dpkr').datepicker('getDate')));
-                                    console.log(d);
-                                    $v().events()[indx].dtScheduleDate = d;
-                                    $v().events()[indx].dtOnLineFilledEndDate = dataObjs.timeMidnight(d);
+                                    console.log('dtScheduleDate', $dt.write(d).toISOString());
+                                    console.log('dtOnLineFilledEndDate', $dt.write(dataObjs.timeMidnight(d)).toISOString());
+                                    $v().events()[indx].dtScheduleDate = $dt.write(d);
+                                    $v().events()[indx].dtOnLineFilledEndDate = $dt.write(dataObjs.timeMidnight(d));
                                     cmd.update(indx, $v().events()[indx].indxScheduleID); //updates the data, second parameter focuses the object.
                                     $.colorbox.close();
                                 });
@@ -834,11 +835,11 @@ var forms = {
                             text: 'time',
                             functions: [function() {
                                 //$('input[name="time"]').ptTimeSelect();
-                                var date = new Date(options.time);
-                                tgglTxtBx('txtBxTime' + options.cnt, date.toLocaleTimeString(), 'time', true);
+                                var date = new Date($dt.read(options.time));
+                                tgglTxtBx('txtBxTime' + options.cnt, $dt.write(date).toLocaleTimeString(), 'time', true);
                                 //cmd.reportSelected('txtBxTime'+options.cnt);
-                                if(undefined !== options.time && '' !== options.time && null !== options.time) {
-                                    $('#txtBxTime'+options.cnt)[0].value = date.toLocaleTimeString();
+                                if(undefined !== $dt.read(options.time) && '' !== $dt.read(options.time) && null !== $dt.read(options.time)) {
+                                    $('#txtBxTime'+options.cnt)[0].value = $dt.write(date).toLocaleTimeString();
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
@@ -846,20 +847,18 @@ var forms = {
                                 
                                 
                                 $('#txtBxTime'+options.cnt).blur(function () {
-                                    var time = cmd.time.parse($('#txtBxTime'+options.cnt)[0].value);
-                                    //console.log(time);
-                                    if(time.toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
-                                        console.log(time.toLocaleTimeString());
-                                        if(time.toLocaleTimeString() != "Invalid Date") {
+                                    var dtTime = $dt.parse($('#txtBxTime'+options.cnt)[0].value);
+                                    if($dt.read(dtTime).toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
+                                        if(dtTime.toLocaleTimeString() != "Invalid Date") {
                                             $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
                                                 color: $p('purple'),
                                                 indx: options.cnt,
                                                 property: 'dtDateTime',
                                                 txtBxID: 'txtBxTime'+options.cnt,
-                                                dt: time.toISOString(),
+                                                dt: dtTime.toISOString(),
                                             });
                                         }
-                                        $('#txtBxTime'+options.cnt)[0].value = time.toLocaleTimeString();
+                                        $('#txtBxTime'+options.cnt)[0].value = $dt.read(dtTime).toLocaleTimeString();
                                     }
                                 });
                             }]
@@ -1227,7 +1226,7 @@ var forms = {
                                     var d = new Date(strJson.dtDateTime);
                                     if(getText($('#timeBox')[0].value, 'time') !== "") {
                                         d.setTime(cmd.time.format($('#timeBox')[0].value));
-                                        strJson.dtDateTime = d.toISOString();
+                                        strJson.dtDateTime = $dt.write(d).toISOString();
                                         console.log(strJson.dtDateTime);
                                     }
 

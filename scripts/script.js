@@ -229,6 +229,26 @@ function appendHTML(jsonObj, container) {
     }
 }
 
+/*
+    this function will take a date time object, and remove the time zone changes. Currently,
+    the data which is being stored as ISO time, does not account for time zone differences.
+    therefore, $dt will calculate to compensate for when javaScript tries to add or subtract
+    time zone differences between ISO time and Local time. When the database is updated so that
+    all of the data is set to true ISO Zulu time, modify this function so that it simply returns
+    the input without modifications.
+*/
+var $dt = {
+    read: function (date) {
+        return cmd.time.removeISOTimeZone(date, true);
+    },
+    write: function(date) {
+        return cmd.time.removeISOTimeZone(date);
+    },
+    parse: function(time) {
+        return $dt.write(cmd.time.parse(time)); //parse a string time in text box, and remove the time zone differences.
+    }
+};
+
 var $db = {
     schedules: {
         create: function (json, func) {
@@ -334,17 +354,19 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.get(indx, function (data) {
                     dataObjs.evntTimes = JSON.parse(data);
+                    console.log(data);
                     dataObjs.evntTimes.EventScheduleItems.sort(function(a,b) { //sort by time.
                         return new Date(a.dtDateTime).getTime() - new Date(b.dtDateTime).getTime(); 
                     });
                     $v('display-tblInfo').clear(); //clears the div in case there is existing data.
                     appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
+                        //console.log('time', cmd.time.removeISOTimeZone(obj.dtDateTime).toLocaleTimeString());
                         var prop = {
                             cnt: count,
                             reserved: obj.blnOnlineFilledAllowed,
                             checked: obj.blnCheckedIn,
-                            time: obj.dtDateTime,
+                            time: cmd.time.removeISOTimeZone(obj.dtDateTime, true).toISOString(), //when it converts to local time, it will now be correct.
                             name: obj.strGroupName,
                             division: obj.strGroupDivision,
                             coach: obj.strGroupInstructor,
@@ -461,7 +483,7 @@ var cmd = { //project commands sorted alphabetically.
                 raw: obj.data.strScheduleTitle,  //the data without html tags.
             },
             pt15: {
-                text: d.toLocaleDateString(),  
+                text: $dt.read(d).toLocaleDateString(),  
                 raw: obj.data.dtScheduleDate, //the data without html tags.
             },
             pt2: {
@@ -556,6 +578,23 @@ var cmd = { //project commands sorted alphabetically.
         return "#" + ((1 << 24) + ( parseInt(arrRGB[0]) << 16) + ( parseInt(arrRGB[1]) << 8) + parseInt(arrRGB[2]) ).toString(16).slice(1);
     },
     time: {
+        /*
+            if recieving time, in which the database did not account for time zones, set add to true, else leave undefined or false.
+            data from db: cmd.time.removeISOTimeZone(dateTime.toISOString(), true);
+            data to db:   cmd.time.removeISOTimeZone(dateTime.toISOString());
+                                            or
+                          cmd.time.removeISOTimeZone(dateTime.toISOString(), false);
+        */
+        removeISOTimeZone: function(isoTime, add) {
+            var d = new Date(isoTime);
+            if(add) {
+                return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+            } else {
+                return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+            }
+            /*var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            return new Date(utc + (3600000 * d.getTimezoneOffset()));*/ //would convert daytime also from AM to PM.
+        },
         obj: {
             hour: 0,
             minutes: 0,
@@ -714,6 +753,6 @@ var cmd = { //project commands sorted alphabetically.
 //this is the object to properly call this project.
 $(document).ready(function() {
     id.photographer = 7; //override photographer ID here.
-    id.event = 1; //override event ID here.
+    id.event = 1; //override event ID here. 659
     $project.draw('schedules')(id.event);
 });
