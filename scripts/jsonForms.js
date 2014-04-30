@@ -301,8 +301,6 @@ var forms = {
                     type: 'div',
                     id: prop.id + 'pt15',
                     functions: [function () {
-                        /*var d = new Date(prop.pt15.text.substring(0, prop.pt15.text.indexOf('T')));
-                        d = d.toDateString();*/
                         $('#'+prop.id+'pt15').css({
                             'width': '25%',
                             'height': '50%',
@@ -738,7 +736,6 @@ var forms = {
                     });
                 }]
             }
-
         ]
     },
 
@@ -830,22 +827,17 @@ var forms = {
                         { //dtDateTime
                             type: 'textbox',
                             id: 'txtBxTime' + options.cnt,
-                            name: 'time',
                             class: 'txtBxTimes',
                             text: 'time',
                             functions: [function() {
-                                //$('input[name="time"]').ptTimeSelect();
                                 var date = new Date($dt.read(options.time));
                                 tgglTxtBx('txtBxTime' + options.cnt, $dt.write(date).toLocaleTimeString(), 'time', true);
-                                //cmd.reportSelected('txtBxTime'+options.cnt);
                                 if(undefined !== $dt.read(options.time) && '' !== $dt.read(options.time) && null !== $dt.read(options.time)) {
                                     $('#txtBxTime'+options.cnt)[0].value = $dt.write(date).toLocaleTimeString();
                                     $('#txtBxTime'+options.cnt).css({
                                         'color': $p('purple'),
                                     });
                                 }
-                                
-                                
                                 $('#txtBxTime'+options.cnt).blur(function () {
                                     var dtTime = $dt.parse($('#txtBxTime'+options.cnt)[0].value);
                                     if($dt.read(dtTime).toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
@@ -878,7 +870,6 @@ var forms = {
                                     });
                                     
                                 }
-                                
                                 if(undefined !== options.name && '' !== options.name && null !== options.name) {
                                     $('#txtBxName'+options.cnt)[0].value = options.name;
                                     $('#txtBxName'+options.cnt).css({
@@ -911,7 +902,6 @@ var forms = {
                                         'color': $p('gray'),
                                     });
                                 }
-                                
                                 if(undefined !== options.division && '' !== options.division && null !== options.division) {
                                     $('#txtBxDivision'+options.cnt)[0].value = options.division;
                                     $('#txtBxDivision'+options.cnt).css({
@@ -944,7 +934,6 @@ var forms = {
                                         'color': $p('gray'),
                                     });
                                 }
-                                
                                 if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
                                     $('#txtBxCoach' + options.cnt)[0].value = options.coach;
                                     $('#txtBxCoach'+options.cnt).css({
@@ -1229,16 +1218,9 @@ var forms = {
                                         strJson.dtDateTime = $dt.write(d).toISOString();
                                         console.log(strJson.dtDateTime);
                                     }
-
                                     $project.create('scheduleItem')(strJson).done(function() { //make the new schedule item (aka time).
                                         $.colorbox.close(); //close the color box.
                                     });
-                                    //console.log(JSON.stringify(strJson));
-                                    /*$sql('https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(strJson)).get(function(data) {
-                                        //console.log(data);
-                                        cmd.create.times(strJson.indxScheduleID);
-                                        $.colorbox.close();
-                                    });*/
                                 });
                             }]
                         },
@@ -1248,8 +1230,7 @@ var forms = {
                             text: 'cancel',
                             functions: [function () {
                                 $('#cancelBtn').click(function () {
-                                    //close the colorbox.
-                                    $.colorbox.close();
+                                    $.colorbox.close(); //close the colorbox.
                                 });
                             }]
                         },

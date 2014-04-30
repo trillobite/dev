@@ -308,8 +308,9 @@ var $project = {
             schedule: function (json) {
                 var dfd = new $.Deferred();
                 $db.schedules.create(json, function(data) {
-
-                    dfd.resolve();
+                    $project.draw('schedules')(json.indxScheduleID).done(function() {
+                        dfd.resolve(data);
+                    });
                 });
                 return dfd.promise();
             },
@@ -317,7 +318,7 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.create(json, function(data) {
                     $project.draw('scheduleItems')(json.indxScheduleID).done(function() {
-                        dfd.resolve();
+                        dfd.resolve(data);
                     });
                 });
                 return dfd.promise();
@@ -331,9 +332,15 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.schedules.get(indx, function(data) {
                     var parsed = JSON.parse(data);
+                    dataObjs.srvdTbls = [];
                     dataObjs.srvdTbls = parsed;
                     if(undefined !== dataObjs.evntSchdl) {
-                        $v('display-tbls').clear();
+                        //$v('display-tbls').clear();
+                        var myNode = document.getElementById('display-tbls');
+                        while(myNode.firstChild) {
+                            myNode.removeChild(myNode.firstChild);
+                        }
+
                         dataObjs.evntSchdl.indxPhotographerID = id.photographer;
                         dataObjs.evntSchdl.indxOrganizationEventID = id.event;
                         dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
@@ -344,21 +351,23 @@ var $project = {
                         }
                     }
                     dfd.resolve(); //everything is done here.
-                    /*if(slctdEvent) { //select the current selected schedule.
-                        cmd.scheduleFocus('foo'+indx, $v().events()[indx].indxScheduleID);
-                    }*/
                 });
                 return dfd.promise(); //.done to determine when finished drawing.
             },
             scheduleItems: function (indx) {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.get(indx, function (data) {
+                    dataObjs.evntTime = [];
                     dataObjs.evntTimes = JSON.parse(data);
-                    console.log(data);
+                    //console.log(dataObjs.evntTimes);
                     dataObjs.evntTimes.EventScheduleItems.sort(function(a,b) { //sort by time.
                         return new Date(a.dtDateTime).getTime() - new Date(b.dtDateTime).getTime(); 
                     });
-                    $v('display-tblInfo').clear(); //clears the div in case there is existing data.
+                    //clears the div in case there is existing data.
+                    var myNode = document.getElementById('display-tblInfo');
+                    while(myNode.firstChild) {
+                        myNode.removeChild(myNode.firstChild);
+                    }
                     appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
                         //console.log('time', cmd.time.removeISOTimeZone(obj.dtDateTime).toLocaleTimeString());
@@ -383,61 +392,73 @@ var $project = {
     },
     update: function(selection) { //$project.update('scheduleItem')('{json}', function () {});
         var objects = {
-            schedule: function (json, func) {
-                $db.schedules.update(json, func);
-            },
-            scheduleItem: function (json, func) {
-                $db.scheduleItems.update(json, func);
-            },
-            scheduleTextBoxUpdater: function (obj) {
+            textBoxUpdater: function (obj, type) { //super, super, super generic updater for schedules/events and schedule items/times.
+                var arrtype = type == 'schedule' ? 'events' : 'times'; //if it's a schedule, use the events array, if it's not, use the times array.
                 var dfd = new $.Deferred();
-                var txtBxData = $('#'+obj.txtBxID)[0].value;
-                if($v().events()[obj.indx][obj.property] != txtBxData) {
-                    $v().events()[obj.indx][obj.property] = txtBxData; //update the data in the existing object.
-                    $project.update('schedule')($v().events()[obj.indx], function(data) {
-                        if(data) { //if the data returned is not 0, undefined, null, [], etc...
-                            if(JSON.parse(data)[obj.property] == txtBxData) {
-                                console.log('OK!', data); //success.
-                                /*$project.draw('schedules')(id.event).done(function() {
-
-                                });*/
-
-
-                                /*$('#'+obj.txtBxID).css({
-                                    'color': obj.color, //change color of text after update.
-                                });*/
-                            } else {
-                                console.log('error1: Retured data from db does not match entry.', data); //new data was not entered.
-                            }
-                        } else {
-                            console.log('error0: Update failure, bad data entry formt or bad update string.', data); //bad update string.
-                        }
-                        dfd.resolve();
+                var txtBxData = undefined == obj.dt ? $('#'+obj.txtBxID)[0].value : obj.dt; //if there is a date time object in the input, update that.
+                if($v()[arrtype]()[obj.indx][obj.property] != txtBxData) {
+                    $v()[arrtype]()[obj.indx][obj.property] = txtBxData; //update the data in the existing object.
+                    $project.update(type)($v()[arrtype]()[obj.indx], {
+                        property: obj.property,
+                        check: txtBxData,
+                    }).done(function(data) {
+                        dfd.resolve(data);
                     });
                 }
                 return dfd.promise();
             },
-            scheduleItemTextBoxUpdater: function (obj) {
-                var dfd = new $.Deferred();
-                var txtBxData = undefined == obj.dt ? $('#'+obj.txtBxID)[0].value : obj.dt; //if there is a date time object in the input, update that.
-                if($v().times()[obj.indx][obj.property] != txtBxData) {
-                    $v().times()[obj.indx][obj.property] = txtBxData; //update the data in the existing object.
-                    $project.update('scheduleItem')($v().times()[obj.indx], function (data) {
-                        if(data) { //if the data returned is not 0, undefined, null, [], etc...
-                            if(JSON.parse(data)[obj.property] == txtBxData) {
-                                console.log('OK!', data); //success.
-                                $('#'+obj.txtBxID).css({
-                                    'color': obj.color, //change color of text after update.
-                                });
-                            } else {
-                                console.log('error1: Returned data from db does not match entry.', data); //new data was not entered.
-                            }
-                        } else {
-                            console.log('error0: Update failure, bad data entry formt or bad update string.', data); //bad update string.
-                        }
-                        dfd.resolve();
-                    });
+            updateCheck: function(data, obj) { //A generic quick check which returns the status of the update, if it's good or not.
+                var returnData = {
+                    dta: JSON.parse(data),
                 }
+                if(data) { //if the data returned is not 0, undefined, null, [], etc...
+                    if(obj) {
+                        if(JSON.parse(data)[obj.property] == obj.check) { //make sure that the data in the db is the same as current.
+                            returnData.msg = 'OK!';
+                        } else {
+                            returnData.msg = 'error1: Returned data from db does not match entry.';
+                        }
+                    } else {
+                        returnData.msg = 'warning: Cannot check data integrity, no "obj" parameter provided.';
+                    }
+                } else {
+                    returnData.msg = 'error0: Update failure, bad data entry format or bad update string.';
+                }
+                return returnData;
+            },
+            schedule: function (json, obj) { //update a schedule object.
+                var dfd = new $.Deferred();
+                $db.schedules.update(json, function(data) {
+                    var message = $project.update('updateCheck')(data, obj);
+                    console.log(message.msg, message.dta);
+                    dfd.resolve(message.dta); //finished.
+                });
+                return dfd.promise();
+            },
+            scheduleItem: function (json, obj) { //update a schedule item / time object.
+                var dfd = new $.Deferred();
+                $db.scheduleItems.update(json, function(data) {
+                    var message = $project.update('updateCheck')(data, obj);
+                    console.log(message.msg, message.dta);
+                    dfd.resolve(message.dta); //finished.
+                });
+                return dfd.promise();
+            },
+            scheduleTextBoxUpdater: function (obj) { //using a text box, a proprietary / non generic, update schedule function.
+                var dfd = new $.Deferred();
+                $project.update('textBoxUpdater')(obj, 'schedule').done(function(data) {
+                    dfd.resolve(data);
+                });
+                return dfd.promise();
+            },
+            scheduleItemTextBoxUpdater: function (obj) { //using a text box, a proprietary / non generic, update schedule item / time function.
+                var dfd = new $.Deferred();
+                $project.update('textBoxUpdater')(obj, 'scheduleItem').done(function(data) {
+                    $('#'+obj.txtBxID).css({
+                        'color': obj.color, //change the color of the text to show the user it was successfully updated.
+                    });
+                    dfd.resolve(data);
+                });
                 return dfd.promise();
             },
         };
@@ -445,11 +466,34 @@ var $project = {
     },
     remove: function(selection) {
         var objects = {
-            schedule: function (json, func) {
-                $db.schedules.remove(json, func);
+            removeCheck: function(data) {
+                var returnData = {
+                    dta: JSON.parse(data),
+                };
+                if(data) {
+                    returnData.msg = 'OK!'; //if returned was anything but 0.
+                } else {
+                    returnData.msg = 'error!'; //if returned was 0.
+                }
+                return returnData;
             },
-            scheduleItem: function (json, func) {
-                $db.scheduleItems.remove(json, func);
+            schedule: function (json) {
+                var dfd = new $.Deferred();
+                $db.schedules.remove(json, function(data) {
+                    var message = $project.remove('removeCheck')(data);
+                    console.log(message.msg, message.dta);
+                    dfd.resolve(message.dta);
+                });
+                return dfd.promise();
+            },
+            scheduleItem: function (json) {
+                var dfd = new $.Deferred();
+                $db.scheduleItems.remove(json, function(data) {
+                    var message = $project.remove('removeCheck')(data);
+                    console.log(message.msg, message.dta);
+                    dfd.resolve(message.dta);
+                });
+                return dfd.promise();
             }
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
@@ -562,15 +606,15 @@ var cmd = { //project commands sorted alphabetically.
         dataObjs.slctdObj = id;
     },
     update: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        $db.schedules.update($v().events()[indx], function(data) {
+        $project.update('schedule')($v().events()[indx]).done(function(data) {
             $project.draw('schedules')(id.event).done(function() {
-                $.each($v().events(), function(cnt, obj) { //make sure after update, if objects resorted, correct schedule is still in focus.
-                    if(obj.strScheduleTitle == JSON.parse(data).strScheduleTitle) {
+                $.each($v().events(), function(cnt, obj) {
+                    if(obj.strScheduleTitle == data.strScheduleTitle) {
                         cmd.selectSchedule('foo'+cnt);
                     }
                 });
             });
-        })
+        });
     },
     //Use: rgbToHex($('#foo0')[0].style.backgroundColor.substring(4, $('#foo0')[0].style.backgroundColor.length-1).split(', '));
     rgbToHex: function (rgb) { //converts rgb color definition to HEX.
@@ -592,8 +636,6 @@ var cmd = { //project commands sorted alphabetically.
             } else {
                 return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
             }
-            /*var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-            return new Date(utc + (3600000 * d.getTimezoneOffset()));*/ //would convert daytime also from AM to PM.
         },
         getRelevantDate: function() {
             return $dt.read($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].dtScheduleDate);
@@ -757,6 +799,6 @@ var cmd = { //project commands sorted alphabetically.
 //this is the object to properly call this project.
 $(document).ready(function() {
     id.photographer = 7; //override photographer ID here.
-    id.event = 659; //override event ID here. 659
+    id.event = 1; //override event ID here. 659
     $project.draw('schedules')(id.event);
 });
