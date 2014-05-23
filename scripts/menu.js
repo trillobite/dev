@@ -92,26 +92,26 @@ var confirmDel = function (indx) {
         func: function () {
             cmd.del(indx);
             $.colorbox.close(); 
-        }
-    }), 'cbConfirm');
+        },
+    }), '#cbConfirm');
 }
 
 //opens a colorbox to edit the date of one of the events.
 var dateEdit = function (indx) {
     $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
-    appendHTML(forms['datePicker'](indx), 'cbDateEdit');
+    appendHTML(forms['datePicker'](indx), '#cbDateEdit');
 };
 
 //opens a colorbox to edit the title of one of the events.
 var titleEdit = function (indx) {
     $.colorbox({html:'<div id="cbTitleEdit"></div>', width: '300px', height: '150px'});
-    appendHTML(forms['editTitle'](indx), 'cbTitleEdit');
+    appendHTML(forms['editTitle'](indx), '#cbTitleEdit');
 };
 
 //opens a colorbox to edit the description of one of the events.
 var descriptionEdit = function (indx) {
     $.colorbox({html: '<div id="cbDescriptionEdit"></div>', width: '300px', height: '150px'});
-    appendHTML(forms['editDescription'](indx), 'cbDescriptionEdit');
+    appendHTML(forms['editDescription'](indx), '#cbDescriptionEdit');
 };
 
 //sets whether the event is active or not.

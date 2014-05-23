@@ -99,106 +99,84 @@ function dynFoo(prop) {
     return form;
 }
 var forms = {
-    createEventMinimal: {
-        type: 'div',
-        id: 'createForm',
-        functions: [function () {
-            $('#createForm').css({
-                'font-family': 'sans-serif',
-            });
-        }],
-        children: [
-            { 
-                type: 'textbox',  
+    createEventMinimal: function() { //converted to jsonHTML v0.8-beta standard.
+        return $jConstruct('div', {
+            id: 'createForm',
+        }).css({
+            'font-family': 'sans-serif',
+        }).addChild(function() {
+            return $jConstruct('textbox', {
                 id: 'scheduleTitle',
                 text: 'Schedule Title',
-                onclick: "toggleTxtBx('scheduleTitle', 'Schedule Title')",
-                onblur: "toggleTxtBx('scheduleTitle', 'Schedule Title')",
-                functions: [function () {
-                    $('#scheduleTitle').css({
-                        'color': $p('gray'),
-                    }); 
-                }],
-            },  
-            {
-                type: 'textbox',
+            }).css({
+                'color': $p('gray'),
+            }).event('click', function() {
+                toggleTxtBx('scheduleTitle', 'Schedule Title');
+            }).event('blur', function() {
+                toggleTxtBx('scheduleTitle', 'Schedule Title');
+            });
+        }).addChild(function() {
+            return $jConstruct('textbox', {
                 id: 'scheduleDescription',
                 text: 'Schedule Description',
-                onclick: "toggleTxtBx('scheduleDescription', 'Schedule Description')",
-                onblur: "toggleTxtBx('scheduleDescription', 'Schedule Description')",
-                functions: [function () {
-                    $('#scheduleDescription').css({
-                        'color': $p('gray'),
-                    }); 
-                }],
-            },
-            {
-                type: 'div',
+            }).css({
+                'color': $p('gray'),
+            }).event('click', function() {
+                toggleTxtBx('scheduleDescription', 'Schedule Description');
+            }).event('blur', function() {
+                toggleTxtBx('scheduleDescription', 'Schedule Description');
+            });
+        }).addChild(function() {
+            return $jConstruct('div', {
                 id: 'mkSchedDtPkr',
-                functions: [function () {
-                    $('#mkSchedDtPkr').datepicker();
-                }],
-                children: [
-                    {
-                        type: 'div',
-                        id: 'date',
-                    },
-                ]
-            },
-            { //holds the buttons.
-                type: 'div',
+            }).addFunction(function() {
+                $('#mkSchedDtPkr').datepicker();
+            }).addChild(function() {
+                return $jConstruct('div', {
+                    id: 'date',
+                });
+            });
+        }).addChild(function() {
+            return $jConstruct('div', {
                 id: 'buttonContainer',
-                functions: [function () {
-                    $('#buttonContainer').css({
-                        'width': '50%',
-                        'float': 'left',
+            }).css({
+                'width': '50%',
+                'float': 'left',
+            }).addChild(function() {
+                return $jConstruct('button', {
+                    id: 'formSubmit',
+                    text: 'submit',
+                }).event('click', function() {
+                    var obj = dataObjs.evntSchdl;
+                    var t = cmd.time;
+
+                    obj.dtDateAdded = t.today().toISOString();
+                    obj.dtOnLineFilledStartDate = t.midnightAm(t.today()).toISOString(); //12:00AM
+                    obj.strScheduleTitle = $('#scheduleTitle')[0].value;
+                    obj.strScheduleDescription = $('#scheduleDescription')[0].value;
+                    obj.dtScheduleDate = $('#mkSchedDtPkr').datepicker('getDate').toISOString();
+                    obj.dtOnLineFilledEndDate = t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')).toISOString(); //11:55PM
+
+                    var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
+                    console.log(url);
+                    $sql(url).get(function(data){
+                        console.log(dataObjs.srvdTbls.EventSchedules);
+                        var parsed = JSON.parse(data);
+                        dataObjs.srvdTbls.EventSchedules[dataObjs.srvdTbls.EventSchedules.length] = parsed;
+                        $v('display-tbls').clear();
+                        cmd.events.drawJSON(dataObjs.srvdTbls);
+                        $.colorbox.close();
                     });
-                }],
-                children: [
-                    { //submit button
-                        type: 'button',
-                        id: 'formSubmit',   
-                        text: 'submit',
-                        functions: [function() {
-                            //All date fields need to exclude GMT.
-                            $('#formSubmit').click(function () {
-                                var obj = dataObjs.evntSchdl;
-                                var t = cmd.time;
-
-                                obj.dtDateAdded = t.today().toISOString();
-                                obj.dtOnLineFilledStartDate = t.midnightAm(t.today()).toISOString(); //12:00AM
-                                obj.strScheduleTitle = $('#scheduleTitle')[0].value;
-                                obj.strScheduleDescription = $('#scheduleDescription')[0].value;
-                                obj.dtScheduleDate = $('#mkSchedDtPkr').datepicker('getDate').toISOString();
-                                obj.dtOnLineFilledEndDate = t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')).toISOString(); //11:55PM
-
-                                var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
-                                console.log(url);
-                                $sql(url).get(function(data){
-                                    console.log(dataObjs.srvdTbls.EventSchedules);
-                                    var parsed = JSON.parse(data);
-                                    dataObjs.srvdTbls.EventSchedules[dataObjs.srvdTbls.EventSchedules.length] = parsed;
-                                    $v('display-tbls').clear();
-                                    cmd.events.drawJSON(dataObjs.srvdTbls);
-                                    $.colorbox.close();
-                                });
-                            });
-                        }]
-                    },
-                    
-                    { //cancel button
-                        type: 'button',
-                        id: 'formCancel',
-                        text: 'cancel',
-                        functions: [function () {
-                            $('#formCancel').click(function () {
-                                $.colorbox.close();//close the pop up and do nothing.
-                            })
-                        }]
-                    }
-                ]
-            },
-        ],        
+                });
+            }).addChild(function() {
+                return $jConstruct('button', {
+                    id: 'formCancel',
+                    text: 'cancel',
+                }).event('click', function() {
+                    $.colorbox.close();
+                });
+            });
+        });
     },
     
     mDiv: function (element) { //A generic mutable JSON Div.
@@ -287,11 +265,11 @@ var forms = {
                                             cmd.update(prop.indx, prop.id); //comment out if debugging so db wont be hit. <-- saves current state to the db.
                                         } else {
                                             $('#evntEditBx').remove(); //if no changes to be made, simply return the original object state.
-                                            appendHTML(forms.genEvnt(prop).children[0], prop.id + 'pt1'); //add back original object.
+                                            appendHTML(forms.genEvnt(prop).children[0], '#'+prop.id+"pt1"); //add back original object.
                                         }
                                     });
                                 }
-                            }), prop.id+"pt1");
+                            }), '#'+prop.id+"pt1");
                             $('#evntEditBx').focus();
                         });
                     }
@@ -314,10 +292,10 @@ var forms = {
                             functions:[function () {
                                 $('#pt1Date'+prop.id+' a').click(function() { //opens date picker object when the text is clicked.
                                     $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
-                                    appendHTML(forms['datePicker'](prop.indx), 'cbDateEdit');
+                                    appendHTML(forms['datePicker'](prop.indx), '#cbDateEdit');
                                 });
                             }]
-                        }, prop.id+'pt15');
+                        }, '#'+prop.id+'pt15');
                     }]
                 },
                 
@@ -386,11 +364,11 @@ var forms = {
                                             cmd.update(prop.indx); //comment out if debugging so db wont be hit. <-- saves current state to the db.
                                         } else {
                                             $('#descriptEditBx').remove(); //if no edits to be made, just return the original state.
-                                            appendHTML(forms.genEvnt(prop).children[3], prop.id + 'pt0'); //add back original object.
+                                            appendHTML(forms.genEvnt(prop).children[3], '#' + prop.id + 'pt0'); //add back original object.
                                         }
                                     });
                                 }
-                            }), prop.id+"pt0");
+                            }), '#' + prop.id+"pt0");
                             $('#descriptEditBx').focus();
                         });
                     }
@@ -732,7 +710,7 @@ var forms = {
                         $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '450px'});
                         appendHTML(forms['addTimeForm']({
                             indx: 0,
-                        }), 'tmp');                    
+                        }), '#tmp');                    
                     });
                 }]
             }
@@ -1203,7 +1181,7 @@ var forms = {
                                         return value !== defVal ? value : "";
                                     }
                                     //generate the proper json object to send to the create function.
-                                    var strJson = dataObjs.evntTime();
+                                    var strJson = dataObjs.templates.schedule();
                                     strJson.blnOnlineFilledAllowed = $('#reservedCheckBox')[0].checked;
                                     strJson.strGroupName = getText($('#groupNameBox')[0].value, 'Group Name');
                                     strJson.strGroupInstructor = getText($('#groupInstructorBox')[0].value, 'Group Instructor');
@@ -1243,9 +1221,9 @@ var forms = {
 };
 
 function defaultColorbox(id, obj, dimens) {
-    console.log(id);
+    /*console.log(id);
     console.log(forms[obj]);
-    console.log(dimens);
+    console.log(dimens);*/
     $.colorbox({html:'<div id="'+id+'"></div>', width: dimens.width, height: dimens.height});
-    appendHTML(forms[obj], id);
+    appendHTML(forms[obj], '#'+id);
 }

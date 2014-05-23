@@ -55,6 +55,51 @@ var dataObjs = {
     currTblElemns: [], //Array, an array of div id's for the dynamically created tables.
     currDtaElemens: [], //Array, an array of div id's for the dynamically created times/table data.
     
+    templates: {
+        schedule: function() {
+            var currentScheduleItem = $v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length), 10)];
+            return {
+                indxPhotographerID: currentScheduleItem.indxPhotographerID,
+                indxOrganizationEventID: currentScheduleItem.indxOrganizationEventID,
+                indxScheduleID: currentScheduleItem.indxScheduleID,
+                indxScheduleDateID: 0,
+                dtDateTime: currentScheduleItem.dtScheduleDate.toLocaleTimeString, //executes as a function later
+                blnOnlineFilledAllowed: true,
+                blnOnlineFilled: false,
+                indxOrganizationEventGroupInfoID: 0,
+                strGroupName: "",
+                strOrganizationEventGroupName: "", //handled by server
+                strScheduleOverRideGroupName: "", //handled by server
+                strGroupDivision: "",
+                strScheduleOverRideGroupDivision: "", //handled by server
+                strOrganizationEventGroupDivision: "", //handled by server
+                strGroupInstructor: "",
+                strScheduleOverRideGroupInstructor: "", //handled by server
+                strOrganizationEventGroupInstructorName: "", //handled by server
+                strOrganizationEventGroupCode: "",
+                intScheduleOverRideNumPaticipants: 0,
+                blnCheckedIn: false,
+                strNotes: "",
+            };
+        },
+
+        scheduleTime: {             
+            blnActive: true,
+            dtDateAdded: undefined,
+            dtOnLineFilledEndDate: undefined,
+            dtOnLineFilledStartDate: function () { return dataObjs.clearTime(new Date()); },
+            dtScheduleDate: undefined,
+            indxOrganizationEventID: undefined,
+            indxPhotographerID: undefined,
+            indxScheduleID: undefined,
+            intNumCameras: 1,
+            strScheduleDescription: undefined,
+            strScheduleTitle: undefined,
+            strSortOrderDefault: '',
+        },
+
+    },
+
     clearTime: function (dateTime) {
         dateTime.setHours(0);
         dateTime.setMinutes(0);
@@ -75,18 +120,19 @@ var dataObjs = {
     */
     evntSchdl: { //similar to a C-like object constructor, tells me all the properties required for an object.
             blnActive: true,
-            dtDateAdded: undef,
-            dtOnLineFilledEndDate: undef,
-            dtOnLineFilledStartDate: function () { return dataObjs.clearTime(new Date()) },
-            dtScheduleDate: undef,
-            indxOrganizationEventID: undef,
-            indxPhotographerID: undef,
-            indxScheduleID: undef,
+            dtDateAdded: undefined,
+            dtOnLineFilledEndDate: undefined,
+            dtOnLineFilledStartDate: function () { return dataObjs.clearTime(new Date()); },
+            dtScheduleDate: undefined,
+            indxOrganizationEventID: undefined,
+            indxPhotographerID: undefined,
+            indxScheduleID: undefined,
             intNumCameras: 1,
-            strScheduleDescription: undef,
-            strScheduleTitle: undef,
+            strScheduleDescription: undefined,
+            strScheduleTitle: undefined,
             strSortOrderDefault: '',
     },
+
     evntTime: function () { //returns a partially pre-filled new event time object.
         var currentScheduleItem = $v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length), 10)];
         return {
@@ -127,107 +173,6 @@ var dataObjs = {
         };
     },
 };
-
-/*
-    example json parsing, type this into chrome console:
-    
-    appendHTML(jsonObj({
-        id: 'helloWorld',
-    }), 'id if blank div element here in quotes');
-*/
-
-//Returns a small chunk of HTML as a string back to the parent function.
-//Can produce HTML for a button, text box, or a div element.
-var parsetype = function (type) {
-    function ico(element) {
-        var html = {
-            id: undefined !== element.id ? ' id="'+element.id+'"' : '',
-            class: undefined !== element.class ? ' class="'+element.class+'"' : '',
-            onclick: undefined !== element.onclick ? ' onclick="'+element.onclick+'"' : '',
-            onblur: undefined !== element.onblur ? ' onblur="' + element.onblur + '"' : '',
-            onfocus: undefined !== element.onfocus ? ' onfocus="' + element.onfocus + '"' : '',
-            max: undefined !== element.max ? ' max="' + element.max + '"' : '',
-            min: undefined !== element.min ? ' min="' + element.min + '"' : '',
-            name: undefined !== element.name ? ' name="' + element.name + '"' : '',
-            readonly: undefined !== element.readonly ? ' readonly="' + element.readonly + '"' : '',
-            rows: undefined !== element.rows ? ' rows="' + element.rows + '"' : '',
-            cols: undefined !== element.cols ? ' cols="' + element.cols + '"' : '',
-        }; 
-        var retVal = "";
-        $.each(html, function () { //for each property.
-            retVal += this;
-        });
-        return retVal;
-    }
-    var options = {
-        button: function (element) {
-            var html = {
-                start: '<button type="button"',
-                end: undefined !== element.text ? '>' + element.text + '</button>' : '></button>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-        checkbox: function (element) {
-            var html = {
-                start: '<input type="checkbox"',
-                end: '>' + (undefined !== element.text ? element.text : '') + '<br>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-        div: function (element) {
-            var html = {
-                start: '<div',
-                end: undefined !== element.text ? '>' + element.text + '</div>' : '></div>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-        html: function (element) {
-            return element.data;
-        },
-        spinner: function (element) {
-            var html = {
-                start: undefined !== element.text ? element.text+'<input type="number"' : '<input type="number"',
-                end: '/>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-        textarea: function (element) {
-            var html = { 
-                start: '<textarea ',
-                end: undefined !== element.text ? '>' + element.text + '</textarea>' : '></textarea>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-        textbox: function (element) {
-            var html = {
-                start: '<input type="text"',
-                end: undefined !== element.text ? ' value="' + element.text + '">' : '>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-
-    };
-    return undefined !== options[type] ? options[type] : undefined;
-};
-
-//recursive function, simply loops until there are no more children objects,
-//uses jQuery to append to the parent object (usually a div element).
-function appendHTML(jsonObj, container) {
-    if(typeof jsonObj == 'function'){
-        jsonObj = jsonObj();
-    }
-    $('#'+container).append(parsetype(jsonObj.type)(jsonObj));
-    if(undefined !== jsonObj.children) {
-        $.each(jsonObj.children, function () {
-            appendHTML(this, jsonObj.id);
-        });
-    }
-    if(undefined !== jsonObj.functions) {
-        $.each(jsonObj.functions, function () {
-            this();
-        });
-    }
-}
 
 /*
     this function will take a date time object, and remove the time zone changes. Currently,
@@ -368,7 +313,7 @@ var $project = {
                     while(myNode.firstChild) {
                         myNode.removeChild(myNode.firstChild);
                     }
-                    appendHTML(forms['defaultEvntTime'], 'display-tblInfo');
+                    appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
                         //console.log('time', cmd.time.removeISOTimeZone(obj.dtDateTime).toLocaleTimeString());
                         var prop = {
@@ -381,7 +326,7 @@ var $project = {
                             coach: obj.strGroupInstructor,
                             id: obj.intScheduleOverRideNumPaticipants,
                         };
-                        appendHTML(forms['defEvntTimes'](prop), 'display-tblInfo');
+                        appendHTML(forms['defEvntTimes'](prop), '#display-tblInfo');
                     });
                     dfd.resolve(); //everything is done here.
                 });
@@ -501,6 +446,24 @@ var $project = {
 }
 
 var cmd = { //project commands sorted alphabetically.
+    detectBrowser: function () {
+        return (function(){
+            var ua= navigator.userAgent, tem, 
+                M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+                if(/trident/i.test(M[1])){
+                    tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+                    return 'IE '+(tem[1] || '');
+                }
+                if(M[1]=== 'Chrome'){
+                    tem= ua.match(/\bOPR\/(\d+)/)
+                    if(tem!= null) return 'Opera '+tem[1];
+                }
+                M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+                if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+                return M.join(' ');
+            })();
+        
+    },
     componentToHex: function (c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
@@ -546,7 +509,7 @@ var cmd = { //project commands sorted alphabetically.
                 appendHTML(forms['genEvnt'](cmd.createEvent({
                     cntr: indx,
                     data: obj,
-                })), 'display-tbls');
+                })), '#display-tbls');
             });
             if(undefined !== idSelect) { //can specify which object to have focus after drawing the json data.
                 $.each($v().events(), function (index, obj) {
@@ -630,12 +593,25 @@ var cmd = { //project commands sorted alphabetically.
                           cmd.time.removeISOTimeZone(dateTime.toISOString(), false);
         */
         removeISOTimeZone: function(isoTime, add) {
+            var type = cmd.detectBrowser();
+            type = type.substring(0, type.indexOf(' '));
             var d = new Date(isoTime);
-            if(add) {
-                return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
-            } else {
-                return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
-            }
+
+            if(type == 'Chrome' || type == 'Opera') {
+                
+                if(add) {
+                    return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+                } else {
+                    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+                }
+            } /*else {
+                if(add) {
+                    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+                } else {
+                    return d;
+                }
+            }*/
+            return d;
         },
         getRelevantDate: function() {
             return $dt.read($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].dtScheduleDate);
