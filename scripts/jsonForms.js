@@ -15,6 +15,7 @@ var colors = function() { //depricated use $p('color');
 var dpToggle = 1;
 
 var previousTxt;
+//this function is for the schedule time textboxes.
 function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
     var object = function (val, color) { //getter setter awesomeness!!!
         if(undefined !== val) {
@@ -31,16 +32,20 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
             };
         }
     };
-    $('#'+id).focus(function() {
+
+    var focus = function() {
         dataObjs.slctdDiv = id;
         //console.log('focus:', id);
         if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
             previousTxt = object().value;
-            object('');
+            //object('');
         } else {
             object('', $p('purple'));
         }
-    }).blur(function() {
+        $('#'+id).select(); //so that the text (time) is hilighted.
+    };
+
+    var blur = function() {
         if(object().color == $p('purple')) { //purple if the entry was edited!
             if(undefined !== dbVal && '' !== dbVal && null !== dbVal) {
                 if(object().value === '') {
@@ -59,17 +64,26 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
             }
         }
         if(updateEnabled) {
-            if('' !== previousTxt && '' !== object().value && object().value != previousTxt && object().value != defVal) { //if it's been edited and does not match the db.
-                object(object().value, $p('red'));
-            }
+            console.log('compare:', previousTxt != object().value);
+            if(previousTxt != object().value && dbVal != object().value) {
+                if('' !== previousTxt && '' !== object().value && object().value != previousTxt && object().value != defVal) { //if it's been edited and does not match the db.
+                    object(object().value, $p('red'));
+                }
+            } 
         }
         previousTxt = undefined;
+    };
+
+    $('#'+id).focus(function() {
+        focus();
+    }).blur(function() {
+        blur();
     });
 }
 
 function toggleTxtBx(id, txt) {
     if( $('#'+id)[0].value == txt ) {
-        $('#'+id)[0].value = '';
+        //$('#'+id)[0].value = '';
         $('#'+id).css({
             'color': $p('purple'),
         });
@@ -251,13 +265,14 @@ var forms = {
                                 css: function() {
                                     $('#evntEditBx').css({
                                         'width': 'inherit',
-                                        'text-align': 'center',
+                                        'text-align': 'left',
                                         'color': $p('purple'),
                                     });
                                 },
                                 event: function () {
                                     $('#evntEditBx').focus(function() {
-                                        $('#evntEditBx')[0].value = '';
+                                        //$('#evntEditBx')[0].value = '';
+                                        $('#evntEditBx').select();
                                         dataObjs.slctdObj = prop.id+'pt1';
                                     }).blur(function () {
                                         if($('#evntEditBx')[0].value != prop.pt1.raw && $('#evntEditBx')[0].value !== '') {
@@ -350,13 +365,14 @@ var forms = {
                                 css: function() {
                                     $('#descriptEditBx').css({
                                         'width': '70%',
-                                        'text-align': 'center',
+                                        'text-align': 'left',
                                         'color': $p("purple"),
                                     });
                                 },
                                 event: function () {
                                     $('#descriptEditBx').focus(function() {
-                                        $('#descriptEditBx')[0].value = '';
+                                        /*$('#descriptEditBx')[0].value = '';*/
+                                        $('#descriptEditBx').select();
                                         dataObjs.slctdObj = prop.id+'pt0';
                                     }).blur(function () {
                                         if($('#descriptEditBx')[0].value != prop.pt0.raw && $('#descriptEditBx')[0].value !== '') {
@@ -817,36 +833,39 @@ var forms = {
                                     });
                                 }
                                 $('#txtBxTime'+options.cnt).blur(function () {
-                                    var dtTime = $dt.parse($('#txtBxTime'+options.cnt)[0].value);
-                                    if($dt.read(dtTime).toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
-                                        if(dtTime.toLocaleTimeString() != "Invalid Date") {
-                                            
+                                    if($dt.write(date).toLocaleTimeString() != $('#txtBxTime'+options.cnt)[0].value) {
+                                        var dtTime = $dt.parse($('#txtBxTime'+options.cnt)[0].value);
 
-                                            var type = cmd.detectBrowser();
-                                            type = type.substring(0, type.indexOf(' '));
+                                        if($dt.read(dtTime).toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
+                                            if(dtTime.toLocaleTimeString() != "Invalid Date") {
+                                                
 
-                                            //IE tries several times to add time zone hours to time... this stops it from doing that
-                                            if(type == 'IE') {
-                                                dtTime = new Date(dtTime.getTime() - (dtTime.getTimezoneOffset() * 60000));
+                                                var type = cmd.detectBrowser();
+                                                type = type.substring(0, type.indexOf(' '));
+
+                                                //IE tries several times to add time zone hours to time... this stops it from doing that
+                                                if(type == 'IE') {
+                                                    dtTime = new Date(dtTime.getTime() - (dtTime.getTimezoneOffset() * 60000));
+                                                }
+
+                                                //turn to ISO string and remove the .000Z from the string.
+                                                dtTime = dtTime.toISOString();
+                                                dtTime = dtTime.substring(0, dtTime.indexOf('Z')-4) + dtTime.substring(dtTime.indexOf('Z')+1, dtTime.length);
+
+
+                                                console.log('sending time:', dtTime);
+
+                                                $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
+                                                    color: $p('purple'),
+                                                    indx: options.cnt,
+                                                    property: 'dtDateTime',
+                                                    txtBxID: 'txtBxTime'+options.cnt,
+                                                    dt: dtTime, //send it.
+                                                });
                                             }
-
-                                            //turn to ISO string and remove the .000Z from the string.
-                                            dtTime = dtTime.toISOString();
-                                            dtTime = dtTime.substring(0, dtTime.indexOf('Z')-4) + dtTime.substring(dtTime.indexOf('Z')+1, dtTime.length);
-
-
-                                            console.log('sending time:', dtTime);
-
-                                            $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
-                                                color: $p('purple'),
-                                                indx: options.cnt,
-                                                property: 'dtDateTime',
-                                                txtBxID: 'txtBxTime'+options.cnt,
-                                                dt: dtTime, //send it.
-                                            });
+                                            //update the text box containing the time.
+                                            $('#txtBxTime'+options.cnt)[0].value = $dt.read(new Date(dtTime)).toLocaleTimeString();
                                         }
-                                        //update the text box containing the time.
-                                        $('#txtBxTime'+options.cnt)[0].value = $dt.read(new Date(dtTime)).toLocaleTimeString();
                                     }
                                 });
                             }]
