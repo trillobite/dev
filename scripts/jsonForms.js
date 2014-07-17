@@ -35,14 +35,13 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
 
     var focus = function() {
         dataObjs.slctdDiv = id;
-        //console.log('focus:', id);
         if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
             previousTxt = object().value;
             //object('');
         } else {
             object('', $p('purple'));
         }
-        $('#'+id).select(); //so that the text (time) is hilighted.
+        //$('#'+id).select(); //so that the text (time) is hilighted.
     };
 
     var blur = function() {
@@ -64,7 +63,6 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
             }
         }
         if(updateEnabled) {
-            console.log('compare:', previousTxt != object().value);
             if(previousTxt != object().value && dbVal != object().value) {
                 if('' !== previousTxt && '' !== object().value && object().value != previousTxt && object().value != defVal) { //if it's been edited and does not match the db.
                     object(object().value, $p('red'));
@@ -172,9 +170,7 @@ var forms = {
                     obj.dtOnLineFilledEndDate = t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')).toISOString(); //11:55PM
 
                     var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
-                    console.log(url);
                     $sql(url).get(function(data){
-                        console.log(dataObjs.srvdTbls.EventSchedules);
                         var parsed = JSON.parse(data);
                         dataObjs.srvdTbls.EventSchedules[dataObjs.srvdTbls.EventSchedules.length] = parsed;
                         $v('display-tbls').clear();
@@ -258,7 +254,6 @@ var forms = {
                     event: function () {
                         $('#pt1Obj'+prop.id+' u').click(function() {  //only when the text is clicked. jQuery wrapped the text object with <u></u>.
                             $('#pt1Obj'+prop.id).remove(); //remove for mutation.
-                            console.log(prop);
                             appendHTML(forms.mTxt({ //mutates to this.
                                 id: 'evntEditBx',
                                 text: prop.pt1.raw,
@@ -358,7 +353,6 @@ var forms = {
                     event: function () {
                         $('#description'+prop.id+' a').click(function () {
                             $('#description'+prop.id).remove(); //remove for mutation.
-                            //console.log(prop);
                             appendHTML(forms.mTxt({ //mutates to this.
                                 id: 'descriptEditBx',
                                 text: prop.pt0.raw,
@@ -422,8 +416,6 @@ var forms = {
                             functions: [function () {
                                 $('#dpkrBtn').click(function(){
                                     var d = dataObjs.clearTime(new Date($('#dpkr').datepicker('getDate')));
-                                    console.log('dtScheduleDate', $dt.write(d).toISOString());
-                                    console.log('dtOnLineFilledEndDate', $dt.write(dataObjs.timeMidnight(d)).toISOString());
                                     $v().events()[indx].dtScheduleDate = $dt.write(d);
                                     $v().events()[indx].dtOnLineFilledEndDate = $dt.write(dataObjs.timeMidnight(d));
                                     cmd.update(indx, $v().events()[indx].indxScheduleID); //updates the data, second parameter focuses the object.
@@ -853,7 +845,6 @@ var forms = {
                                                 dtTime = dtTime.substring(0, dtTime.indexOf('Z')-4) + dtTime.substring(dtTime.indexOf('Z')+1, dtTime.length);
 
 
-                                                console.log('sending time:', dtTime);
 
                                                 $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
                                                     color: $p('purple'),
@@ -1231,7 +1222,6 @@ var forms = {
                                     if(getText($('#timeBox')[0].value, 'time') !== "") {
                                         d.setTime(cmd.time.format($('#timeBox')[0].value));
                                         strJson.dtDateTime = $dt.write(d).toISOString();
-                                        console.log(strJson.dtDateTime);
                                     }
                                     $project.create('scheduleItem')(strJson).done(function() { //make the new schedule item (aka time).
                                         $.colorbox.close(); //close the color box.
@@ -1258,9 +1248,6 @@ var forms = {
 };
 
 function defaultColorbox(id, obj, dimens) {
-    /*console.log(id);
-    console.log(forms[obj]);
-    console.log(dimens);*/
     $.colorbox({html:'<div id="'+id+'"></div>', width: dimens.width, height: dimens.height});
     appendHTML(forms[obj], '#'+id);
 }

@@ -167,12 +167,12 @@ var dataObjs = {
         Inputs: NONE.
         Outputs: function. 
     */
-    tblElemClick: function(div) {
+/*    tblElemClick: function(div) {
         return function () { //ANOTHER GET FUNCTION WOULD GO HERE!
             slctdObj = div;
             console.debug('element clicked!', slctdObj);
         };
-    },
+    },*/
 };
 
 /*
@@ -185,7 +185,6 @@ var dataObjs = {
 */
 var $dt = {
     read: function (date) {
-        //console.log('$dt read', date);
         if(typeof(date) == 'object') {
             date = date.toISOString();
         } 
@@ -206,7 +205,6 @@ var $dt = {
         return new Date(date);
     },
     parse: function(time) {
-        //console.log('$dt parse', time);
         var type = cmd.detectBrowser();
         if(type.substring(0, type.indexOf(' ')) != 'IE') {
             return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time))); //parse a string time in text box, and remove the time zone differences.
@@ -264,7 +262,6 @@ var $db = {
         update: function(json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateItemData.aspx?Data='+JSON.stringify(json);
             $sql(url).get(function (data) {
-                //console.log('from server:', data);
                 func(data);
             });
         },
@@ -283,6 +280,7 @@ var $project = {
                 });
                 return dfd.promise();
             },
+            //i think i need to produce a random number here to keep IE from caching!!!!
             scheduleItem: function (json) {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.create(json, function(data) {
@@ -328,7 +326,6 @@ var $project = {
                 $db.scheduleItems.get(indx, function (data) {
                     dataObjs.evntTime = [];
                     dataObjs.evntTimes = JSON.parse(data);
-                    //console.log(dataObjs.evntTimes);
                     dataObjs.evntTimes.EventScheduleItems.sort(function(a,b) { //sort by time.
                         return new Date(a.dtDateTime).getTime() - new Date(b.dtDateTime).getTime(); 
                     });
@@ -339,8 +336,6 @@ var $project = {
                     }
                     appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
-                        //console.log('time', cmd.time.removeISOTimeZone(obj.dtDateTime).toLocaleTimeString());
-
                         var prop = {
                             cnt: count,
                             reserved: obj.blnOnlineFilledAllowed,
@@ -400,7 +395,6 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.schedules.update(json, function(data) {
                     var message = $project.update('updateCheck')(data, obj);
-                    console.log(message.msg, message.dta);
                     dfd.resolve(message.dta); //finished.
                 });
                 return dfd.promise();
@@ -409,7 +403,6 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.update(json, function(data) {
                     var message = $project.update('updateCheck')(data, obj);
-                    console.log(message.msg, message.dta);
                     dfd.resolve(message.dta); //finished.
                 });
                 return dfd.promise();
@@ -451,7 +444,6 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.schedules.remove(json, function(data) {
                     var message = $project.remove('removeCheck')(data);
-                    console.log(message.msg, message.dta);
                     dfd.resolve(message.dta);
                 });
                 return dfd.promise();
@@ -460,7 +452,6 @@ var $project = {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.remove(json, function(data) {
                     var message = $project.remove('removeCheck')(data);
-                    console.log(message.msg, message.dta);
                     dfd.resolve(message.dta);
                 });
                 return dfd.promise();
@@ -539,7 +530,6 @@ var cmd = { //project commands sorted alphabetically.
             if(undefined !== idSelect) { //can specify which object to have focus after drawing the json data.
                 $.each($v().events(), function (index, obj) {
                     if(obj.indxScheduleID == idSelect) {
-                        console.log('found', index);
                         //$('#foo'+index).focus();
                         cmd.scheduleFocus('foo'+index, obj.indxScheduleID);
                     }
@@ -548,13 +538,11 @@ var cmd = { //project commands sorted alphabetically.
         },
     },
     del: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //console.log(indx, dataObjs.srvdTbls.EventSchedules[indx]);
         var rmObj = $v().events()[indx];
         var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + rmObj.indxScheduleID;
         url += '&Data2=' + rmObj.indxOrganizationEventID;
         
         $sql(url).get(function(dta) {
-            console.log(dta);
             if(dta) {
                 dataObjs.srvdTbls.EventSchedules.splice(indx, 1);
             }
@@ -585,7 +573,6 @@ var cmd = { //project commands sorted alphabetically.
                     'background-color': 'white',
                 });
             });
-            //console.log(evntID, dataObjs.slctdObj);
             $project.draw('scheduleItems')(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
         }
         $('#'+id).css({
@@ -663,7 +650,6 @@ var cmd = { //project commands sorted alphabetically.
                 return tHour.toString();
             }
             timeStore.hour = valid ? to24(timeStore.hour) : 'e'; //force return error invalid date if time is not valid, by inserting char to make it invalid.
-            //console.log(timeStore.hour);
             dt.setHours(parseInt(timeStore.hour));
             dt.setMinutes(parseInt(timeStore.minutes));
             dt.setSeconds(0);
@@ -688,12 +674,9 @@ var cmd = { //project commands sorted alphabetically.
         },
         parseShorthand: function(input, timeObj) { 
             var timeStore = timeObj;
-            //console.log('colon does not exist');
             timeStore.morning = cmd.time.strDayTimeCheck(input); //first identify if am or pm.
             input = cmd.time.removeDayTime(input);
-            console.log(input, 'length:', input.length);
             if(parseInt(input.length / 2) == 1) { //after alphabetical removed, still has 2 or 3 digits.
-                //console.log('executing two or three digit process');
                 if(!(parseInt(input) > 12)) { //user must be implying two digit time.
                     timeStore.hour = input;
                 } else { //user must be implying hour and minutes.
@@ -704,11 +687,9 @@ var cmd = { //project commands sorted alphabetically.
                     timeStore.minutes = input.substring(1, input.length);
                 }
             } else if(parseInt(input.length / 2) == 2) { //after alphabetical removed, still has has 4 digits.
-                //console.log('executing four digit');
                 timeStore.hour = input.substring(0, 2);
                 timeStore.minutes = input.substring(2, input.length);
             } else if(input.length == 1) { //after alphabetical removed, still has only has one digit.
-                //console.log('executing one digit');
                 timeStore.hour = input;
             } //else it's an invalid time.
             return timeStore;
@@ -747,7 +728,6 @@ var cmd = { //project commands sorted alphabetically.
         },
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
             var date = cmd.time.getRelevantDate();
-            console.log(date.toISOString());
             var hour = parseInt(input.substring(0, input.indexOf(':')), 10);
             var minutes = parseInt(input.substring(input.indexOf(':')+1, input.indexOf(' ')), 10);
             var amPm = input.substring(input.indexOf(' ')+1, input.length);
