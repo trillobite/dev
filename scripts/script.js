@@ -26,7 +26,7 @@ var $p = function (obj) {
 };
 
 var $v = function (obj) {
-    return {
+    var retObj = {
         events: function () {
             return dataObjs.srvdTbls.EventSchedules;  
         },
@@ -39,7 +39,8 @@ var $v = function (obj) {
         clear: function () {
             $('#'+obj).empty();  
         },
-    };  
+    };
+    return retObj;
 };
 var undef;
 /*
@@ -184,13 +185,35 @@ var dataObjs = {
 */
 var $dt = {
     read: function (date) {
-        return cmd.time.removeISOTimeZone(date, true);
+        //console.log('$dt read', date);
+        if(typeof(date) == 'object') {
+            date = date.toISOString();
+        } 
+
+        var type = cmd.detectBrowser();
+        type = type.substring(0, type.indexOf(' '));
+        
+        if(type != 'IE') {
+            date = date.replace('T', ' ');
+            date = date.replace('Z', '');
+            if(date.indexOf('.') >= 0) {
+                date = date.substring(0, date.indexOf('.'));
+            }
+        }
+        return new Date(date);
     },
     write: function(date) {
-        return cmd.time.removeISOTimeZone(date);
+        return new Date(date);
     },
     parse: function(time) {
-        return $dt.write(cmd.time.parse(time)); //parse a string time in text box, and remove the time zone differences.
+        //console.log('$dt parse', time);
+        var type = cmd.detectBrowser();
+        if(type.substring(0, type.indexOf(' ')) != 'IE') {
+            return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time))); //parse a string time in text box, and remove the time zone differences.
+        } else {
+            return $dt.write(cmd.time.parse(time));
+        }
+        
     }
 };
 
@@ -241,6 +264,7 @@ var $db = {
         update: function(json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateItemData.aspx?Data='+JSON.stringify(json);
             $sql(url).get(function (data) {
+                //console.log('from server:', data);
                 func(data);
             });
         },
@@ -316,11 +340,12 @@ var $project = {
                     appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
                         //console.log('time', cmd.time.removeISOTimeZone(obj.dtDateTime).toLocaleTimeString());
+
                         var prop = {
                             cnt: count,
                             reserved: obj.blnOnlineFilledAllowed,
                             checked: obj.blnCheckedIn,
-                            time: cmd.time.removeISOTimeZone(obj.dtDateTime, true).toISOString(), //when it converts to local time, it will now be correct.
+                            time: cmd.time.removeISOTimeZone( $dt.read(obj.dtDateTime).toISOString() ), //javaScript tries to add the time zone when data comes from the db... this removes it.
                             name: obj.strGroupName,
                             division: obj.strGroupDivision,
                             coach: obj.strGroupInstructor,
@@ -355,7 +380,7 @@ var $project = {
             updateCheck: function(data, obj) { //A generic quick check which returns the status of the update, if it's good or not.
                 var returnData = {
                     dta: JSON.parse(data),
-                }
+                };
                 if(data) { //if the data returned is not 0, undefined, null, [], etc...
                     if(obj) {
                         if(JSON.parse(data)[obj.property] == obj.check) { //make sure that the data in the db is the same as current.
@@ -598,19 +623,13 @@ var cmd = { //project commands sorted alphabetically.
             var d = new Date(isoTime);
 
             if(type == 'Chrome' || type == 'Opera') {
-                
                 if(add) {
                     return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
                 } else {
                     return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
                 }
-            } /*else {
-                if(add) {
-                    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
-                } else {
-                    return d;
-                }
-            }*/
+            } 
+
             return d;
         },
         getRelevantDate: function() {

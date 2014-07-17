@@ -820,15 +820,33 @@ var forms = {
                                     var dtTime = $dt.parse($('#txtBxTime'+options.cnt)[0].value);
                                     if($dt.read(dtTime).toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
                                         if(dtTime.toLocaleTimeString() != "Invalid Date") {
+                                            
+
+                                            var type = cmd.detectBrowser();
+                                            type = type.substring(0, type.indexOf(' '));
+
+                                            //IE tries several times to add time zone hours to time... this stops it from doing that
+                                            if(type == 'IE') {
+                                                dtTime = new Date(dtTime.getTime() - (dtTime.getTimezoneOffset() * 60000));
+                                            }
+
+                                            //turn to ISO string and remove the .000Z from the string.
+                                            dtTime = dtTime.toISOString();
+                                            dtTime = dtTime.substring(0, dtTime.indexOf('Z')-4) + dtTime.substring(dtTime.indexOf('Z')+1, dtTime.length);
+
+
+                                            console.log('sending time:', dtTime);
+
                                             $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
                                                 color: $p('purple'),
                                                 indx: options.cnt,
                                                 property: 'dtDateTime',
                                                 txtBxID: 'txtBxTime'+options.cnt,
-                                                dt: dtTime.toISOString(),
+                                                dt: dtTime, //send it.
                                             });
                                         }
-                                        $('#txtBxTime'+options.cnt)[0].value = $dt.read(dtTime).toLocaleTimeString();
+                                        //update the text box containing the time.
+                                        $('#txtBxTime'+options.cnt)[0].value = $dt.read(new Date(dtTime)).toLocaleTimeString();
                                     }
                                 });
                             }]
