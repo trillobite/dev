@@ -71,14 +71,20 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
         }
         previousTxt = undefined;
     };
-
+    var hasfocus = false;
     $('#'+id).focus(function() {
         focus();
+        //hasfocus = true;
         //$('#'+id).select();
     }).blur(function() {
         blur();
+        hasfocus = false;
     }).click(function() {
-        $('#'+id).select();
+        if(!hasfocus) {
+            $('#'+id).select();
+            hasfocus = false;
+        }
+        hasfocus = true;
     });
 }
 
