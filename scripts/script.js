@@ -202,7 +202,7 @@ var $dt = {
         return new Date(date);
     },
     write: function(date) {
-        return new Date(date);
+        return new Date(date); //just returns what was entered as a javaScript date object.
     },
     parse: function(time) {
         var type = cmd.detectBrowser();
@@ -216,29 +216,34 @@ var $dt = {
 };
 
 var $db = {
+    //modifies the xmlHttpSend URL to include a random parameter so that Internet Explorer will not cache the data.
+    preventCache: function(url) {
+        return url + '&Rand='+Math.floor((Math.random() * 1000) + 1).toString();
+    },
+
     schedules: {
         create: function (json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(json);
-            $sql(url).get(function (data) {
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
         get: function(indx, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + indx; //id.event
-            $sql(url).get(function (data) {
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
         remove: function(json, func) { //$v().events()[indx]
             var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + json.indxScheduleID;
             url += '&Data2=' + json.indxOrganizationEventID;
-            $sql(url).get(function (data) {
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
         update: function(json, func) {
-            var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+JSON.stringify(json);
-            $sql(url).get(function (data) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?RandData='+JSON.stringify(json);
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
@@ -246,13 +251,13 @@ var $db = {
     scheduleItems: {
         create: function (json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleInsertItemData.aspx?Data='+JSON.stringify(json);
-            $sql(url).get(function (data) {
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
         get: function (indx, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleGetItemData.aspx?Data='+indx; //evntID
-            $sql(url).get(function (data) {
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
@@ -261,7 +266,7 @@ var $db = {
         },
         update: function(json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateItemData.aspx?Data='+JSON.stringify(json);
-            $sql(url).get(function (data) {
+            $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
