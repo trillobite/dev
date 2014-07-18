@@ -74,8 +74,11 @@ function tgglTxtBx(id, dbVal, defVal, updateEnabled) {
 
     $('#'+id).focus(function() {
         focus();
+        //$('#'+id).select();
     }).blur(function() {
         blur();
+    }).click(function() {
+        $('#'+id).select();
     });
 }
 
@@ -218,7 +221,7 @@ var forms = {
             functions: [function () {
                 if(dataObjs.slctdObj == prop.id) { //if there was an update, the object would be hilighted blue.
                     $('#'+prop.id).css({
-                        'background-color': $p('blue'),
+                        'background-color': $p('gray'),
                     });
                 }
                 $('#'+prop.id).mouseover(function () {
@@ -826,26 +829,19 @@ var forms = {
                                 }
                                 $('#txtBxTime'+options.cnt).blur(function () {
                                     if($dt.write(date).toLocaleTimeString() != $('#txtBxTime'+options.cnt)[0].value) {
+                                        //var dtTime = $dt.parse($('#txtBxTime5')[0].value);
                                         var dtTime = $dt.parse($('#txtBxTime'+options.cnt)[0].value);
-
-                                        if($dt.read(dtTime).toLocaleTimeString() !== $('#txtBxTime'+options.cnt)[0].value){ //if it changed!
+                                        if(cmd.rgbToHex($('#txtBxTime'+options.cnt)[0].style['color']).toUpperCase() == $p('red')){ //if it changed!
                                             if(dtTime.toLocaleTimeString() != "Invalid Date") {
-                                                
-
                                                 var type = cmd.detectBrowser();
                                                 type = type.substring(0, type.indexOf(' '));
-
                                                 //IE tries several times to add time zone hours to time... this stops it from doing that
                                                 if(type == 'IE') {
                                                     dtTime = new Date(dtTime.getTime() - (dtTime.getTimezoneOffset() * 60000));
                                                 }
-
                                                 //turn to ISO string and remove the .000Z from the string.
                                                 dtTime = dtTime.toISOString();
                                                 dtTime = dtTime.substring(0, dtTime.indexOf('Z')-4) + dtTime.substring(dtTime.indexOf('Z')+1, dtTime.length);
-
-
-
                                                 $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
                                                     color: $p('purple'),
                                                     indx: options.cnt,

@@ -643,7 +643,7 @@ var cmd = { //project commands sorted alphabetically.
             }
         },
         mkTimeStr: function(timeStore) {
-            var valid = parseInt(timeStore.hour) && !(parseInt(timeStore.hour) > 12) ? true : false; //if it's anything but 0, and not greater than 24, it is valid;
+            var valid = parseInt(timeStore.hour) >= 0 && parseInt(timeStore.hour) <= 12 ? true : false; //if it's anything but 0, and not greater than 24, it is valid;
             valid = valid ? parseInt(timeStore.minutes) >= 0 && parseInt(timeStore.minutes) <= 60 ? true : false : false; //minutes is not a negative, and no more than 60.
             var dt = cmd.time.getRelevantDate();
             function to24(tHour) {
@@ -659,6 +659,7 @@ var cmd = { //project commands sorted alphabetically.
             dt.setMinutes(parseInt(timeStore.minutes));
             dt.setSeconds(0);
             if(dt == "Invalid Date") {
+
                 alert("check your input time format!");
             }
             return dt;
@@ -680,7 +681,15 @@ var cmd = { //project commands sorted alphabetically.
         parseShorthand: function(input, timeObj) { 
             var timeStore = timeObj;
             timeStore.morning = cmd.time.strDayTimeCheck(input); //first identify if am or pm.
-            input = cmd.time.removeDayTime(input);
+            input = cmd.time.removeDayTime(input).toString();
+            var tmp = "";
+            //IE compatibility, makes sure the string has no errors.
+            for(var i = 0; i < input.length; ++i) {
+                if(parseInt(input[i]).toString() != "NaN") {
+                    tmp = tmp + parseInt(input[i]).toString();
+                }
+            }
+            input = tmp;
             if(parseInt(input.length / 2) == 1) { //after alphabetical removed, still has 2 or 3 digits.
                 if(!(parseInt(input) > 12)) { //user must be implying two digit time.
                     timeStore.hour = input;
@@ -717,6 +726,7 @@ var cmd = { //project commands sorted alphabetically.
                 daytime: timeStore.morning,
             };
         },
+        //cmd.time.parse($('#txtBxTime5')[0].value);
         parse: function(input) {
             input = input.toLowerCase(); //very first thing, make sure all characters are lowercase.
             var timeStore = cmd.time.obj;
@@ -725,11 +735,10 @@ var cmd = { //project commands sorted alphabetically.
                 var tmp = cmd.time.toShortHand(input);
                 input = tmp.str;
                 timeStore.morning = tmp.daytime;
-                timeStore = cmd.time.parseShorthand(input, timeStore);
-            } else { //does not have colon.
-                timeStore = cmd.time.parseShorthand(input, timeStore);
             }
-            return timeStore.date();
+            timeStore = cmd.time.parseShorthand(input, timeStore);
+            //console.log(timeStore);
+            return cmd.time.mkTimeStr(timeStore);
         },
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
             var date = cmd.time.getRelevantDate();
