@@ -262,7 +262,10 @@ var $db = {
             });
         },
         remove: function(json, func) {
-            //not created yet.
+            var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteItemData.aspx?Data=' + JSON.stringify(json);
+            $sql($db.preventCache(url)).get(function (data) {
+                func(data);
+            });
         },
         update: function(json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateItemData.aspx?Data='+JSON.stringify(json);
@@ -327,6 +330,7 @@ var $project = {
                 return dfd.promise(); //.done to determine when finished drawing.
             },
             scheduleItems: function (indx) {
+                console.log(indx);
                 var dfd = new $.Deferred();
                 $db.scheduleItems.get(indx, function (data) {
                     dataObjs.evntTime = [];
@@ -616,6 +620,21 @@ var cmd = { //project commands sorted alphabetically.
             var d = new Date(isoTime);
 
             if(type == 'Chrome' || type == 'Opera') {
+                if(add) {
+                    return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+                } else {
+                    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+                }
+            } 
+
+            return d;
+        },
+        IEremoveISOTimeZone: function(isoTime, add) {
+            var type = cmd.detectBrowser();
+            type = type.substring(0, type.indexOf(' '));
+            var d = new Date(isoTime);
+
+            if(type == 'IE') {
                 if(add) {
                     return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
                 } else {

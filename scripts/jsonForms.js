@@ -12,6 +12,32 @@ var colors = function() { //depricated use $p('color');
     };
 };
 
+var confirmDel = function (indx) {
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '450px', height: '120px'});
+    appendHTML(forms['confirmPopUp']({
+        text: '<h3> Are you sure you wish to delete this Event? </h3>',
+        func: function () {
+            cmd.del(indx);
+            $.colorbox.close(); 
+        },
+    }), '#cbConfirm');
+};
+
+var confirmTimeDel = function(indx) {
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '450px', height: '120px'});
+    appendHTML(forms['confirmPopUp']({
+        text: '<h3> Are you sure you wish to delete this Time? </h3>',
+        func: function() {
+            $project.remove('scheduleItem')(dataObjs.evntTimes[indx]).done(function() {
+                $v('display-tblInfo').clear();
+                $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+                $.colorbox.close();
+            });
+        }
+    }), '#cbConfirm');
+
+};
+
 var dpToggle = 1;
 
 var previousTxt;
@@ -980,6 +1006,9 @@ var forms = {
                             text: '<b>X</b>',
                         }).css({
                             'background-color': 'red',
+                        }).event('click', function() {
+                            console.log(options.cnt);
+                            confirmTimeDel(options.cnt);
                         }),
 
                         //event time maximize button.
@@ -1188,10 +1217,9 @@ var forms = {
                                     strJson.strGroupInstructor = getText($('#coachBox')[0].value, 'Coach');
                                     strJson.intScheduleOverRideNumPaticipants = $('#numParticipantsSpnr')[0].value;
                                     strJson.strNotes = getText($('#notesBox')[0].value, 'Notes...');
-                                    var d = new Date(strJson.dtDateTime);
                                     if(getText($('#timeBox')[0].value, 'time') !== "") {
-                                        d.setTime(cmd.time.format($('#timeBox')[0].value));
-                                        strJson.dtDateTime = $dt.write(d).toISOString();
+                                        strJson.dtDateTime = cmd.time.IEremoveISOTimeZone($dt.parse($('#timeBox')[0].value), false).toISOString();
+                                        console.log( $('#timeBox')[0].value, strJson.dtDateTime);
                                     }
                                     $project.create('scheduleItem')(strJson).done(function() { //make the new schedule item (aka time).
                                         $.colorbox.close(); //close the color box.
