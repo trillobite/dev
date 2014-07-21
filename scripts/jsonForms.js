@@ -640,7 +640,7 @@ var forms = {
                 functions: [function() {
                     $('#namebx').css({
                         'color': 'black',
-                        'width': '100px',
+                        'width': '155px',
                         'text-align': 'center',
                         'float': 'left'
                     });
@@ -682,7 +682,7 @@ var forms = {
                 functions: [function() {
                     $('#defaultID').css({
                         'color': 'black',
-                        'width': '100px',
+                        'width': '45px',
                         'text-align': 'center',
                         'float': 'left'
                     });
