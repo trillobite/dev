@@ -7,15 +7,6 @@
     statically in HTML. It was not written for performance, therefore it may not be good for very
     large projects, but it is good if you need to write code quickly in a more intuitive manner. 
     Basically, if you can do something in javaScript, you can now do it to your HTML.
-    
-    Disclaimer: jsonHTML is provided to you as Free Software (refer to: gnu.org/philosophy/free-sw.html ), by using this code
-    you agree not to hold me responsible for any damages, or consequences of your malicious or "friendly" use of this code.
-    This code is provided with no warranties, or guarantees, all I ask is you retain credit back to me if you use my code.
-    https://github.com/trillobite/jsonHTML
-    
-    Feel free to fork, and ask to become a contributor, if you have an improvement you have implemented in your fork, that 
-    you believe is totally amazing, and should be included in the main project, ill review it, and possibly implement it, and
-    give you credit as one of the authors or contributors.
 */
 
 /*
@@ -61,7 +52,7 @@ var arrdb = {
         }
     }
 
-}
+};
 
 /*
     If the user does not provide a div id for their object, this will make a 
@@ -129,6 +120,13 @@ var parsetype = function (type) {
         html: function (element) {
             return element.data;
         },
+        image: function (element) {
+            var html = {
+                start: '<img src='+element.src+' alt="'+element.text,
+                end: '>',
+            };
+            return html.start + ico(element) + html.end;
+        },
         spinner: function (element) {
             var html = {
                 start: undefined !== element.text ? element.text+'<input type="number"' : '<input type="number"',
@@ -166,6 +164,7 @@ function appendHTML(jsonObj, container) {
         if(undefined === jsonObj.id) {
             jsonObj.id = makeID();
         }
+        jsonObj.parent = container;
         $(container).append(parsetype(jsonObj.type)(jsonObj));
         if(undefined !== jsonObj.children) {
             $.each(jsonObj.children, function () {
@@ -210,7 +209,7 @@ var jConstructObjectManipulations = { //text object manipulations.
                 tmp.text = '<p>'+tmp.text+'</p>';
                 return tmp;
             }
-        }
+        };
     },
     //what you can immediately call on any object created by $jConstruct.
     basicPropertiesInsert: function(tmp, directInsert) {
@@ -272,11 +271,13 @@ var jConstructObjectManipulations = { //text object manipulations.
             }
             return this; //everything worked as expected.
         };
-        tmp.editProperty = function(properties) { //dynamically add new properties to the JSON HTML object on the fly.
+        //dynamically add new properties to the JSON HTML object on the fly.
+        tmp.editProperty = function(properties) {
             jConstructObjectManipulations.dynamicPropertiesAdd(tmp, properties);
             return this;
         };
-        tmp.remove = function() { //removes the object from the DOM
+        //remove the object from the DOM.
+        tmp.remove = function() {
             var divId = this.id;
             var myNode = document.getElementById(divId);
             while(myNode.firstChild) { //Experimental DOM object removal, jQuery "remove" leaves a temporary memory leak, this is intended to fix that issue.
@@ -285,12 +286,23 @@ var jConstructObjectManipulations = { //text object manipulations.
             $('#'+divId).remove();
             return this;
         };
-        tmp.textProperties = function(type, option) { //so the simple text manipulations can easily be done.
+        //allows the user to change what the text looks like with simple pre-generated HTML tags.
+        tmp.textProperties = function(type, option) {
             var options = jConstructObjectManipulations.textStyling(tmp);
             if(option) {
                 options[type](option);
             } else {
                 options[type]();
+            }
+            return this;
+        };
+        //Allows the user to render the object on the DOM again.
+        tmp.refresh = function() {
+            if(tmp.parent.length > 0) {
+                tmp.remove();
+                tmp.appendTo(tmp.parent);
+            } else {
+                console.log('Error: Parent of the object not defined. Was it rendered to the DOM yet?');
             }
             return this;
         };
@@ -323,6 +335,33 @@ function $jConstruct(htmlType, directInsert) {
 }
 
 /*
+    Copyright (C) 2014 Jesse Parnell
+    
+    v1.0
+    This software / code is provided to you similarly as Free Software, (refer to: https://gnu.org/philosophy/free-sw.html ),
+    by using or obtaining this code, you have the Free Software basic rights that do not contradict this license, if any, 
+    and you agree, with common sense:
+
+    To hold me __not__ responsible for any damages, or consequences of your malicious or "friendly" use of this code, it is up
+    to the user to ensure the integrity and effects of this code before it is run, copied, deleted, modified, or utilized in any way. 
+    This code is provided with no warranties, or guarantees. I ask from you to __retain__ credit back to me if you use my code 
+    or any portion of it, and leave this stated license intact and not modified. This code / software is regarded as an inanimate 
+    object, a tool, operating on natural laws, influenced by the current user and it's environment. The current user of the copy of 
+    this tool must be held responsible for the way they use it, and not hold reponsible the creators, distributors, or copiers of that 
+    tool. You may not redact, or modify this license within this repository / project / code / software, and leave the license fully, 
+    unmodified, as is, unless given written or verbal permission from the Copyright holder of this code / software. This license is 
+    not intended to cause a Closed-Source project to become Free Software, only the code and any portion of it from this project, 
+    under this license, has to remain Free, and it's source publicly availible, unless permission granted from the Copyright holder. 
+
+    Without manipulation to the license currently being utilized here, you may copy this license, and use it in __your__ own 
+    code / software / projects / works, but, similarly, as stated above, you are responsible for the way you use the tools I created, 
+    including this license.
+
+    Feel free to fork, and ask to become a contributor, you have that right, if you have an improvement you have implemented in your 
+    fork, that you believe is totally amazing, and should be included in the main project, ill review it, and possibly implement it, 
+    and give you credit as one of the authors or contributors, and remember, your also protected under the license above.
+
+
             )
             
             (

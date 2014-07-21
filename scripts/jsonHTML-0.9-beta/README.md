@@ -373,6 +373,31 @@ $(document).ready(function() {
 
 Basically this example code changes the color of the text contained in the div, on click like a switch, on and off. You can see how using simple javaScript/jQuery tricks, you can access what the current color of the text in the div is, and change it according to your specifications on click.
 
+Simplify It With Refresh In v0.9+
+---------------------------------
+
+One thing that you may have noticed already with the above code example, is that it is not entirely legible. It occured to me one evening: Would if I could change the property of the object and make it take the changes immediately. Despite this not being currently possible with my current knowledge, I found out I could do something similar, and the refresh function was born! Basically, when you refresh a jsonHTML object, it renders that object again to make sure it has the latest properties, by physically removing the object and adding it again, new.
+
+```JavaScript
+var child1 = $jConstruct('div', {
+    text: 'Click Me!'
+}).css(centerBorderHalf).event('click', function() { //on click event.
+    if(child1.type == 'div') {
+        child1.type = 'textbox';
+    }
+    child1.refresh(); //wow, very much yes simple!
+    $('#'+child1.id).focus();
+}).event('blur', function() { //on blur event.
+    if(child1.type == 'textbox') {
+        child1.type = 'div';
+        child1.text = $('#'+child1.id)[0].value; //get the data that changed.
+    }
+    child1.refresh(); //Refreshes the object on the DOM containing the current changes.
+});
+
+```
+As you can see, this object is very condensed and compact, yet highly functional. First jConstruct was used to create a div with the text saying Click Me! Then, css was added from another object containing the definitions somewhere in the project. Then, a click event handler was added, which changes the property type in the child1 object to now define it as a text box, and refresh is used to make those changes display in the browser to the user. Other than the blur handler which translates it back into a div, that's the basics of it, and you can see this object in action in syntacticSugarExample.html, as it was just updated with this latest feature.
+
 Getting Down To The Grounds
 ---------------------------
 
@@ -574,6 +599,8 @@ To do:
 
 ~Implement more HTML objects.
 
+*Added support for images! Cant believe I forgot this very important functionality to jsonHTML, you must know that this is a very alpha release, not tested, just implemented on the whim, you can only get it by doing a git clone of the repository, there is currently no release with this functionality. You define the source of the image with "src" and you define the text for the image as "text," just like you normally insert text for a div object.
+
 *Make the ".appendTo" function utilize jQuery Deferreds, so the user can simply type ".done(function() { console.log('done appending to the DOM')});" which brings the user down a tad lower level by not having to utilize ".addFunction," and allows for some asynchronious programming techniques to take place. [View v0.8.x+](https://github.com/trillobite/jsonHTML#incompatibility-notice)
 
 *Object DOM removal memory leak fix.
@@ -586,15 +613,43 @@ Disclaimer / License:
 ---------------------
 
 ---------------------------------------------------------------------------------------------------------------------------------
-jsonHTML is provided to you as Free Software (refer to: https://gnu.org/philosophy/free-sw.html ), by using this code
-you agree to hold me __not__ responsible for any damages, or consequences of your malicious or "friendly" use of this code.
-This code is provided with no warranties, or guarantees, all I ask is you __retain__ credit back to me if you use my code. 
+#####jsonHTML Copyright License v1.0 2014 Jesse Parnell
 
+
+#####Summary:
+The reason why I wrote this license, is so that anyone using my code can understand what they are making an agreement to, and what their rights are without having to go to a lawyer. All I ask is for you to utilize your brain, read this license as it is in context of the entire document, and do not try to stretch it's boundaries, as doing so may cause this license to be destroyed, and a newer one implemented with non-free restrictions... which would be sad, and terrible to the whole programming community. You must understand that my hand is forced into implementing any sort of license, people never want to be held accountable for their actions, politicians and governments have their agendas. People enjoy stealing your rights, this is an attempt to protect those rights. This license attempts to protect you and I, and anyone who helped to develop it. I would rather just throw my code out onto the web and let everyone do as they please with it, but that's not practical in the world that we live in today.
+
+#####Copyright License:
+    Copyright (C) 2014 Jesse Parnell
+    
+    v1.0
+
+    This software / code is provided to you similarly as Free Software, (refer to: https://gnu.org/philosophy/free-sw.html ),
+    by using or obtaining this code, you have the Free Software basic rights that do not contradict this license, if any, 
+    and you agree, with common sense:
+
+    To hold me __not__ responsible for any damages, or consequences of your malicious or "friendly" use of this code, it is up
+    to the user to ensure the integrity and effects of this code before it is run, copied, deleted, modified, or utilized in any way. 
+    This code is provided with no warranties, or guarantees. I ask from you to __retain__ credit back to me if you use my code 
+    or any portion of it, and leave this stated license intact and not modified. This code / software is regarded as an inanimate 
+    object, a tool, operating on natural laws, influenced by the current user and it's environment. The current user of the copy of 
+    this tool must be held responsible for the way they use it, and not hold reponsible the creators, distributors, or copiers of that 
+    tool. You may not redact, or modify this license within this repository / project / code / software, and leave the license fully, 
+    unmodified, as is, unless given written or verbal permission from the Copyright holder of this code / software. This license is 
+    not intended to cause a Closed-Source project to become Free Software, only the code and any portion of it from this project, 
+    under this license, has to remain Free, and it's source publicly availible, unless permission granted from the Copyright holder. 
+
+    Without manipulation to the license currently being utilized here, you may copy this license, and use it in __your__ own 
+    code / software / projects / works, but, similarly, as stated above, you are responsible for the way you use the tools I created, 
+    including this license.
+
+    Feel free to fork, and ask to become a contributor, you have that right, if you have an improvement you have implemented in your 
+    fork, that you believe is totally amazing, and should be included in the main project, ill review it, and possibly implement it, 
+    and give you credit as one of the authors or contributors, and remember, your also protected under the license above.
+
+
+#####Philosophy:
 The "Keep it black" philosophy was arisen from the rebirth of the coffee shop culture, when one would ask if you wanted any sweeteners in your coffee, the correct response under this philosophy is, "No, keep it black." One who believes in this philosophy, finds that keeping the coffee black is the best way to experience the flavor in it's truest form, unspoiled by pesky sweeteners masking it's true nature. This same philosophy is now implemented into the code that I write, I try to keep it black, I only add fluff to the code where it's necessary, but other than that any library I write under this philosophy is written to be as low level as possible and least intrusive to any programmer coming to try out the code I made. If you understand javaScript, there should be as small of a learning curve as possible to use my code, keeping it as true to it's roots as possible. 
-
-Feel free to fork, and ask to become a contributor, if you have an improvement you have implemented in your fork, that 
-you believe is totally amazing, and should be included in the main project, ill review it, and possibly implement it, and
-give you credit as one of the authors or contributors.
 
 ---------------------------------------------------------------------------------------------------------------------------------
 

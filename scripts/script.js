@@ -236,13 +236,13 @@ var $db = {
         },
         remove: function(json, func) { //$v().events()[indx]
             var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + json.indxScheduleID;
-            url += '&Data2=' + json.indxOrganizationEventID;
+            /*url += '&Data2=' + json.indxOrganizationEventID;*/
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
         },
         update: function(json, func) {
-            var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?RandData='+JSON.stringify(json);
+            var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+JSON.stringify(json);
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
