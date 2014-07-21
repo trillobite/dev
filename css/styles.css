@@ -104,21 +104,30 @@
     text-align: left;
 }
 .maxMinBtn {
-    border-radius: 5px;
+    font-size: 10px;
+    border-radius: 2px;
     text-align: center;
+    line-height: 18px;
+    /*margin: 5px;*/
+    margin-top: 4px;
     margin-right: 5px;
+    /*margin-top: 5px;*/
+    /*margin-bottom: 5px;*/
     cursor: pointer;
     color: white;
     /*background-color: red;*/
-    width: 25px;
-    height: 25px;
+    width: 18px;
+    height: 18px;
     float: right;
 }
 .reservationKey {
+    margin-top: 3px;
+    font-size: 12px;
     color: white;
     border-radius: 5px;
     text-align: center;
-    width: 25px;
-    height: 23px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
     float: left;
 }

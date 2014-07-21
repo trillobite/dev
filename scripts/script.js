@@ -551,6 +551,7 @@ var cmd = { //project commands sorted alphabetically.
             if(dta) {
                 dataObjs.srvdTbls.EventSchedules.splice(indx, 1);
             }
+            $v('display-tblInfo').clear();
             $v('display-tbls').clear();
             cmd.events.drawJSON(dataObjs.srvdTbls);
         });

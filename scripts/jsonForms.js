@@ -318,34 +318,29 @@ var forms = {
                     }]
                 },
                 
-                {
-                    type: 'div',
+                //the close button
+                $jConstruct('div', {
                     id: prop.id + 'pt2',
                     text: undefined !== prop.pt2.text ? '<a>'+prop.pt2.text+'</a>' : undefined,
-                    functions: [function () {
-                        $('#'+prop.id+'pt2 a').click(function() {
-                            $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
-                            cmd.update(prop.indx);
-                        });
-                        $('#'+prop.id+'pt2').css({
-                            'width': '20%',
-                            'height': '50%',
-                            'float': 'right',
-                        });
-                        $('#'+prop.id + 'pt2').append(parseMenu(genMenObj({
-                            title: 'edit', 
-                            id: 'Edit'+prop.indx,
-                            width: '100%',
-                            index: prop.indx,
-                        })));
-                        $('#Edit'+prop.indx).menu({
-                            theme: 'theme-default',
-                            transition: 'inside-slide-fade-left',
-                        });
-
-                    }],
-                    children: undefined !== prop.pt2.children ? prop.pt2.children : undefined,
-                },
+                }).addChild(
+                    $jConstruct('div', {
+                        id: 'btnRemove' + prop.id,
+                        class: 'maxMinBtn',
+                        text: '<b>X</b>',
+                    }).event('click', function() {
+                        console.log('close button clicked!', prop.indx);
+                        confirmDel(prop.indx);
+                    }).css({
+                        'background-color': 'red',
+                    })
+                ).event('click', function() {
+                    $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
+                    cmd.update(prop.indx);
+                }).css({
+                    'width': '20%',
+                    'height': '50%',
+                    'float': 'right',
+                }),
                 
                 forms.mDiv({
                     id: prop.id + 'pt0',
@@ -449,34 +444,21 @@ var forms = {
     },
     
     confirmPopUp: function(properties) {
-        return {
-            type: 'div',
-            id: 'cbDel',
-            class: 'container',
-            text: properties.text,
-            children: [
-                {
-                    type: 'button',
-                    id: 'btnOk',
-                    text: 'Yes',
-                    functions: [function() {
-                        $('#btnOk').click(function () {
-                            properties.func(); //execute the defined function on click.
-                        });
-                    }],
-                },
-                {
-                    type: 'button',
-                    id: 'btnCancel',
-                    text: 'Cancel',
-                    functions: [function () {
-                        $('#btnCancel').click(function() {
-                            $.colorbox.close();//close the pop up and do nothing.
-                        });
-                    }],
-                }
-            ],
-        };
+        return $jConstruct('div', {
+                id: 'cbDel',
+                class: 'container',
+                text: properties.text,
+            }).addChild($jConstruct('button', { //The Yes button
+                id: 'btnOk',
+                text: 'Yes',
+            }).event('click', function() {
+                properties.func();
+            })).addChild($jConstruct('button', { //The Cancel button
+                id: 'btnCancel',
+                text: 'Cancel',
+            }).event('click', function() {
+                $.colorbox.close();
+            }));
     },
     
     editTitle: function (indx) {
@@ -864,164 +846,150 @@ var forms = {
                             }]
                         },
                         //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-                        { //strGroupName
-                            type: 'textbox',
+                         //strGroupName
+                        $jConstruct('textbox', {
                             id: 'txtBxName' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'name',
-                            functions: [function() {
-                                if(!(options.reserved)) {
-                                    tgglTxtBx('txtBxName'+options.cnt, options.name, 'name', true); //set true for editable
-                                } else {
-                                    $('#txtBxName'+options.cnt).attr('disabled', 'disabled').css({
-                                        'color': $p('gray'),
-                                    });
-                                    
-                                }
-                                if(undefined !== options.name && '' !== options.name && null !== options.name) {
-                                    $('#txtBxName'+options.cnt)[0].value = options.name;
-                                    $('#txtBxName'+options.cnt).css({
-                                        'color': $p('purple'),
-                                    });
-                                }
-                                $('#txtBxName'+options.cnt).blur(function () { //if the text is red, update it!
-                                    if(cmd.rgbToHex($('#txtBxName' + options.cnt)[0].style['color']).toUpperCase() == $p('red')) {
-                                        $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
-                                            color: $p('purple'),
-                                            indx: options.cnt,
-                                            property: 'strGroupName',
-                                            txtBxID: 'txtBxName'+options.cnt,
-                                        });
-                                    }
+                        }).css({
+                            'width': '155px',
+                        }).addFunction(function() {
+                            if(!(options.reserved)) {
+                                tgglTxtBx('txtBxName'+options.cnt, options.name, 'name', true); //set true for editable
+                            } else {
+                                $('#txtBxName'+options.cnt).attr('disabled', 'disabled').css({
+                                    'color': $p('gray'),
                                 });
-                            }]
-                        },
+                            }
+                            if(undefined !== options.name && '' !== options.name && null !== options.name) {
+                                $('#txtBxName'+options.cnt)[0].value = options.name;
+                                $('#txtBxName'+options.cnt).css({
+                                    'color': $p('purple'),
+                                });
+                            }
+                        }).event('blur', function() {
+                            if($p('color')('txtBxName'+options.cnt) == $p('red')) {
+                                $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
+                                    color: $p('purple'),
+                                    indx: options.cnt,
+                                    property: 'strGroupName',
+                                    txtBxID: 'txtBxName'+options.cnt,
+                                });
+                            }
+                        }),
 
-                        { //strGroupDivision
-                            type: 'textbox',
+                        //strGroupDivision
+                        $jConstruct('textbox', {
                             id: 'txtBxDivision' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'division',
-                            functions: [function() {
-                                if(!(options.reserved)) {
-                                    tgglTxtBx('txtBxDivision'+options.cnt, options.division, 'division', true); //set true for editable
-                                } else {
-                                    $('#txtBxDivision'+options.cnt).attr('disabled', 'disabled').css({
-                                        'color': $p('gray'),
-                                    });
-                                }
-                                if(undefined !== options.division && '' !== options.division && null !== options.division) {
-                                    $('#txtBxDivision'+options.cnt)[0].value = options.division;
-                                    $('#txtBxDivision'+options.cnt).css({
-                                        'color': $p('purple'),
-                                    });
-                                }
-                                $('#txtBxDivision'+options.cnt).blur(function () {
-                                    if($p('color')('txtBxDivision'+options.cnt) == $p('red')) {
-                                        $project.update('scheduleItemTextBoxUpdater')({
-                                            color: $p('purple'),
-                                            indx: options.cnt,
-                                            property: 'strGroupDivision',
-                                            txtBxID: 'txtBxDivision'+options.cnt,
-                                        });
-                                    }
-                                })
-                            }]
-                        },
+                        }).addFunction(function() {
+                            if(!(options.reserved)) {
+                                tgglTxtBx('txtBxDivision'+options.cnt, options.division, 'division', true); //set true for editable
+                            } else {
+                                $('#txtBxDivision'+options.cnt).attr('disabled', 'disabled').css({
+                                    'color': $p('gray'),
+                                });
+                            }
+                            if(undefined !== options.division && '' !== options.division && null !== options.division) {
+                                $('#txtBxDivision'+options.cnt)[0].value = options.division;
+                                $('#txtBxDivision'+options.cnt).css({
+                                    'color': $p('purple'),
+                                });
+                            }
+                        }).event('blur', function() {
+                            if($p('color')('txtBxDivision'+options.cnt) == $p('red')) {
+                                $project.update('scheduleItemTextBoxUpdater')({
+                                    color: $p('purple'),
+                                    indx: options.cnt,
+                                    property: 'strGroupDivision',
+                                    txtBxID: 'txtBxDivision'+options.cnt,
+                                });
+                            }
+                        }),
 
-                        { //strGroupInstructor
-                            type: 'textbox',
+                        //strGroupInstructor
+                        $jConstruct('textbox', {
                             id: 'txtBxCoach' + options.cnt,
                             class: 'txtBxTimes',
                             text: 'coach',
-                            functions: [function() {
-                                if(!(options.reserved)) {
-                                    tgglTxtBx('txtBxCoach'+options.cnt, options.coach, 'coach', true); //set true for editable
-                                } else {
-                                    $('#txtBxCoach'+options.cnt).attr('disabled', 'disabled').css({
-                                        'color': $p('gray'),
-                                    });
-                                }
-                                if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
-                                    $('#txtBxCoach' + options.cnt)[0].value = options.coach;
-                                    $('#txtBxCoach'+options.cnt).css({
-                                        'color': $p('purple'),
-                                    });
-                                }
-                                $('#txtBxCoach'+options.cnt).blur(function () {
-                                    if($p('color')('txtBxCoach'+options.cnt) == $p('red')) {
-                                        $project.update('scheduleItemTextBoxUpdater')({
-                                            color: $p('purple'),
-                                            indx: options.cnt,
-                                            property: 'strGroupInstructor',
-                                            txtBxID: 'txtBxCoach'+options.cnt,
-                                        });
-                                    }
-                                })
-                            }]
-                        },
+                        }).addFunction(function() {
+                            if(!(options.reserved)) {
+                                tgglTxtBx('txtBxCoach'+options.cnt, options.coach, 'coach', true); //set true for editable
+                            } else {
+                                $('#txtBxCoach'+options.cnt).attr('disabled', 'disabled').css({
+                                    'color': $p('gray'),
+                                });
+                            }
+                            if(undefined !== options.coach && '' !== options.coach && null !== options.coach) {
+                                $('#txtBxCoach' + options.cnt)[0].value = options.coach;
+                                $('#txtBxCoach'+options.cnt).css({
+                                    'color': $p('purple'),
+                                });
+                            }
+                        }).event('blur', function() {
+                            if($p('color')('txtBxCoach'+options.cnt) == $p('red')) {
+                                $project.update('scheduleItemTextBoxUpdater')({
+                                    color: $p('purple'),
+                                    indx: options.cnt,
+                                    property: 'strGroupInstructor',
+                                    txtBxID: 'txtBxCoach'+options.cnt,
+                                });
+                            }
+                        }),
 
-                        { //intScheduleOverRideNumPaticipants
-                            type: 'textbox',
+                        //intScheduleOverRideNumPaticipants
+                        $jConstruct('textbox', {
                             id: 'txtBxID' + options.cnt,
                             class: 'txtBxTimes',
                             text: "0",
-                            functions: [function() {
-                                if(!(options.reserved)) {
-                                    tgglTxtBx('txtBxID'+options.cnt, options.id, "0", true); //set true for editable
-                                } else {
-                                    $('#txtBxID'+options.cnt).attr('disabled', 'disabled').css({
-                                        'color': $p('gray'),
-                                    });
-                                }
-                                
-                                $('#txtBxID' + options.cnt).css({
-                                    'width': '60px',
+                        }).addFunction(function() {
+                            if(!(options.reserved)) {
+                                tgglTxtBx('txtBxID'+options.cnt, options.id, "0", true); //set true for editable
+                            } else {
+                                $('#txtBxID'+options.cnt).attr('disabled', 'disabled').css({
+                                    'color': $p('gray'),
                                 });
-                                //if not undefined, not empty string, not null, not 0
-                                if(undefined !== options.id && '' !== options.id && null !== options.id && 0 !== options.id) {
-                                    $('#txtBxID'+options.cnt)[0].value = options.id;
-                                    $('#txtBxID'+options.cnt).css({
-                                        'color': $p('purple'),
-                                    });
-                                }
-                                $('#txtBxID'+options.id).blur(function () {
-                                    if($p('color')('txtBxID'+options.cnt) == $p('red')) {
-                                        $project.update('scheduleItemTextBoxUpdater')({
-                                            color: $p('purple'),
-                                            indx: options.cnt,
-                                            property: 'intScheduleOverRideNumPaticipants',
-                                            txtBxID: 'txtBxID'+options.cnt,
-                                        });
-                                    }
-                                })
-                            }]
-                        },
+                            }
+                                
+                            $('#txtBxID' + options.cnt).css({
+                                'width': '60px',
+                            });
+                            //if not undefined, not empty string, not null, not 0
+                            if(undefined !== options.id && '' !== options.id && null !== options.id && 0 !== options.id) {
+                                $('#txtBxID'+options.cnt)[0].value = options.id;
+                                $('#txtBxID'+options.cnt).css({
+                                    'color': $p('purple'),
+                                });
+                            }
+                        }).event('blur', function() {
+                            if($p('color')('txtBxID'+options.cnt) == $p('red')) {
+                                $project.update('scheduleItemTextBoxUpdater')({
+                                    color: $p('purple'),
+                                    indx: options.cnt,
+                                    property: 'intScheduleOverRideNumPaticipants',
+                                    txtBxID: 'txtBxID'+options.cnt,
+                                });
+                            }
+                        }),
 
-                        {
-                            type: 'div',
+                        //event time close button
+                        $jConstruct('div', {
                             id: 'closeBtn' + options.cnt,
                             class: 'maxMinBtn',
                             text: '<b>X</b>',
-                            functions: [function() {
-                                $('#closeBtn'+options.cnt).css({
-                                    'background-color': 'red',
-                                });
-                            }]
-                        },
+                        }).css({
+                            'background-color': 'red',
+                        }),
 
-                        {
-                            type: 'div',
+                        //event time maximize button.
+                        $jConstruct('div', {
                             id: 'maximizeBtn' + options.cnt,
                             class: 'maxMinBtn',
                             text: '<b>[_]</b>',
-                            functions: [function() {
-                                $('#maximizeBtn' + options.cnt).css({
-                                    'background-color': 'green',
-                                });
-                            }]
-                        },
-
+                        }).css({
+                            'background-color': 'green',
+                        }),
                     ],
                 },
             ],
