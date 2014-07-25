@@ -261,8 +261,10 @@ var $db = {
                 func(data);
             });
         },
-        remove: function(json, func) {
-            var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteItemData.aspx?Data=' + JSON.stringify(json);
+        remove: function(str, func) {
+            //https://www.mypicday.com/Handlers/ScheduleDeleteItemData.aspx?Data=74521&Data2=1
+            var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteItemData.aspx?' + str;
+            console.log('remove:', $db.preventCache(url));
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });

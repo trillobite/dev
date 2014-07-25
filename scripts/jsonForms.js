@@ -28,10 +28,15 @@ var confirmTimeDel = function(indx) {
     appendHTML(forms['confirmPopUp']({
         text: '<h3> Are you sure you wish to delete this Time? </h3>',
         func: function() {
-            $project.remove('scheduleItem')(dataObjs.evntTimes[indx]).done(function() {
+            var data = dataObjs.evntTimes.EventScheduleItems[indx].indxScheduleDateID;
+            var data2 = dataObjs.evntTimes.EventScheduleItems[indx].indxOrganizationEventID;
+            console.log('To delete:', 'Data='+data+'Data2='+data2);
+            $project.remove('scheduleItem')('Data='+data+'&Data2='+data2).done(function(dta) {
+                console.log(dta);
+                $.colorbox.close();
                 $v('display-tblInfo').clear();
                 $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
-                $.colorbox.close();
+                
             });
         }
     }), '#cbConfirm');
@@ -1015,7 +1020,7 @@ var forms = {
                         $jConstruct('div', {
                             id: 'maximizeBtn' + options.cnt,
                             class: 'maxMinBtn',
-                            text: '<b>[_]</b>',
+                            text: '<b>i</b>',
                         }).css({
                             'background-color': 'green',
                         }),
@@ -1227,6 +1232,16 @@ var forms = {
                                 });
                             }]
                         },
+                        $jConstruct('button', { //written in JSONHTML v0.9 - Beta
+                            id: 'multiPostBtn',
+                            text: 'Reservation Range',
+                        }).event('click', function() {
+                            //$.colorbox.close();
+                            defaultColorbox('multiPostCB', 'multiPost', {
+                                width: '400px',
+                                height: '220px',
+                            });
+                        }),
                         {//close the colorbox, ignore everything button.
                             type: 'button',
                             id: 'cancelBtn',
@@ -1239,10 +1254,61 @@ var forms = {
                         },
                     ]
                 },
-                
+
             ],
         };
-    }
+    },
+
+    //form repsonsible for creating multiple time objects on the fly.
+    multiPost: function() { //written in JSONHTML v0.9 - Beta
+        var boxCSS = {
+            'color': $p('gray'),
+        };
+
+        //textboxes to fill
+        var startTimeDateBox = $jConstruct('textbox', {
+            text: 'Start Time',
+        }).css(boxCSS);
+        var endTimeDateBox = $jConstruct('textbox', {
+            text: 'End Time',
+        }).css(boxCSS);
+        var numintervalBox = $jConstruct('textbox', {
+            text: 'Minutes Interval',
+        }).css(boxCSS);
+        var numSlotsBox = $jConstruct('textbox', {
+            text: 'How many Slots',
+        }).css(boxCSS);
+
+        //buttons for functionality.
+        var btnClose = $jConstruct('button', {
+            //class: 'editBtn',
+            text: 'close',
+        }).event('click', function() {
+            //$('#'+post.id).remove();
+            $.colorbox.close(); //close the colorbox.
+        });
+        var btnSubmit = $jConstruct('button', {
+            //class: 'editBtn',
+            text: 'submit',
+        }).event('click', function() {
+            console.log('this would submit the stuff');
+            console.log($('#'+startTimeDateBox.id)[0].value, $('#'+endTimeDateBox.id)[0].value, $('#'+numintervalBox.id)[0].value, $('#'+numSlotsBox.id)[0].value);
+        });
+                    
+        //containers to contain the objects in a div.
+        var textBoxContainer = $jConstruct('div').css({
+            'text-align': 'center',
+        }).addChild($jConstruct('div').addChild(startTimeDateBox)).addChild($jConstruct('div').addChild(endTimeDateBox)).addChild($jConstruct('div').addChild(numintervalBox)).addChild($jConstruct('div').addChild(numSlotsBox));
+        var buttonContainer = $jConstruct('div').addChild(btnClose).addChild(btnSubmit);
+                    
+        //main div to contain everything.
+        return $jConstruct('div', {
+            text: '<h3> Add Reservation Range Settings</h3>',
+        }).css({
+            'text-align': 'center',
+        }).addChild(textBoxContainer).addChild(buttonContainer);
+    },
+
 };
 
 function defaultColorbox(id, obj, dimens) {
