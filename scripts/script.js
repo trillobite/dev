@@ -308,24 +308,28 @@ var $project = {
             schedules: function (indx) { //event id, and current selected schedule, if any.
                 var dfd = new $.Deferred();
                 $db.schedules.get(indx, function(data) {
-                    var parsed = JSON.parse(data);
-                    dataObjs.srvdTbls = [];
-                    dataObjs.srvdTbls = parsed;
-                    if(undefined !== dataObjs.evntSchdl) {
-                        //$v('display-tbls').clear();
-                        var myNode = document.getElementById('display-tbls');
-                        while(myNode.firstChild) {
-                            myNode.removeChild(myNode.firstChild);
-                        }
+                    if(JSON.parse(data).EventSchedules != "") {
+                        var parsed = JSON.parse(data);
+                        dataObjs.srvdTbls = [];
+                        dataObjs.srvdTbls = parsed;
+                        if(undefined !== dataObjs.evntSchdl) {
+                            //$v('display-tbls').clear();
+                            var myNode = document.getElementById('display-tbls');
+                            while(myNode.firstChild) {
+                                myNode.removeChild(myNode.firstChild);
+                            }
 
-                        dataObjs.evntSchdl.indxPhotographerID = id.photographer;
-                        dataObjs.evntSchdl.indxOrganizationEventID = id.event;
-                        dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
-                        if(undefined !== indx) {
-                            cmd.events.drawJSON(parsed, indx);
-                        } else {
-                            cmd.events.drawJSON(parsed);
+                            dataObjs.evntSchdl.indxPhotographerID = id.photographer;
+                            dataObjs.evntSchdl.indxOrganizationEventID = id.event;
+                            dataObjs.evntSchdl.indxScheduleID = parsed.EventSchedules[0].indxScheduleID;
+                            if(undefined !== indx) {
+                                cmd.events.drawJSON(parsed, indx);
+                            } else {
+                                cmd.events.drawJSON(parsed);
+                            }
                         }
+                    } else {
+                        alert('There is currently no data, please try the Add Schedule button');
                     }
                     dfd.resolve(); //everything is done here.
                 });

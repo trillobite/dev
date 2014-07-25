@@ -24,9 +24,9 @@ var confirmDel = function (indx) {
 };
 
 var confirmTimeDel = function(indx) {
-    $.colorbox({html: '<div id="cbConfirm"></div>', width: '450px', height: '120px'});
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '465px', height: '120px'});
     appendHTML(forms['confirmPopUp']({
-        text: '<h3> Are you sure you wish to delete this Time? </h3>',
+        text: '<h3> Are you sure you wish to delete this Event Time? </h3>',
         func: function() {
             var data = dataObjs.evntTimes.EventScheduleItems[indx].indxScheduleDateID;
             var data2 = dataObjs.evntTimes.EventScheduleItems[indx].indxOrganizationEventID;
@@ -723,7 +723,7 @@ var forms = {
             {
                 type: 'div',
                 id: 'btnAddTimeToEvent',
-                text: 'Add times',
+                text: 'Add Time',
                 functions: [function() {
                     $('#btnAddTimeToEvent').css({
                         'border-radius': '5px',
@@ -1303,7 +1303,7 @@ var forms = {
                     
         //main div to contain everything.
         return $jConstruct('div', {
-            text: '<h3> Add Reservation Range Settings</h3>',
+            text: '<h3> Set Reservation Range Settings</h3>',
         }).css({
             'text-align': 'center',
         }).addChild(textBoxContainer).addChild(buttonContainer);
