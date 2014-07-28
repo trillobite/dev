@@ -78,6 +78,7 @@ var parsetype = function (type) {
     function ico(element) {
         var html = {
             id: undefined !== element.id ? ' id="'+element.id+'"' : '',
+            title: undefined !== element.title ? ' title="'+element.title+'"' : '',
             class: undefined !== element.class ? ' class="'+element.class+'"' : '',
             onclick: undefined !== element.onclick ? ' onclick="'+element.onclick+'"' : '', 
             onblur: undefined !== element.onblur ? ' onblur="' + element.onblur + '"' : '',

@@ -625,6 +625,7 @@ var forms = {
                     {
                         type: 'checkbox',
                         id: 'chkdIn',
+                        title: 'If visible, and checked, the schedule time has been verified',
                         functions: [function() {
                             $('#chkdIn').prop('checked', true);
                         }]
@@ -636,6 +637,7 @@ var forms = {
                 type: 'div',
                 id: 'resrvd',
                 text: '<b>R</b>',
+                title: 'If blue, schedule time is reserved.',
                 functions: [function() {
                     $('#resrvd').css({
                         'color': 'white',
@@ -752,6 +754,7 @@ var forms = {
             type: 'div',
             id: 'fooTimes' + options.cnt,
             class: 'fooTimes',
+            title: 'Applies to: ' + $v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].strScheduleTitle + '  ' + new Date($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].dtScheduleDate).toLocaleDateString(),
             functions:[function() {
                 $('#fooTimes'+options.cnt).mouseover(function() {
                     $('#fooTimes'+options.cnt).css({
@@ -784,10 +787,13 @@ var forms = {
                         {
                             type: 'checkbox',
                             id: 'chkdIn' + options.cnt,
+                            title: options.checked ? 'Has been checked.' : 'Has NOT been checked.',
                             functions: [function() {
                                 if(undefined !== options.checked) {
                                     if(options.checked) {
                                         $('#chkdIn'+options.cnt).toggle(this.checked);
+                                    } else {
+                                        $('#chkdIn'+options.cnt).hide();
                                     }
                                 }
                             }]
@@ -800,6 +806,7 @@ var forms = {
                     id: 'resrvd' + options.cnt,
                     class: 'reservationKey',
                     text: '<b>R</b>',
+                    title: options.reserved ? 'Reserved' : 'NOT Reserved',
                     functions: [function() {
                         if(undefined !== options.reserved) {
                             if(options.reserved) { //switches the color of the reservation key.
@@ -1186,7 +1193,7 @@ var forms = {
                                 $('#numParticipantsSpnr')[0].value = "0";
                             }]
                         },
-                        {//how many times to repeat the data.
+                        /*{//how many times to repeat the data.
                             type: 'spinner',
                             id: 'duplicateSpnr',
                             text: 'copies:',
@@ -1195,7 +1202,7 @@ var forms = {
                             functions: [function () {
                                 $('#duplicateSpnr')[0].value = "1";
                             }]
-                        },
+                        },*/
                     ]
                 },
                 {
@@ -1316,7 +1323,7 @@ var forms = {
         //buttons for functionality.
         var btnClose = $jConstruct('button', {
             //class: 'editBtn',
-            text: 'close',
+            text: 'cancel',
         }).event('click', function() {
             //$('#'+post.id).remove();
             $.colorbox.close(); //close the colorbox.
