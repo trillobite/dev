@@ -261,10 +261,16 @@ var $db = {
                 func(data);
             });
         },
+        insert: function(str, func) {
+            var url = 'https://www.mypicday.com/Handlers/ScheduleAddReservationRange.aspx?' + str;
+            console.log(str);
+            $sql($db.preventCache(url)).get(function(data) {
+                func(data);
+            });
+        },
         remove: function(str, func) {
             //https://www.mypicday.com/Handlers/ScheduleDeleteItemData.aspx?Data=74521&Data2=1
             var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteItemData.aspx?' + str;
-            console.log('remove:', $db.preventCache(url));
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
@@ -435,6 +441,34 @@ var $project = {
                     $('#'+obj.txtBxID).css({
                         'color': obj.color, //change the color of the text to show the user it was successfully updated.
                     });
+                    dfd.resolve(data);
+                });
+                return dfd.promise();
+            },
+        };
+        return undefined !== objects[selection] ? objects[selection] : undefined;
+    },
+    //batch inserts.
+    insert: function(selection) {
+        var objects = {
+            schedule: function(json) {
+                //this would probably be used if the user submits a whole spreadsheet for upload.
+            },
+            scheduleItem: function(json) {
+                var addDatas = function() {
+                    url = "";
+                    url = url + 'Data='   + json.ScheduleID.toString();
+                    url = url + '&Data2=' + json.EventID.toString();
+                    url = url + '&Data3=' + json.StartTimeDate.toString();
+                    url = url + '&Data4=' + json.EndTimeDate.toString();
+                    url = url + '&Data5=' + json.TimeInterval.toString();
+                    url = url + '&Data6=' + json.Slots.toString();
+                    url = url + '&Data7=' + json.PhotographerID.toString();
+                    return url;
+                };
+                var dfd = new $.Deferred();
+                $db.scheduleItems.insert(addDatas(), function(data) {
+
                     dfd.resolve(data);
                 });
                 return dfd.promise();

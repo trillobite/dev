@@ -1268,16 +1268,50 @@ var forms = {
         //textboxes to fill
         var startTimeDateBox = $jConstruct('textbox', {
             text: 'Start Time',
-        }).css(boxCSS);
+            name: 'time0',
+        }).addFunction(function() {
+            $('input[name="time0"]').ptTimeSelect();
+        }).css(boxCSS).event('focus', function() {
+            $('#'+startTimeDateBox.id).css({
+                'color': $p('purple'),
+            });
+            $('#cboxOverlay').css({ //so the time select will appear over the shadow.
+                'z-Index': '8',
+            });
+            $('#colorbox').css({ //so the time select will appear over the colorbox.
+                'z-Index': '9',
+            });
+        });
+
         var endTimeDateBox = $jConstruct('textbox', {
             text: 'End Time',
-        }).css(boxCSS);
+            name: 'time1',
+        }).addFunction(function() {
+            $('input[name="time1"]').ptTimeSelect();
+        }).css(boxCSS).event('focus', function() {
+            $('#'+endTimeDateBox.id).css({
+                'color': $p('purple'),
+            });
+            $('#cboxOverlay').css({ //so the time select will appear over the shadow.
+                'z-Index': '8',
+            });
+            $('#colorbox').css({ //so the time select will appear over the colorbox.
+                'z-Index': '9',
+            });
+        });
+
         var numintervalBox = $jConstruct('textbox', {
             text: 'Minutes Interval',
-        }).css(boxCSS);
+        }).css(boxCSS).addFunction(function() {
+            tgglTxtBx(numintervalBox.id, 'Minutes Interval', 'Minutes Interval', false);
+        });
+
         var numSlotsBox = $jConstruct('textbox', {
             text: 'How many Slots',
-        }).css(boxCSS);
+        }).css(boxCSS).addFunction(function() {
+            tgglTxtBx(numSlotsBox.id, 'How many Slots', 'How many Slots', false);
+        });
+
 
         //buttons for functionality.
         var btnClose = $jConstruct('button', {
@@ -1291,8 +1325,26 @@ var forms = {
             //class: 'editBtn',
             text: 'submit',
         }).event('click', function() {
-            console.log('this would submit the stuff');
-            console.log($('#'+startTimeDateBox.id)[0].value, $('#'+endTimeDateBox.id)[0].value, $('#'+numintervalBox.id)[0].value, $('#'+numSlotsBox.id)[0].value);
+            //this would submit the stuff
+            //console.log($('#'+startTimeDateBox.id)[0].value, $('#'+endTimeDateBox.id)[0].value, $('#'+numintervalBox.id)[0].value, $('#'+numSlotsBox.id)[0].value);
+            var obj = {
+                ScheduleID: $v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID,
+                EventID: id.event,
+                StartTimeDate: cmd.time.IEremoveISOTimeZone($dt.parse($('#'+startTimeDateBox.id)[0].value), false).toISOString(),
+                EndTimeDate: cmd.time.IEremoveISOTimeZone($dt.parse($('#'+endTimeDateBox.id)[0].value), false).toISOString(),
+                TimeInterval: $('#'+numintervalBox.id)[0].value,
+                Slots: $('#'+numSlotsBox.id)[0].value,
+                PhotographerID: id.photographer,
+            }
+            console.log(obj);
+            $project.insert('scheduleItem')(obj).done(function(data) {
+                if(data) {
+                    console.log(data);
+                }
+                console.log('done');
+                $.colorbox.close();
+                $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+            });
         });
                     
         //containers to contain the objects in a div.
