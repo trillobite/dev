@@ -18,6 +18,8 @@ var $p = function (obj) {
         gray: '#CCCCCC',
         purple: '#5233A6',
         red: '#A8150D',
+        amber: '#A62334',
+        lightAmber: '#CC2B40',
         color: function (id) {
             return cmd.rgbToHex($('#'+id)[0].style['color']).toUpperCase();
         },
@@ -845,9 +847,57 @@ var cmd = { //project commands sorted alphabetically.
     },
 };
 
+var setup = function() {
+            //sets up the static div's
+    $jConstruct('div', {
+        id: 'display',
+    }).addChild($jConstruct('div', {
+        id: 'defaultMenu',
+    })).addChild($jConstruct('div', {
+        id: 'display-tbls',
+    })).addChild($jConstruct('div', {
+        id: 'display-tblInfo',
+    })).appendTo('body');
+
+    //Add Schedule button
+    $jConstruct('button', {
+        id: 'btnNwEvnt',
+        class: 'button',
+        title: 'Add a new schedule to this event',
+        text: 'Add Schedule',
+    }).css({
+        'float': 'left',
+        'width': '115px',
+        'line-height': '20px',
+        'border-radius': '5px',
+    }).event('click', function() {
+        defaultColorbox('newEvent', 'createEventMinimal', {
+            'width': '350px',
+            'height': '370px',
+        });
+    }).appendTo('#defaultMenu');
+
+    //Help button.
+    $jConstruct('button', {
+        id: 'btnHelp',
+        class: 'button',
+        text: 'Help',
+    }).css({
+        'float': 'left',
+        'line-height': '20px',
+        'border-radius': '5px',
+    }).event('click', function() {
+        defaultColorbox('winHelp','helpWindow', {
+            'width': '350px',
+            'height': '150px',
+        });
+    }).appendTo('#defaultMenu');
+};
+
 //cut and paste this anywhere, and modify the ID's below. Has not been tested for bugs extensively yet.
 //this is the object to properly call this project.
 $(document).ready(function() {
+    setup();
     id.photographer = 7; //override photographer ID here.
     id.event = 1; //override event ID here. 659
     $project.draw('schedules')(id.event);

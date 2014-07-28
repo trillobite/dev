@@ -13,9 +13,9 @@ var colors = function() { //depricated use $p('color');
 };
 
 var confirmDel = function (indx) {
-    $.colorbox({html: '<div id="cbConfirm"></div>', width: '450px', height: '120px'});
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '460px', height: '120px'});
     appendHTML(forms['confirmPopUp']({
-        text: '<h3> Are you sure you wish to delete this Event? </h3>',
+        text: '<h3> Are you sure you wish to delete this entire schedule? </h3>',
         func: function () {
             cmd.del(indx);
             $.colorbox.close(); 
@@ -362,7 +362,7 @@ var forms = {
                         console.log('close button clicked!', prop.indx);
                         confirmDel(prop.indx);
                     }).css({
-                        'background-color': 'red',
+                        'background-color': $p('lightAmber'),
                     })
                 ).event('click', function() {
                     $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
@@ -625,7 +625,7 @@ var forms = {
                     {
                         type: 'checkbox',
                         id: 'chkdIn',
-                        title: 'If visible, and checked, the schedule time has been verified',
+                        title: 'If visible, and checked, coach/parent check-in is complete',
                         functions: [function() {
                             $('#chkdIn').prop('checked', true);
                         }]
@@ -636,18 +636,19 @@ var forms = {
             {
                 type: 'div',
                 id: 'resrvd',
+                class: 'reservationKey',
                 text: '<b>R</b>',
-                title: 'If blue, schedule time is reserved.',
+                title: 'If blue, schedule time is a reservation style.',
                 functions: [function() {
                     $('#resrvd').css({
-                        'color': 'white',
+                        //'color': 'white',
                         'background-color': $p('blue'),//'#D6B318'
                         'border': '1px solid '+$p('darkBlue'),
-                        'border-radius': '5px',
-                        'text-align': 'center',
-                        'width': '25px',
-                        'height': '23px',
-                        'float': 'left',
+                        //'border-radius': '5px',
+                        //'text-align': 'center',
+                        //'width': '25px',
+                        //'height': '23px',
+                        //'float': 'left',
                     });
                 }]
             },
@@ -723,7 +724,7 @@ var forms = {
             },
 
             {
-                type: 'div',
+                type: 'button',
                 id: 'btnAddTimeToEvent',
                 text: 'Add Time',
                 title: 'Add a time to the schedule.',
@@ -731,13 +732,14 @@ var forms = {
                     $('#btnAddTimeToEvent').css({
                         'border-radius': '5px',
                         'background-color': $p('blue'),
-                        'border': '1px solid '+$p('darkBlue'),
+                        //'border': '1px solid '+$p('darkBlue'),
                         'margin-right': '5px',
                         'color': 'white',
                         'width': '100px',
                         'height': '23px',
                         'float': 'right',
                         'cursor': 'pointer',
+                        'line-height': '20px',
                     });
                     $('#btnAddTimeToEvent').click(function() {
                         $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '450px'});
@@ -790,11 +792,12 @@ var forms = {
                             id: 'chkdIn' + options.cnt,
                             title: options.checked ? 'Has been checked.' : 'Has NOT been checked.',
                             functions: [function() {
-                                if(undefined !== options.checked) {
+                                if(undefined !== options.checked) { //makes sure there are not any bugs.
                                     if(options.checked) {
-                                        $('#chkdIn'+options.cnt).toggle(this.checked);
+                                        $('#chkdIn'+options.cnt).show(); //make sure it is visible.
+                                        $('#chkdIn'+options.cnt).attr('checked','checked');
                                     } else {
-                                        $('#chkdIn'+options.cnt).hide();
+                                        $('#chkdIn'+options.cnt).hide(); //dont show the checkbox at all.
                                     }
                                 }
                             }]
@@ -1018,7 +1021,7 @@ var forms = {
                             class: 'maxMinBtn',
                             text: '<b>X</b>',
                         }).css({
-                            'background-color': 'red',
+                            'background-color': $p('lightAmber'),
                         }).event('click', function() {
                             console.log(options.cnt);
                             confirmTimeDel(options.cnt);
@@ -1368,6 +1371,26 @@ var forms = {
             'text-align': 'center',
         }).addChild(textBoxContainer).addChild(buttonContainer);
     },
+    helpWindow: function() {
+
+        var okBtn = $jConstruct('button', {
+            text: 'ok',
+        }).event('click', function() {
+            $.colorbox.close();
+        }).css({
+            'float': 'right',
+            'width': '60px',
+            'height': '25px',
+        });
+
+        return $jConstruct('div', {
+            text: '<h3> Need Help? </h3>',
+        }).css({
+            'text-align': 'center',
+        }).addChild($jConstruct('div', {
+            text: 'Check back here later, training videos are coming soon!',
+        })).addChild(okBtn);
+    }
 
 };
 
