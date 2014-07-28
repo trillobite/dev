@@ -726,6 +726,7 @@ var forms = {
                 type: 'div',
                 id: 'btnAddTimeToEvent',
                 text: 'Add Time',
+                title: 'Add a time to the schedule.',
                 functions: [function() {
                     $('#btnAddTimeToEvent').css({
                         'border-radius': '5px',
