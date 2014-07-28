@@ -857,7 +857,7 @@ var setup = function() {
         id: 'display-tbls',
     })).addChild($jConstruct('div', {
         id: 'display-tblInfo',
-    })).appendTo('body');
+    })).appendTo('#mvpTool');
 
     //Add Schedule button
     $jConstruct('button', {
