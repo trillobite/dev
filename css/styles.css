@@ -76,7 +76,7 @@
     background-color: white;
     color: black; /* makes font color white */
     width: 85%;
-    height: 80px;
+    height: 105px;
     margin: 0 auto; /*centers the whole div element.*/
     border-bottom: 1px solid #3287CC;
     line-height: 25px; /*makes the text center vertically, may not work in multi-line.*/

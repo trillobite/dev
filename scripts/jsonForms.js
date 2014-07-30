@@ -13,7 +13,7 @@ var colors = function() { //depricated use $p('color');
 };
 
 var confirmDel = function (indx) {
-    $.colorbox({html: '<div id="cbConfirm"></div>', width: '460px', height: '120px'});
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '460px', height: '140px'});
     appendHTML(forms['confirmPopUp']({
         text: '<h3> Are you sure you wish to delete this entire schedule? </h3>',
         func: function () {
@@ -202,15 +202,22 @@ var forms = {
                     var obj = dataObjs.evntSchdl;
                     var t = cmd.time;
 
+                    function addDays(date, days) {
+                        var result = new Date(date);
+                        result.setDate(date.getDate() + days);
+                        return result;
+                    }
+
                     obj.dtDateAdded = t.today().toISOString();
-                    obj.dtOnLineFilledStartDate = t.midnightAm(t.today()).toISOString(); //12:00AM
+                    
                     obj.strScheduleTitle = $('#scheduleTitle')[0].value;
                     obj.strScheduleDescription = $('#scheduleDescription')[0].value;
                     obj.dtScheduleDate = $('#mkSchedDtPkr').datepicker('getDate').toISOString();
-                    obj.dtOnLineFilledEndDate = t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')).toISOString(); //11:55PM
+                    obj.dtOnLineFilledStartDate = cmd.time.removeISOTimeZone(t.today()).toISOString(); //12:00AM
+                    obj.dtOnLineFilledEndDate = cmd.time.removeISOTimeZone(addDays(t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')), 1)).toISOString(); //11:55PM
                     obj.indxOrganizationEventID = id.event;
                     obj.indxPhotographerID = id.photographer;
-
+                    console.log(obj);
                     var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
                     $sql(url).get(function(data){
                         console.log(data);
@@ -275,26 +282,41 @@ var forms = {
                     $('#'+prop.id).css({
                         'background-color': $p('blue'),
                     });
+                    $('#'+prop.id+'fromDate').css({
+                        'color': 'white',
+                    });
+                    $('#'+prop.id+'toDate').css({
+                        'color': 'white',
+                    });
                 }).mouseout(function () {
                     if(prop.id != dataObjs.slctdObj) {
                         $('#'+prop.id).css({
                             'background-color': 'white',
                         });
+                        $('#'+prop.id+'fromDate').css({
+                            'color': $p('amber'),
+                        });
+                        $('#'+prop.id+'toDate').css({
+                            'color': $p('amber'),
+                        });
+
                     }
                 }).click(function() {
                     cmd.scheduleFocus(prop.id, prop.evntID);
                 });
             }],
             children: [
+                //title
                 forms.mDiv({
                     id: prop.id + 'pt1',
                     text: '<div id="pt1Obj'+prop.id+'">' + (undefined !== prop.pt1.text ? prop.pt1.text : undefined) + '</div>',
                     css: function () {
                         $('#'+prop.id+'pt1').css({
                             'width': '45%',
-                            'height': '50%',
+                            'height': '30px',
                             'text-align': 'left',
                             'float': 'left',
+                            //'border': '1px solid black',
                         });
                         $('#pt1Obj'+prop.id).css({
                             'padding-left': '10px',
@@ -334,32 +356,27 @@ var forms = {
                         });
                     }
                 }),
-
-                {
-                    type: 'div',
-                    id: prop.id + 'pt15',
-                    functions: [function () {
-                        $('#'+prop.id+'pt15').css({
-                            'width': '25%',
-                            'height': '50%',
-                            'text-align': 'left',
-                            'float': 'left',
-                        });
-                        appendHTML({ //strange bug, cannot use jQuery append function directly here, must use appendHTML.
-                            type: 'div', //div that opens the date picker.
-                            id: 'pt1Date'+prop.id,
-                            text: '<a>' + prop.pt15.text + '</a>', //surround in a tags for jQuery to know exactly what to grab.
-                            functions:[function () {
-                                $('#pt1Date'+prop.id+' a').click(function() { //opens date picker object when the text is clicked.
-                                    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
-                                    appendHTML(forms['datePicker'](prop.indx), '#cbDateEdit');
-                                });
-                            }]
-                        }, '#'+prop.id+'pt15');
-                    }]
-                },
                 
-                //the close button
+                //date object 
+                $jConstruct('div', {
+                    id: prop.id + 'pt15',
+                }).css({
+                    'width': '25%',
+                    'height': '30px',
+                    'text-align': 'left',
+                    'float': 'left',
+                    //'border': '1px solid black',
+                }).addChild($jConstruct('div', {
+                    id: 'pt1Date' + prop.id,
+                    text: '<a>' + prop.pt15.text + '</a>',
+                }).addFunction(function() {
+                    $('#pt1Date'+prop.id+' a').click(function() { //opens date picker object when the text is clicked.
+                        $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
+                        appendHTML(forms['datePicker'](prop.indx), '#cbDateEdit');
+                    });
+                })),
+
+                //close button
                 $jConstruct('div', {
                     id: prop.id + 'pt2',
                     text: undefined !== prop.pt2.text ? '<a>'+prop.pt2.text+'</a>' : undefined,
@@ -379,20 +396,23 @@ var forms = {
                     cmd.update(prop.indx);
                 }).css({
                     'width': '20%',
-                    'height': '50%',
+                    'height': '30px',
                     'float': 'right',
+                    //'border': '1px solid black',
                 }),
-                
+
+                //description
                 forms.mDiv({
                     id: prop.id + 'pt0',
                     text: '<div id="description'+prop.id+'"><a>' + (undefined !== prop.pt0.text ? prop.pt0.text : undefined) + '</a></div>',
                     css: function () {
                         $('#'+prop.id+'pt0').css({
                             'width': '100%',
-                            'height': '50%',
+                            'height': '25px',
                             'text-align': 'left',
                             'float': 'left',
                             'padding-left': '10px',
+                            //'border': '1px solid black',
                         });
                     },
                     event: function () {
@@ -428,6 +448,46 @@ var forms = {
                         });
                     }
                 }),
+                
+                //two dates.
+                $jConstruct('div').addChild($jConstruct('div', {
+                    text: 'Schedule reservation active through:',
+                }).css({
+                    'float': 'left',
+                    'font-size': '10px',
+                    'width': '100%',
+                    'height': '15px',
+                    //'margin': '0 auto',
+                })).addChild($jConstruct('div', {
+                    id: prop.id + 'fromDate',
+                    text: cmd.time.removeISOTimeZone(prop.dates[0], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[0], true).toLocaleTimeString(),
+                }).css({
+                    'float': 'left',
+                    'margin-right': '20px',
+                    'color': $p('amber'),
+                    //'margin-left': '10px',
+                })).addChild($jConstruct('div', {
+                    id: prop.id + 'filler',
+                    text: '-',
+                }).css({
+                    'float': 'left',
+                    'margin-right': '20px',
+                })).addChild($jConstruct('div', {
+                    id: prop.id + 'toDate',
+                    text: cmd.time.removeISOTimeZone(prop.dates[1], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[1], true).toLocaleTimeString(),
+                }).css({
+                    'float': 'left',
+                    'color': $p('amber'),
+                })).css({
+                    
+                    //'float': 'left',
+                    //'border': '1px solid black',
+                    'width': '290px',
+                    'height': '40px',
+                    'margin': '0 auto',
+                    'font-size': '12px',
+                }),
+
             ]
         };
     },

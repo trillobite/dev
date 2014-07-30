@@ -540,6 +540,7 @@ var cmd = { //project commands sorted alphabetically.
     },
     //each pt- is a sub div inside the element.
     createEvent: function (obj) {
+        console.log(obj);
         var d = new Date(obj.data.dtScheduleDate);
         return {
             id: 'foo' + obj.cntr,
@@ -562,6 +563,7 @@ var cmd = { //project commands sorted alphabetically.
                 text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
                 raw: obj.data.blnActive, //the data without html tags.
             },
+            dates: [obj.data.dtOnLineFilledStartDate, obj.data.dtOnLineFilledEndDate],
         };
     }, 
     events: { //display-tbls DIV.
@@ -622,12 +624,21 @@ var cmd = { //project commands sorted alphabetically.
                 $('#'+this.id).css({
                     'background-color': 'white',
                 });
+                if(this.id == dataObjs.slctdObj) { //change the color only if the object is not the one selected.
+                    $('#'+this.id+'fromDate').css({
+                        'color': $p('amber'),
+                    });
+                    $('#'+this.id+'toDate').css({
+                        'color': $p('amber'),
+                    });
+                }
             });
             $project.draw('scheduleItems')(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
         }
         $('#'+id).css({
             'background-color': $p('blue'),
         });
+
         dataObjs.slctdObj = id;
     },
     update: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
