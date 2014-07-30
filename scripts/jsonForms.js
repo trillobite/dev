@@ -208,12 +208,22 @@ var forms = {
                     obj.strScheduleDescription = $('#scheduleDescription')[0].value;
                     obj.dtScheduleDate = $('#mkSchedDtPkr').datepicker('getDate').toISOString();
                     obj.dtOnLineFilledEndDate = t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')).toISOString(); //11:55PM
+                    obj.indxOrganizationEventID = id.event;
+                    obj.indxPhotographerID = id.photographer;
 
                     var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
                     $sql(url).get(function(data){
+                        console.log(data);
                         var parsed = JSON.parse(data);
-                        dataObjs.srvdTbls.EventSchedules[dataObjs.srvdTbls.EventSchedules.length] = parsed;
-                        $v('display-tbls').clear();
+                        var len;
+                        
+                        if(undefined !== dataObjs.srvdTbls.EventSchedules) {
+                            dataObjs.srvdTbls.EventSchedules[dataObjs.srvdTbls.EventSchedules.length] = parsed;
+                            $v('display-tbls').clear();
+                        } else {
+                            dataObjs.srvdTbls.EventSchedules = [];
+                            dataObjs.srvdTbls.EventSchedules[0] = parsed;
+                        }
                         cmd.events.drawJSON(dataObjs.srvdTbls);
                         $.colorbox.close();
                     });

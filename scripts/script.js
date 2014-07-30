@@ -265,7 +265,6 @@ var $db = {
         },
         insert: function(str, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleAddReservationRange.aspx?' + str;
-            console.log(url);
             $sql($db.preventCache(url)).get(function(data) {
                 func(data);
             });
@@ -290,7 +289,6 @@ var $project = {
     create: function(selection) {
         var objects = {
             schedule: function (json) {
-                console.log(json);
                 var dfd = new $.Deferred();
                 $db.schedules.create(json, function(data) {
                     $project.draw('schedules')(json.indxScheduleID).done(function() {
@@ -345,7 +343,6 @@ var $project = {
                 return dfd.promise(); //.done to determine when finished drawing.
             },
             scheduleItems: function (indx) {
-                console.log(indx);
                 var dfd = new $.Deferred();
                 $db.scheduleItems.get(indx, function (data) {
                     dataObjs.evntTime = [];
