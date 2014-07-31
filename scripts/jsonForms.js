@@ -450,7 +450,9 @@ var forms = {
                 }),
                 
                 //two dates.
-                $jConstruct('div').addChild($jConstruct('div', {
+                $jConstruct('div', {
+                    id: prop.id + 'reservationRange',
+                }).addChild($jConstruct('div', {
                     text: 'Schedule reservation active through:',
                 }).css({
                     'float': 'left',
@@ -466,6 +468,13 @@ var forms = {
                     'margin-right': '20px',
                     'color': $p('amber'),
                     //'margin-left': '10px',
+                }).event('click', function() {
+                    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
+                    appendHTML(forms['genericDTPKR']('pick a new start date', function(dt) {
+                        $v().events()[prop.indx].dtOnLineFilledStartDate = cmd.time.removeISOTimeZone(dt).toISOString();
+                        cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
+                        $.colorbox.close();
+                    }), '#cbDateEdit');
                 })).addChild($jConstruct('div', {
                     id: prop.id + 'filler',
                     text: '-',
@@ -478,11 +487,18 @@ var forms = {
                 }).css({
                     'float': 'left',
                     'color': $p('amber'),
+                }).event('click', function() {
+                    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '410px'});
+                    appendHTML(forms['genericDTPKR']('pick a new end date', function(dt) {
+                        $v().events()[prop.indx].dtOnLineFilledEndDate = cmd.time.removeISOTimeZone(cmd.time.midnightPm(dt, 1)).toISOString(); //11:55PM
+                        cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
+                        $.colorbox.close();
+                    }), '#cbDateEdit');
                 })).css({
                     
                     //'float': 'left',
                     //'border': '1px solid black',
-                    'width': '290px',
+                    'width': '265px',
                     'height': '40px',
                     'margin': '0 auto',
                     'font-size': '12px',
@@ -491,57 +507,41 @@ var forms = {
             ]
         };
     },
-    
+
+    genericDTPKR: function(obj, func) {
+        var dPicker = $jConstruct('div').event('datepicker');
+
+        var submitBtn = $jConstruct('button', {
+            text: 'submit',
+        }).event('click', function() {
+            func($('#'+dPicker.id).datepicker('getDate'));
+        });
+
+        var cancelBtn = $jConstruct('button', {
+            text: 'cancel',
+        }).event('click', function() {
+            $.colorbox.close();
+        });
+
+        var dPBtns = $jConstruct('div').addChild(submitBtn).addChild(cancelBtn);
+        
+
+        return $jConstruct('div', {
+            text: '<h4>' + obj + '</h4>',
+        }).css({
+            'text-align': 'center',
+        }).addChild(dPicker).addChild(dPBtns);
+    },
+
     datePicker: function (indx) {
-        return {
-            type: 'div',
-            id: 'dpkrContainer',
-            children: [
-                {
-                    type: 'div',
-                    id: 'dpkr',
-                    text: '<h4>Pick your start date.</h4>',
-                    functions: [function () {
-                        $('#dpkr').datepicker();
-                        $('#dpkr').css({
-                            'text-align': 'center',
-                            'font-family': 'sans-serif',
-                            'color': $p('purple'),
-                        });
-                    }],
-                },
-                {
-                    type: 'div',
-                    id: 'btnContainer',
-                    children: [
-                        {
-                            type: 'button',
-                            id: 'dpkrBtn',
-                            text: 'submit',
-                            functions: [function () {
-                                $('#dpkrBtn').click(function(){
-                                    var d = dataObjs.clearTime(new Date($('#dpkr').datepicker('getDate')));
-                                    $v().events()[indx].dtScheduleDate = $dt.write(d);
-                                    $v().events()[indx].dtOnLineFilledEndDate = $dt.write(dataObjs.timeMidnight(d));
-                                    cmd.update(indx, $v().events()[indx].indxScheduleID); //updates the data, second parameter focuses the object.
-                                    $.colorbox.close();
-                                });
-                            }],
-                        },  
-                        {
-                            type: 'button',
-                            id: 'dpkrCancelBtn',
-                            text: 'cancel',
-                            functions: [function() {
-                                $('#dpkrCancelBtn').click(function() {
-                                    $.colorbox.close();//close the pop up and do nothing.
-                                })
-                            }]
-                        }
-                    ],
-                },
-            ],
-        };
+        return forms.genericDTPKR('Pick your new event date', function(dt) {
+            var d = dataObjs.clearTime(new Date(dt));
+            $v().events()[indx].dtScheduleDate = $dt.write(d);
+            $v().events()[indx].dtOnLineFilledEndDate = $dt.write(dataObjs.timeMidnight(d));
+            cmd.update(indx, $v().events()[indx].indxScheduleID); //updates the data, second parameter focuses the object.
+            $.colorbox.close();
+
+        });
     },
     
     confirmPopUp: function(properties) {

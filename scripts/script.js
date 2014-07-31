@@ -224,30 +224,51 @@ var $db = {
     },
 
     schedules: {
+        check: function(indx, func) {
+            var dfd = new $.Deferred();
+            var url = 'https://www.mypicday.com/Handlers/ScheduleHasReservationItems.aspx?Data='+indx.toString();
+            $sql($db.preventCache(url)).get(function (data) {
+                func(data);
+                dfd.resolve();
+            });
+            return dfd.promise();
+        },
         create: function (json, func) {
+            var dfd = new $.Deferred();
             var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(json);
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
+                dfd.resolve();
             });
+            return dfd.promise();
         },
         get: function(indx, func) {
+            var dfd = new $.Deferred();
             var url = 'https://www.mypicday.com/Handlers/ScheduleGetData.aspx?Data=' + indx; //id.event
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
+                dfd.resolve();
             });
+            return dfd.promise();
         },
         remove: function(json, func) { //$v().events()[indx]
+            var dfd = new $.Deferred();
             var url = 'https://www.mypicday.com/Handlers/ScheduleDeleteData.aspx?Data=' + json.indxScheduleID;
             /*url += '&Data2=' + json.indxOrganizationEventID;*/
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
+                dfd.resolve();
             });
+            return dfd.promise();
         },
         update: function(json, func) {
+            var dfd = new $.Deferred();
             var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateData.aspx?Data='+JSON.stringify(json);
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
+                dfd.resolve();
             });
+            return dfd.promise();
         },
     },
     scheduleItems: {
@@ -564,10 +585,46 @@ var cmd = { //project commands sorted alphabetically.
                 raw: obj.data.blnActive, //the data without html tags.
             },
             dates: [obj.data.dtOnLineFilledStartDate, obj.data.dtOnLineFilledEndDate],
+            activateReservationTimes: true,
         };
     }, 
     events: { //display-tbls DIV.
+        checkStatus: function(cnt, recursive) {
+            var dfd = new $.Deferred();
+            $db.schedules.check($v().events()[cnt].indxScheduleID, function(data) {
+                console.log(data);
+                if(parseInt(data)) {
+                    $('#foo'+cnt+'reservationRange').show();
+                } else {
+                    $('#foo'+cnt+'reservationRange').hide();
+                }
+            }).done(function() {
+                cnt++
+                if(cnt < $v().events().length && recursive) {
+                    cmd.events.checkStatus(cnt, true).done(function() {
+                        dfd.resolve();
+                    });
+                } else {
+                    dfd.resolve();
+                }
+            })
+            return dfd.promise();
+        },
+
         drawJSON: function (jsonDta, idSelect) {
+            //start: loading window
+            $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '150px'});
+            $jConstruct('div', {
+                text: '<h4>Loading Please Wait...</h4>',
+            }).css({
+                'text-align': 'center',
+            }).addChild($jConstruct('div', {
+                text: 'If this takes more than a few minutes, please contact your administrator.',
+            }).css({
+                'font-size': '12px',
+            })).appendTo('#cbDateEdit');
+            //end: loading window
+
             jsonDta.EventSchedules.sort(function(a,b) { //sort by date.
                 return new Date(a.dtScheduleDate) - new Date(b.dtScheduleDate); 
             });
@@ -586,6 +643,10 @@ var cmd = { //project commands sorted alphabetically.
                     }
                 });
             }
+            cmd.events.checkStatus(0, true).done(function() {
+                $.colorbox.close(); //don't close until everything is finished rendering.
+            });
+            
         },
     },
     del: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
