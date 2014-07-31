@@ -502,6 +502,7 @@ var forms = {
                     'height': '40px',
                     'margin': '0 auto',
                     'font-size': '12px',
+                    'visibility': 'hidden',
                 }),
 
             ]

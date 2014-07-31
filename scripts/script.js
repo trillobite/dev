@@ -561,7 +561,6 @@ var cmd = { //project commands sorted alphabetically.
     },
     //each pt- is a sub div inside the element.
     createEvent: function (obj) {
-        console.log(obj);
         var d = new Date(obj.data.dtScheduleDate);
         return {
             id: 'foo' + obj.cntr,
@@ -592,11 +591,10 @@ var cmd = { //project commands sorted alphabetically.
         checkStatus: function(cnt, recursive) {
             var dfd = new $.Deferred();
             $db.schedules.check($v().events()[cnt].indxScheduleID, function(data) {
-                console.log(data);
                 if(parseInt(data)) {
-                    $('#foo'+cnt+'reservationRange').show();
+                    $('#foo'+cnt+'reservationRange')[0].style.visibility = 'visible';
                 } else {
-                    $('#foo'+cnt+'reservationRange').hide();
+                    $('#foo'+cnt+'reservationRange')[0].style.visibility = 'hidden';
                 }
             }).done(function() {
                 cnt++
