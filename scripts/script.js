@@ -393,7 +393,19 @@ var $project = {
                     dfd.resolve(); //everything is done here.
                 });
                 return dfd.promise(); //.done to determine when finished drawing.
-            }
+            },
+            loadingScreen: function() {
+                $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '150px'});
+                $jConstruct('div', {
+                    text: '<h4>Loading Please Wait...</h4>',
+                }).css({
+                    'text-align': 'center',
+                }).addChild($jConstruct('div', {
+                    text: 'If this takes more than a few minutes, please contact your administrator.',
+                }).css({
+                    'font-size': '12px',
+                })).appendTo('#cbDateEdit');
+            },
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
     },
@@ -593,8 +605,10 @@ var cmd = { //project commands sorted alphabetically.
             $db.schedules.check($v().events()[cnt].indxScheduleID, function(data) {
                 if(parseInt(data)) {
                     $('#foo'+cnt+'reservationRange')[0].style.visibility = 'visible';
+                    //$('#foo'+cnt+'reservationRange').show();
                 } else {
                     $('#foo'+cnt+'reservationRange')[0].style.visibility = 'hidden';
+                    //$('#foo'+cnt+'reservationRange').hide();
                 }
             }).done(function() {
                 cnt++
@@ -611,16 +625,7 @@ var cmd = { //project commands sorted alphabetically.
 
         drawJSON: function (jsonDta, idSelect) {
             //start: loading window
-            $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '150px'});
-            $jConstruct('div', {
-                text: '<h4>Loading Please Wait...</h4>',
-            }).css({
-                'text-align': 'center',
-            }).addChild($jConstruct('div', {
-                text: 'If this takes more than a few minutes, please contact your administrator.',
-            }).css({
-                'font-size': '12px',
-            })).appendTo('#cbDateEdit');
+            $project.draw('loadingScreen')();
             //end: loading window
 
             jsonDta.EventSchedules.sort(function(a,b) { //sort by date.
@@ -642,9 +647,8 @@ var cmd = { //project commands sorted alphabetically.
                 });
             }
             cmd.events.checkStatus(0, true).done(function() {
-                $.colorbox.close(); //don't close until everything is finished rendering.
+                $.colorbox.close(); //close the loading screen.
             });
-            
         },
     },
     del: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

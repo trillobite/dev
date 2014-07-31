@@ -18,7 +18,7 @@ var confirmDel = function (indx) {
         text: '<h3> Are you sure you wish to delete this entire schedule? </h3>',
         func: function () {
             cmd.del(indx);
-            $.colorbox.close(); 
+            //$.colorbox.close(); 
         },
     }), '#cbConfirm');
 };
@@ -30,12 +30,12 @@ var confirmTimeDel = function(indx) {
         func: function() {
             var data = dataObjs.evntTimes.EventScheduleItems[indx].indxScheduleDateID;
             var data2 = dataObjs.evntTimes.EventScheduleItems[indx].indxOrganizationEventID;
-            console.log('To delete:', 'Data='+data+'Data2='+data2);
             $project.remove('scheduleItem')('Data='+data+'&Data2='+data2).done(function(dta) {
-                console.log(dta);
-                $.colorbox.close();
-                $v('display-tblInfo').clear();
-                $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+                cmd.events.checkStatus(0, true).done(function() {
+                    $.colorbox.close();
+                    $v('display-tblInfo').clear();
+                    $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+                });
                 
             });
         }
@@ -393,7 +393,7 @@ var forms = {
                     })
                 ).event('click', function() {
                     $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
-                    cmd.update(prop.indx);
+                    //cmd.update(prop.indx);
                 }).css({
                     'width': '20%',
                     'height': '30px',
@@ -1094,7 +1094,6 @@ var forms = {
                         }).css({
                             'background-color': $p('lightAmber'),
                         }).event('click', function() {
-                            console.log(options.cnt);
                             confirmTimeDel(options.cnt);
                         }),
 
@@ -1309,7 +1308,10 @@ var forms = {
                                         console.log( $('#timeBox')[0].value, strJson.dtDateTime);
                                     }
                                     $project.create('scheduleItem')(strJson).done(function() { //make the new schedule item (aka time).
-                                        $.colorbox.close(); //close the color box.
+                                        cmd.events.checkStatus(0, true).done(function() {
+                                            $.colorbox.close(); //close the loading screen.
+                                        });
+                                        //$.colorbox.close(); //close the color box.
                                     });
                                 });
                             }]
@@ -1424,8 +1426,12 @@ var forms = {
                     console.log(data);
                 }
                 console.log('done');
-                $.colorbox.close();
-                $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+                cmd.events.checkStatus(0, true).done(function() {
+                    $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+                    $.colorbox.close(); //close the loading screen.
+                });
+                //$.colorbox.close();
+                
             });
         });
                     
