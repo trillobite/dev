@@ -134,7 +134,7 @@ function toggleTxtBx(id, txt) {
         }
     }
 }
-function getForm(id) {
+/*function getForm(id) {
     var retForm;
     $.each(forms, function () {
        if(this.id == id) {
@@ -142,14 +142,14 @@ function getForm(id) {
        } 
     });
     return retForm;
-}
-function dynFoo(prop) {
+}*/
+/*function dynFoo(prop) {
     form = forms['foo'];
     form.id = 'foo'+prop.indx;
     form.children[0].text = prop.text;
     form.children[1].children[0].id = 'edit'+prop.indx;
     return form;
-}
+}*/
 var forms = {
     createEventMinimal: function() { //converted to jsonHTML v0.8-beta standard.
         return $jConstruct('div', {
@@ -348,6 +348,7 @@ var forms = {
                                         } else {
                                             $('#evntEditBx').remove(); //if no changes to be made, simply return the original object state.
                                             appendHTML(forms.genEvnt(prop).children[0], '#'+prop.id+"pt1"); //add back original object.
+                                            cmd.events.checkStatus(prop.indx, true);
                                         }
                                     });
                                 }
@@ -440,6 +441,7 @@ var forms = {
                                         } else {
                                             $('#descriptEditBx').remove(); //if no edits to be made, just return the original state.
                                             appendHTML(forms.genEvnt(prop).children[3], '#' + prop.id + 'pt0'); //add back original object.
+                                            cmd.events.checkStatus(prop.indx, true);
                                         }
                                     });
                                 }
@@ -509,7 +511,7 @@ var forms = {
         };
     },
 
-    genericDTPKR: function(obj, func) {
+    genericDTPKR: function(obj, func, additionalDiv) {
         var dPicker = $jConstruct('div').event('datepicker');
 
         var submitBtn = $jConstruct('button', {
@@ -526,12 +528,21 @@ var forms = {
 
         var dPBtns = $jConstruct('div').addChild(submitBtn).addChild(cancelBtn);
         
-
-        return $jConstruct('div', {
-            text: '<h4>' + obj + '</h4>',
-        }).css({
-            'text-align': 'center',
-        }).addChild(dPicker).addChild(dPBtns);
+        return (function() {
+            if(additionalDiv) {
+                return $jConstruct('div', {
+                    'text': '<h4>' + obj + '</h4>',
+                }).css({
+                    'text-align': 'center',
+                }).addChild(dPicker).addChild(additionalDiv).addChild(dPBtns);
+            } else {
+                return $jConstruct('div', {
+                    text: '<h4>' + obj + '</h4>',
+                }).css({
+                    'text-align': 'center',
+                }).addChild(dPicker).addChild(dPBtns);            
+            }
+        })();
     },
 
     datePicker: function (indx) {
@@ -561,110 +572,6 @@ var forms = {
             }).event('click', function() {
                 $.colorbox.close();
             }));
-    },
-    
-    editTitle: function (indx) {
-        return {
-            type: 'div',
-            id: 'cbTitleEdit',
-            text: '<h4 style="text-align: center">Insert New Title</h4>',
-            children: [
-                {
-                    type: 'textbox',
-                    id: 'titleEditTB',
-                    text: 'Enter new Title',
-                    functions: [function () {
-                        $('#titleEditTB').focus(function () {
-                            if($('#titleEditTB')[0].value == 'Enter new Title') {
-                                $('#titleEditTB')[0].value = '';
-                            }
-                        }).blur(function () {
-                            if($('#titleEditTB')[0].value === '') {
-                                $('#titleEditTB')[0].value = 'Enter new Title';
-                            }
-                        }).css({
-                            'color': $p('gray'),
-                        });
-                    }]
-                },
-                {
-                    type: 'button',
-                    id: 'titleEditSubmitBtn',
-                    text: 'replace',
-                    functions: [function () {
-                        $('#titleEditSubmitBtn').click(function () {
-                            if($('#titleEditTB')[0].value !== '') {
-                                $v().events()[indx].strScheduleTitle = $('#titleEditTB')[0].value;
-                                cmd.update(indx);
-                                $.colorbox.close();
-                            }
-                        });
-                    }]
-                },
-                {
-                    type: 'button',
-                    id: 'titleEditCancelBtn',
-                    text: 'cancel',
-                    functions: [function () {
-                        $('#titleEditCancelBtn').click(function () {
-                            $.colorbox.close();
-                        });
-                    }]
-                }
-            ]
-        };
-    },
-    
-    editDescription: function (indx) {
-        return {
-            type: 'div',
-            id: 'cbDescriptionEdit',
-            text: '<h4 style="text-align: center">Insert New Description</h4>',
-            children: [
-                {
-                    type: 'textbox',
-                    id: 'descriptionEditTB',
-                    text: 'Enter new Description',
-                    functions: [function () {
-                        $('#descriptionEditTB').focus(function () {
-                            if($('#descriptionEditTB')[0].value == 'Enter new Description') {
-                                $('#descriptionEditTB')[0].value = '';
-                            }
-                        }).blur(function () {
-                            if($('#descriptionEditTB')[0].value === '') {
-                                $('#descriptionEditTB')[0].value = 'Enter new Description';
-                            }
-                        }).css({
-                            'color': $p('gray'),
-                        });
-                    }],
-                },
-                {
-                    type: 'button',
-                    id: 'descriptionEditSubmitBtn',
-                    text: 'replace',
-                    functions: [function () {
-                        $('#descriptionEditSubmitBtn').click(function () {
-                            if($('#descriptionEditTB')[0].value !== '') {
-                                $v().events()[indx].strScheduleDescription = $('#descriptionEditTB')[0].value;
-                                cmd.update(indx);
-                                $.colorbox.close();
-                            }
-                        });
-                    }]
-                },
-                {
-                    type: 'button',
-                    id: 'descriptionEditCancelBtn',
-                    text: 'cancel',
-                    functions: [function () {
-                        $('#descriptionEditCancelBtn').click(function () {
-                            $.colorbox.close();
-                        });
-                    }],
-                },
-            ],
-        };
     },
     
     defaultEvntTime: { 
