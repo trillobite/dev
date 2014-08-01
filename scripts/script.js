@@ -759,7 +759,7 @@ var cmd = { //project commands sorted alphabetically.
             return d;
         },
         getRelevantDate: function() {
-            return $dt.read($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].dtScheduleDate);
+            return $dt.read($v().events()[0].dtScheduleDate);
         },
         obj: {
             hour: 0,
@@ -871,7 +871,6 @@ var cmd = { //project commands sorted alphabetically.
                 timeStore.morning = tmp.daytime;
             }
             timeStore = cmd.time.parseShorthand(input, timeStore);
-            //console.log(timeStore);
             return cmd.time.mkTimeStr(timeStore);
         },
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
