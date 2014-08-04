@@ -16,6 +16,7 @@ var $p = function (obj) {
         blue: '#3287CC',  
         darkBlue: '#205480',
         gray: '#CCCCCC',
+        midgray: '#A6A6A6',
         purple: '#5233A6',
         red: '#A8150D',
         amber: '#A62334',

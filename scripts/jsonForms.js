@@ -275,12 +275,16 @@ var forms = {
             functions: [function () {
                 if(dataObjs.slctdObj == prop.id) { //if there was an update, the object would be hilighted blue.
                     $('#'+prop.id).css({
-                        'background-color': $p('gray'),
+                        'background-color': $p('blue'),
                     });
                 }
                 $('#'+prop.id).mouseover(function () {
+                    var color = 'midgray';
+                    if(dataObjs.slctdObj == prop.id) {
+                        color = 'blue';
+                    }
                     $('#'+prop.id).css({
-                        'background-color': $p('blue'),
+                        'background-color': $p(color),
                     });
                     $('#'+prop.id+'fromDate').css({
                         'color': 'white',
@@ -1403,17 +1407,8 @@ var forms = {
         var btnSubmit = $jConstruct('button', {
             text: 'submit',
         }).event('click', function() {
-            var d = $('#'+datePicker.id).datepicker('getDate');
-            //for some reason if PM, adds another day!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            var t = $dt.parse($('#'+timePicker.id)[0].value, d);
+            var t = $dt.parse($('#'+timePicker.id)[0].value, $('#'+datePicker.id).datepicker('getDate'));
             console.log(t.toLocaleTimeString());
-            /*if(t.getHours() < 12) { //if the time is PM, this will keep the day of the month correct.
-                console.log('executing time correction');
-                d.setDate(d.getDate() - 1);
-            }*/
-            //d.setHours(t.toLocaleTimeString().substring(0, t.toLocaleTimeString().indexOf(':')));
-            //d.setHours(t.getHours());
-            //d.setMinutes(t.getMinutes());
             func(t);
         });
 
