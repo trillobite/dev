@@ -32,9 +32,10 @@ var confirmTimeDel = function(indx) {
             var data2 = dataObjs.evntTimes.EventScheduleItems[indx].indxOrganizationEventID;
             $project.remove('scheduleItem')('Data='+data+'&Data2='+data2).done(function(dta) {
                 cmd.events.checkStatus(0, true).done(function() {
-                    $.colorbox.close();
-                    $v('display-tblInfo').clear();
+                    
+                    //$v('display-tblInfo').clear();
                     $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
+                    $.colorbox.close();
                 });
                 
             });
@@ -566,16 +567,20 @@ var forms = {
                 id: 'cbDel',
                 class: 'container',
                 text: properties.text,
-            }).addChild($jConstruct('button', { //The Yes button
-                id: 'btnOk',
-                text: 'Yes',
-            }).event('click', function() {
-                properties.func();
-            })).addChild($jConstruct('button', { //The Cancel button
+            }).addChild($jConstruct('button', { //The Cancel button
                 id: 'btnCancel',
                 text: 'Cancel',
+            }).css({
+                'float': 'right',
             }).event('click', function() {
                 $.colorbox.close();
+            })).addChild($jConstruct('button', { //The Yes button
+                id: 'btnOk',
+                text: 'Yes',
+            }).css({
+                'float': 'right',
+            }).event('click', function() {
+                properties.func();
             }));
     },
     
