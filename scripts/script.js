@@ -206,10 +206,10 @@ var $dt = {
     write: function(date) {
         return new Date(date); //just returns what was entered as a javaScript date object.
     },
-    parse: function(time) {
+    parse: function(time, useDate) {
         var type = cmd.detectBrowser();
         if(type.substring(0, type.indexOf(' ')) != 'IE') {
-            return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time))); //parse a string time in text box, and remove the time zone differences.
+            return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time, useDate))); //parse a string time in text box, and remove the time zone differences.
         } else {
             return $dt.write(cmd.time.parse(time));
         }
@@ -776,10 +776,15 @@ var cmd = { //project commands sorted alphabetically.
                 return cmd.time.mkTimeStr(cmd.time.obj);
             }
         },
-        mkTimeStr: function(timeStore) {
+        mkTimeStr: function(timeStore, useDate) {
             var valid = parseInt(timeStore.hour) >= 0 && parseInt(timeStore.hour) <= 12 ? true : false; //if it's anything but 0, and not greater than 24, it is valid;
             valid = valid ? parseInt(timeStore.minutes) >= 0 && parseInt(timeStore.minutes) <= 60 ? true : false : false; //minutes is not a negative, and no more than 60.
-            var dt = cmd.time.getRelevantDate();
+            var dt = new Date();
+            if(useDate) {
+                dt = useDate;
+            } else {
+                dt = cmd.time.getRelevantDate();
+            }
             function to24(tHour) {
                 if(!(timeStore.morning) && parseInt(tHour) != 12) { //it's assumed if one enteres 12, they mean noon unless specified.
                     var tHour = parseInt(tHour) + 12;
@@ -861,7 +866,7 @@ var cmd = { //project commands sorted alphabetically.
             };
         },
         //cmd.time.parse($('#txtBxTime5')[0].value);
-        parse: function(input) {
+        parse: function(input, useDate) {
             input = input.toLowerCase(); //very first thing, make sure all characters are lowercase.
             var timeStore = cmd.time.obj;
             timeStore.reset();
@@ -871,7 +876,7 @@ var cmd = { //project commands sorted alphabetically.
                 timeStore.morning = tmp.daytime;
             }
             timeStore = cmd.time.parseShorthand(input, timeStore);
-            return cmd.time.mkTimeStr(timeStore);
+            return cmd.time.mkTimeStr(timeStore, useDate);
         },
         format: function(input) { //converts to 24 hour, then returns the number of milliseconds since midnight Jan 1, 1970.
             var date = cmd.time.getRelevantDate();

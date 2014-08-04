@@ -1405,10 +1405,16 @@ var forms = {
         }).event('click', function() {
             var d = $('#'+datePicker.id).datepicker('getDate');
             //for some reason if PM, adds another day!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            var t = $dt.parse($('#'+timePicker.id)[0].value);
-            d.setHours(t.getHours());
-            d.setMinutes(t.getMinutes());
-            func(d);
+            var t = $dt.parse($('#'+timePicker.id)[0].value, d);
+            console.log(t.toLocaleTimeString());
+            /*if(t.getHours() < 12) { //if the time is PM, this will keep the day of the month correct.
+                console.log('executing time correction');
+                d.setDate(d.getDate() - 1);
+            }*/
+            //d.setHours(t.toLocaleTimeString().substring(0, t.toLocaleTimeString().indexOf(':')));
+            //d.setHours(t.getHours());
+            //d.setMinutes(t.getMinutes());
+            func(t);
         });
 
         var btnCancel = $jConstruct('button', {
