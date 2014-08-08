@@ -398,8 +398,9 @@ var forms = {
                         'background-color': $p('lightAmber'),
                     })
                 ).event('click', function() {
+                    console.log('toggled');
                     $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
-                    //cmd.update(prop.indx);
+                    cmd.update(prop.indx);
                 }).css({
                     'width': '20%',
                     'height': '30px',
