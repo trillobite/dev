@@ -76,25 +76,16 @@ var makeID = function () {
 //Can produce HTML for a button, text box, or a div element.
 var parsetype = function (type) {
     function ico(element) {
-        var html = {
-            id: undefined !== element.id ? ' id="'+element.id+'"' : '',
-            title: undefined !== element.title ? ' title="'+element.title+'"' : '',
-            class: undefined !== element.class ? ' class="'+element.class+'"' : '',
-            onclick: undefined !== element.onclick ? ' onclick="'+element.onclick+'"' : '', 
-            onblur: undefined !== element.onblur ? ' onblur="' + element.onblur + '"' : '',
-            onfocus: undefined !== element.onfocus ? ' onfocus="' + element.onfocus + '"' : '',
-            max: undefined !== element.max ? ' max="' + element.max + '"' : '',
-            min: undefined !== element.min ? ' min="' + element.min + '"' : '',
-            name: undefined !== element.name ? ' name="' + element.name + '"' : '',
-            readonly: undefined !== element.readonly ? ' readonly="' + element.readonly + '"' : '',
-            rows: undefined !== element.rows ? ' rows="' + element.rows + '"' : '',
-            cols: undefined !== element.cols ? ' cols="' + element.cols + '"' : '',
-        }; 
-        var retVal = "";
-        $.each(html, function () { //for each property.
-            retVal += this;
-        });
-        return retVal;
+        var ico = "";
+        for(var k in element) {
+            var obj = k.toString();
+            if(typeof element[k] == 'string') { //makes sure that the object is a property, and not an array, or function, or object, or whatever.
+                if(k != 'text' && k != 'type') { //these are properties that are already handled and reserved for jsonHTML.
+                    ico += ' ' + obj + '="' + element[k] + '"';
+                }
+            }
+        }
+        return ico;
     }
     var options = {
         button: function (element) {
@@ -125,6 +116,20 @@ var parsetype = function (type) {
             var html = {
                 start: '<img src='+element.src+' alt="'+element.text,
                 end: '>',
+            };
+            return html.start + ico(element) + html.end;
+        },
+        input: function (element) { //generic input type html object.
+            var html = {
+                start: '<input',
+                end: '/>',
+            };
+            return html.start + ico(element) + html.end;
+        },
+        output: function (element) {
+            var html = {
+                start: '<output',
+                end: undefined !== element.text ? '>' + element.text + '</output>' : '></output>',
             };
             return html.start + ico(element) + html.end;
         },
