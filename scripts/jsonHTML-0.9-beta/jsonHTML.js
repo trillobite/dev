@@ -11,23 +11,24 @@
 
 /*
     This is a hashing function. It works similar to an in memory database for this project.
-    It can store any string you want, to see if that object already exists. It's a really powerful tool actually.
+    It can store any object with a string type id you want, to see if that object already exists. 
+    It's a really powerful tool actually. The biggest benifit is that it leverages the memory on the
+    client side rather than the server side.
 */
 var arrdb = {
     db: [],
-    calcIndex: function(data) {
+    calcIndex: function(data) { //takes a string
         var total = 0;
         for(var i = 0; i < data.length; ++i) {
             total += data.charCodeAt(i);
         }
-        return total % 50;
+        return total % 50; //max hash table size.
     },
-    exists: function(data) {
+    exists: function(data) { //takes a string object.
         var indx = this.calcIndex(data);
         if(this.db[indx]) {
-            console.log(this);
             for(var i = 0; i < this.db[indx].length; ++i) {
-                if(this.db[indx][i] == data) {
+                if(this.db[indx][i].id == data) {
                     return true; //success
                 }
             }
@@ -38,7 +39,7 @@ var arrdb = {
     },
     hash: function(data) {
         if(!(this.exists(data))) {
-            var indx = this.calcIndex(data);
+            var indx = this.calcIndex(data.id);
             if(this.db[indx]) {
                 this.db[indx][this.db[indx].length] = data;
                 return true; //success
@@ -49,6 +50,19 @@ var arrdb = {
             }
         } else {
             return false; //already exists
+        }
+    },
+    get: function(key) { //key is the id of the object.
+        var indx = this.calcIndex(key);
+        if(this.db[indx]) {
+            for(var i = 0; i < this.db[indx].length; ++i) {
+                if(this.db[indx][i].id == key) {
+                    return this.db[indx][i]; //found the object.
+                }
+            }
+            return undefined; //object does not exist in this hash array.
+        } else {
+            return undefined; //object does not even exist.
         }
     }
 
@@ -65,10 +79,10 @@ var makeID = function () {
     for( var i=0; i < 12; i++ ) //144 possible random div id's
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-    if(!(arrdb.hash(text))) {
+    /*if(!(arrdb.hash({id: text, append: undefined, }))) {
         text + Math.floor(Math.random() * 24);
         console.log('warning: Last div id was the same, are you making too many objects without div id\'s? ', text);
-    }
+    }*/
     return text;
 };
 
@@ -102,10 +116,10 @@ var parsetype = function (type) {
             };
             return html.start + ico(element) + html.end;
         },
-        div: function (element) {
+        generic: function(element) { //this can be used to generate div's
             var html = {
-                start: '<div',
-                end: undefined !== element.text ? '>' + element.text + '</div>' : '></div>',
+                start: '<' + element.type,
+                end: undefined !== element.text ? '>' + element.text + '</' + element.type + '>' : '></' + element.type + '>',
             };
             return html.start + ico(element) + html.end;
         },
@@ -126,24 +140,10 @@ var parsetype = function (type) {
             };
             return html.start + ico(element) + html.end;
         },
-        output: function (element) {
-            var html = {
-                start: '<output',
-                end: undefined !== element.text ? '>' + element.text + '</output>' : '></output>',
-            };
-            return html.start + ico(element) + html.end;
-        },
         spinner: function (element) {
             var html = {
                 start: undefined !== element.text ? element.text+'<input type="number"' : '<input type="number"',
                 end: '/>',
-            };
-            return html.start + ico(element) + html.end;
-        },
-        textarea: function (element) {
-            var html = { 
-                start: '<textarea ',
-                end: undefined !== element.text ? '>' + element.text + '</textarea>' : '></textarea>',
             };
             return html.start + ico(element) + html.end;
         },
@@ -156,12 +156,12 @@ var parsetype = function (type) {
         },
 
     };
-    return undefined !== options[type] ? options[type] : undefined;
+    return undefined !== options[type] ? options[type] : options['generic']; //if jsonHTML does not have that type, it will try a generic method to create it.
 };
 
 //recursive function, simply loops until there are no more children objects,
 //uses jQuery to append to the parent object (usually a div element).
-function appendHTML(jsonObj, container) {
+function appendHTML(jsonObj, container, type) {
     var dfd = new $.Deferred();
     var exec = function () {
         if(typeof jsonObj == 'function'){
@@ -170,8 +170,17 @@ function appendHTML(jsonObj, container) {
         if(undefined === jsonObj.id) {
             jsonObj.id = makeID();
         }
+        if(arrdb.exists(jsonObj.id)) {
+            arrdb.get(jsonObj.id).append = type;
+        } else {
+            arrdb.hash({id: jsonObj.id, append: type});
+        }
         jsonObj.parent = container;
-        $(container).append(parsetype(jsonObj.type)(jsonObj));
+        if(type) {
+            $(container)[type](parsetype(jsonObj.type)(jsonObj));
+        } else {
+            $(container).append(parsetype(jsonObj.type)(jsonObj));
+        }
         if(undefined !== jsonObj.children) {
             $.each(jsonObj.children, function () {
                 appendHTML(this, '#'+jsonObj.id);
@@ -219,15 +228,15 @@ var jConstructObjectManipulations = { //text object manipulations.
     },
     //what you can immediately call on any object created by $jConstruct.
     basicPropertiesInsert: function(tmp, directInsert) {
-        tmp.addChild = function (childObj) { //add a child JSON object on the fly.
+        tmp.addChild = function(childObj) { //add a child JSON object on the fly.
             this.children[this.children.length] = childObj; 
             return this; 
         }; 
-        tmp.addFunction = function (addFunc) { //add a function on the fly.
+        tmp.addFunction = function(addFunc) { //add a function on the fly.
             this.functions[this.functions.length] = addFunc; 
             return this; 
         }; 
-        tmp.appendTo = function(parent) { //append the JSON to a container div.
+        tmp.appendTo = function(parent, type) { //append the JSON to a container div.
             var dfd = new $.Deferred();
             var id;
             if(typeof parent == "object") { //if a jsonHTML object is inserted intended as the object to append to, grab the id of it.
@@ -235,10 +244,11 @@ var jConstructObjectManipulations = { //text object manipulations.
             } else {
                 id = parent;
             }
-            appendHTML(this, id).done(function () {
+            appendHTML(this, id, type).done(function () {
                 dfd.resolve();
             }); 
-            return dfd.promise(); 
+            this.state = dfd;
+            return this;
         };
         tmp.event = function(type, func) {
             var divId = '#'+this.id;
@@ -304,12 +314,18 @@ var jConstructObjectManipulations = { //text object manipulations.
         };
         //Allows the user to render the object on the DOM again.
         tmp.refresh = function() {
+            var dfd = new $.Deferred();
             if(tmp.parent.length > 0) {
                 tmp.remove();
-                tmp.appendTo(tmp.parent);
+
+                tmp.appendTo(tmp.parent, arrdb.get(tmp.id).append).state.done(function() {
+                    dfd.resolve();
+                }); //make sure to get from the hash table how the object was originally appended.
+
             } else {
-                console.log('Error: Parent of the object not defined. Was it rendered to the DOM yet?');
+                dfd.reject('Error: Parent of the object not defined. Was it rendered to the DOM yet?');
             }
+            this.state = dfd;
             return this;
         };
     },

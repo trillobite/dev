@@ -386,25 +386,26 @@ var forms = {
                 $jConstruct('div', {
                     id: prop.id + 'pt2',
                     text: undefined !== prop.pt2.text ? '<a>'+prop.pt2.text+'</a>' : undefined,
-                }).addChild(
-                    $jConstruct('div', {
-                        id: 'btnRemove' + prop.id,
-                        class: 'maxMinBtn',
-                        text: '<b>X</b>',
-                    }).event('click', function() {
-                        console.log('close button clicked!', prop.indx);
-                        confirmDel(prop.indx);
-                    }).css({
-                        'background-color': $p('lightAmber'),
-                    })
-                ).event('click', function() {
+                }).event('click', function() {
                     $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
                     cmd.update(prop.indx);
                 }).css({
                     'width': '20%',
                     'height': '30px',
-                    'float': 'right',
+                    'float': 'left',
                     //'border': '1px solid black',
+                }),
+
+                $jConstruct('div', {
+                    id: 'btnRemove' + prop.id,
+                    class: 'maxMinBtn',
+                    text: '<b>X</b>',
+                }).event('click', function() {
+                    console.log('close button clicked!', prop.indx);
+                    confirmDel(prop.indx);
+                }).css({
+                    'background-color': $p('lightAmber'),
+                    'float': 'right',
                 }),
 
                 //description
@@ -1233,6 +1234,7 @@ var forms = {
                                 });
                             }]
                         },
+
                         $jConstruct('button', { //written in JSONHTML v0.9 - Beta
                             id: 'multiPostBtn',
                             text: 'Reservation Range',
@@ -1243,6 +1245,15 @@ var forms = {
                                 height: '220px',
                             });
                         }),
+
+                        $jConstruct('button', {
+                            id: 'csvUploadBtn',
+                            text: 'upload csv',
+                        }).event('click', function() {
+                            $.colorbox({html: '<div id="cbDateEdit"></div>', width: '800px', height: '600px'});
+                            csvSubmitFormAppendTo('#cbDateEdit');
+                        }),
+
                         {//close the colorbox, ignore everything button.
                             type: 'button',
                             id: 'cancelBtn',
