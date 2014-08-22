@@ -6,14 +6,14 @@ var projFuncs = {
 			var selections = [];
 			for(var i = 0; i < $('#selectionRow')[0].children.length; ++i) {
 		  		var txt = $('#selectionRow')[0].children[i].value;
-		    	if(txt !== undefined && txt != 'Select Column Type') {
-		      		selections[selections.length] = txt;
-		    	}
+		      	selections[selections.length] = txt;
 		  	}
 		  	return selections;
 		}
+		console.log(tst());
 		var retIndx = -1;
 		$.each(tst(), function(indx, obj) {
+			console.log(indx, obj);
 			if(obj == input) {
 				retIndx = indx;
 			}
@@ -176,7 +176,16 @@ var projFuncs = {
 							return '#C7E18D';
 						}
 					})(),
-					//'color': '#B0B0B0',
+					/*(function() {
+						if($('#typeSelect'+num)[0].style.color == 'red') {
+							return 'color': 'black',
+						}
+					})();*/
+					'color': (function() {
+						if($('#typeSelect'+num)[0].value != 'time') {
+							return 'black';
+						}
+					})(),
 				});
 			});
 			ch.addChild(tmp);
@@ -277,16 +286,13 @@ function csvSubmitFormAppendTo(container) {
 		  	$.each($('#drop_zone').children(), function(indx0, val0) {
 		    	arrObj[indx0] = [];
 		    	$.each(val0.children, function(indx, val) {
-		      	//console.log(val.style.backgroundColor == "");
 		      	if(val.style.backgroundColor !== "") {
 		        	arrObj[indx0][arrObj[indx0].length] = val.value;
-		        	//console.log(val.value);
 		      	}
 		    	});
 		  	});
 		  	return arrObj;
 		}
-		//ALL I HAVE TO DO IS IMPLEMENT THE SUBMIT SCHEDULE DATA HANDLER.
 		function tst() { //returns an array that describes each column type.
 			var selections = [];
 			for(var i = 0; i < $('#selectionRow')[0].children.length; ++i) {
@@ -302,7 +308,6 @@ function csvSubmitFormAppendTo(container) {
 		var rawData = stuff();
 		var json = {};
 		var indx = 1;
-		console.log(rawData);
 
 		var progress = $jConstruct('div', { //construct the progress bar div.
 			id: 'progressbar',
@@ -324,7 +329,6 @@ function csvSubmitFormAppendTo(container) {
 				submitProcess(json).done(function() {
 					if(indx < 128) {
 						submitData();
-						console.log('progress:', (((indx-2) / rawData.length) * 100));
 						$('#'+progress.id).progressbar({
 							value: (((indx-2) / rawData.length) * 100),
 						});
