@@ -388,7 +388,7 @@ var forms = {
                     $v().events()[prop.indx].blnActive = !($v().events()[prop.indx].blnActive);
                     cmd.update(prop.indx);
                 }).css({
-                    'width': '20%',
+                    'width': '15%',
                     'height': '30px',
                     'float': 'left',
                     //'border': '1px solid black',
@@ -455,63 +455,62 @@ var forms = {
                     }
                 }),
                 
-                //two dates.
-                $jConstruct('div', {
-                    id: prop.id + 'reservationRange',
-                }).addChild($jConstruct('div', {
-                    text: 'Schedule reservation active through:',
-                }).css({
-                    'float': 'left',
-                    'font-size': '10px',
-                    'width': '100%',
-                    'height': '15px',
-                    //'margin': '0 auto',
-                })).addChild($jConstruct('div', {
-                    id: prop.id + 'fromDate',
-                    text: cmd.time.removeISOTimeZone(prop.dates[0], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[0], true).toLocaleTimeString(),
-                }).css({
-                    'float': 'left',
-                    'margin-right': '20px',
-                    'color': $p('amber'),
-                    //'margin-left': '10px',
-                }).event('click', function() {
-                    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '145px'});
-                    appendHTML(forms['dateTimeAlpha']('pick a new start date', function(dt) {
-                        //dt.setDate(dt.getDate()-1); //offset the change.
-                        $v().events()[prop.indx].dtOnLineFilledStartDate = dt.toISOString();
-                        cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
-                        $.colorbox.close();
-                    }), '#cbDateEdit');
-                })).addChild($jConstruct('div', {
-                    id: prop.id + 'filler',
-                    text: '-',
-                }).css({
-                    'float': 'left',
-                    'margin-right': '20px',
-                })).addChild($jConstruct('div', {
-                    id: prop.id + 'toDate',
-                    text: cmd.time.removeISOTimeZone(prop.dates[1], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[1], true).toLocaleTimeString(),
-                }).css({
-                    'float': 'left',
-                    'color': $p('amber'),
-                }).event('click', function() {
-                    $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '145px'});
-                    appendHTML(forms['dateTimeAlpha']('pick a new end date', function(dt) {
-                        $v().events()[prop.indx].dtOnLineFilledEndDate = dt.toISOString(); //11:55PM
-                        cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
-                        $.colorbox.close();
-                    }), '#cbDateEdit');
-                })).css({
-                    
-                    //'float': 'left',
-                    //'border': '1px solid black',
-                    'width': '265px',
-                    'height': '40px',
-                    'margin': '0 auto',
-                    'font-size': '12px',
-                    'visibility': 'hidden',
-                }),
+                (function() {
+                    var fromDate = $jConstruct('div', {
+                        id: prop.id + 'fromDate',
+                        text: cmd.time.removeISOTimeZone(prop.dates[0], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[0], true).toLocaleTimeString(), 
+                    }).css({
+                        'float': 'left',
+                        'color': $p('amber'),
+                    }).event('click', function() {
+                        $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '145px'});
+                        appendHTML(forms['dateTimeAlpha']('pick a new start date', function(dt) {
+                            //dt.setDate(dt.getDate()-1); //offset the change.
+                            $v().events()[prop.indx].dtOnLineFilledStartDate = dt.toISOString();
+                            cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
+                            $.colorbox.close();
+                        }), '#cbDateEdit');
+                    });
 
+                    var filler = $jConstruct('div', {
+                        id: prop.id + 'filler',
+                        text: ' - ',
+                    }).css({
+                        'float': 'left',
+                        'margin-right': '5px',
+                        'margin-left': '5px',
+                    });
+
+                    var toDate = $jConstruct('div', {
+                        id: prop.id + 'toDate',
+                        text: cmd.time.removeISOTimeZone(prop.dates[1], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[1], true).toLocaleTimeString(),
+                    }).css({
+                        'float': 'left',
+                        'color': $p('amber'),
+                    }).event('click', function() {
+                        $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '145px'});
+                        appendHTML(forms['dateTimeAlpha']('pick a new end date', function(dt) {
+                            $v().events()[prop.indx].dtOnLineFilledEndDate = dt.toISOString(); //11:55PM
+                            cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
+                            $.colorbox.close();
+                        }), '#cbDateEdit');
+                    });
+
+                    return $jConstruct('div', {
+                        id: prop.id + 'reservationRange',
+                        //text: '<div>Schedule reservation active through:</div>',
+                        title: 'Event is active through...',
+                    }).css({
+                        'float': 'left',
+                        'font-size': '10px',
+                        'display': 'inline-block',
+                        'margin-left': '35%',
+                        /*'width': '100%',
+                        'height': '100%',*/
+                        //'margin': '0 auto',
+                        //'border': '1px solid black',
+                    }).addChild(fromDate).addChild(filler).addChild(toDate);
+                })(),
             ]
         };
     },
