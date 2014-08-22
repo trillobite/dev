@@ -303,31 +303,40 @@ function csvSubmitFormAppendTo(container) {
 		var json = {};
 		var indx = 1;
 		console.log(rawData);
+
+		var progress = $jConstruct('div', { //construct the progress bar div.
+			id: 'progressbar',
+			text: 'Uploading data...',
+		}).event('progressbar', {
+			value: 5,
+		});
+
+		$.colorbox({html: '<div id="cbDateEdit"></div>', width: '350px', height: '100px'});
+		progress.appendTo('#cbDateEdit'); //append it to a new colorbox.
+
 		var submitData = function() {
 			if(rawData[indx]) {
 				$.each(columns, function(indx1, currColumn) {
-					console.log('data:', rawData[indx], rawData[indx][indx1]);
 					json[currColumn] = rawData[indx][indx1];
 				});
+				indx++;
+				console.log('pushing:', json);
+				submitProcess(json).done(function() {
+					if(indx < 128) {
+						submitData();
+						console.log('progress:', (((indx-2) / rawData.length) * 100));
+						$('#'+progress.id).progressbar({
+							value: (((indx-2) / rawData.length) * 100),
+						});
+					} else {
+						$.colorbox.close();
+					}
+				});
+			} else {
+				$.colorbox.close();
 			}
-			indx++;
-			console.log('pushing to db', json);
-			submitProcess(json).done(function() {
-				if(rawData[indx] && indx < 128) { //stop the loop
-					submitData();
-					$('#closeBtnHotSauce'+(indx - 2).toString()).css({
-						'background-color': 'green',
-					});
-				}
-			});
 		}
 		submitData();
-		/*$.each(rawData, function(indx, dataObj) {
-			$.each(columns, function(indx1, currColumn) {
-				json[currColumn] = dataObj[indx1];
-			})
-			submitProcess(json);
-		});*/
 	});
 
 	var btnCancel = $jConstruct('button', {

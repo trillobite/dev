@@ -218,10 +218,8 @@ var forms = {
                     obj.dtOnLineFilledEndDate = cmd.time.removeISOTimeZone(addDays(t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')), 1)).toISOString(); //11:55PM
                     obj.indxOrganizationEventID = id.event;
                     obj.indxPhotographerID = id.photographer;
-                    console.log(obj);
                     var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
                     $sql(url).get(function(data){
-                        console.log(data);
                         var parsed = JSON.parse(data);
                         var len;
                         
