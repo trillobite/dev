@@ -273,18 +273,18 @@ function csvSubmitFormAppendTo(container) {
 		text: 'Submit',
 	}).event('click', function() {
 		function stuff() {
-		  var arrObj = [];
-		  $.each($('#drop_zone').children(), function(indx0, val0) {
-		    arrObj[indx0] = [];
-		    $.each(val0.children, function(indx, val) {
-		      //console.log(val.style.backgroundColor == "");
-		      if(val.style.backgroundColor !== "") {
-		        arrObj[indx0][indx] = val.value;
-		        //console.log(val.value);
-		      }
-		    });
-		  });
-		  return arrObj;
+		  	var arrObj = [];
+		  	$.each($('#drop_zone').children(), function(indx0, val0) {
+		    	arrObj[indx0] = [];
+		    	$.each(val0.children, function(indx, val) {
+		      	//console.log(val.style.backgroundColor == "");
+		      	if(val.style.backgroundColor !== "") {
+		        	arrObj[indx0][arrObj[indx0].length] = val.value;
+		        	//console.log(val.value);
+		      	}
+		    	});
+		  	});
+		  	return arrObj;
 		}
 		//ALL I HAVE TO DO IS IMPLEMENT THE SUBMIT SCHEDULE DATA HANDLER.
 		function tst() { //returns an array that describes each column type.
