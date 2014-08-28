@@ -155,38 +155,41 @@ var forms = {
     createEventMinimal: function() { //converted to jsonHTML v0.8-beta standard.
         return $jConstruct('div', {
             id: 'createForm',
+            text: '<h3>Setup New Event</h3>',
         }).css({
             'font-family': 'sans-serif',
+            'text-align': 'center',
         }).addChild(function() {
             return $jConstruct('textbox', {
                 id: 'scheduleTitle',
-                text: 'Schedule Title',
+                text: 'Event Title',
             }).css({
-                'color': $p('gray'),
-            }).event('click', function() {
-                toggleTxtBx('scheduleTitle', 'Schedule Title');
-            }).event('blur', function() {
-                toggleTxtBx('scheduleTitle', 'Schedule Title');
+                'color': $p('purple'),
+            }).addFunction(function() {
+                tgglTxtBx('scheduleTitle', 'Schedule Title');
             });
         }).addChild(function() {
             return $jConstruct('textbox', {
                 id: 'scheduleDescription',
-                text: 'Schedule Description',
+                text: 'Event Description',
             }).css({
-                'color': $p('gray'),
-            }).event('click', function() {
-                toggleTxtBx('scheduleDescription', 'Schedule Description');
-            }).event('blur', function() {
-                toggleTxtBx('scheduleDescription', 'Schedule Description');
+                'color': $p('purple'),
+            }).addFunction(function() {
+                tgglTxtBx('scheduleDescription', 'Schedule Description');
             });
         }).addChild(function() {
             return $jConstruct('div', {
                 id: 'mkSchedDtPkr',
+            }).css({
+                'border': '1px solid '+$p('gray'),
+                'display': 'inline-block',
             }).addFunction(function() {
                 $('#mkSchedDtPkr').datepicker();
             }).addChild(function() {
                 return $jConstruct('div', {
                     id: 'date',
+                }).css({
+                    'margin-right': '5px',
                 });
             });
         }).addChild(function() {
@@ -194,7 +197,7 @@ var forms = {
                 id: 'buttonContainer',
             }).css({
                 'width': '50%',
-                'float': 'left',
+                'float': 'right',
             }).addChild(function() {
                 return $jConstruct('button', {
                     id: 'formSubmit',

@@ -940,7 +940,7 @@ var setup = function() {
         id: 'btnNwEvnt',
         class: 'button',
         title: 'Add a new schedule to this event',
-        text: 'Add Schedule',
+        text: 'Create Event',
     }).css({
         'float': 'left',
         'width': '115px',
@@ -949,7 +949,7 @@ var setup = function() {
     }).event('click', function() {
         defaultColorbox('newEvent', 'createEventMinimal', {
             'width': '350px',
-            'height': '370px',
+            'height': '420px',
         });
     }).appendTo('#defaultMenu');
 
