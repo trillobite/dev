@@ -190,10 +190,10 @@ var projFuncs = {
 			});
 			ch.addChild(tmp);
 		}
-		ch.addChild($jConstruct('div').css({ //helps with alignment, this is a filter since all other rows have a close button.
+		/*ch.addChild($jConstruct('div').css({ //helps with alignment, this is a filter since all other rows have a close button.
 			'width': '25px',
 			'float': 'right',
-		}));
+		}));*/
 
 		droppableBox.children = grid.children;
 		//droppableBox.functions = grid.functions;
@@ -226,7 +226,7 @@ function csvSubmitFormAppendTo(container) {
 		//'border': '1px solid black',
 		'border-radius': '3px',
 		'display': 'inline-block',
-		'overflow': 'hidden',
+		'overflow': 'auto',
 		/*'width': '300px',
 		'height': '200px',*/
 		
@@ -281,18 +281,6 @@ function csvSubmitFormAppendTo(container) {
 	var btnSubmit = $jConstruct('button', {
 		text: 'Submit',
 	}).event('click', function() {
-		function stuff() {
-		  	var arrObj = [];
-		  	$.each($('#drop_zone').children(), function(indx0, val0) {
-		    	arrObj[indx0] = [];
-		    	$.each(val0.children, function(indx, val) {
-		      	if(val.style.backgroundColor !== "") {
-		        	arrObj[indx0][arrObj[indx0].length] = val.value;
-		      	}
-		    	});
-		  	});
-		  	return arrObj;
-		}
 		function tst() { //returns an array that describes each column type.
 			var selections = [];
 			for(var i = 0; i < $('#selectionRow')[0].children.length; ++i) {
@@ -302,6 +290,23 @@ function csvSubmitFormAppendTo(container) {
 		    	}
 		  	}
 		  	return selections;
+		}
+
+		function stuff() {
+		  	var arrObj = [];
+		  	if($('#drop_zone').children()[0].innerHTML != "Drag and drop your CSV file here.") { //make sure a csv file was actually uploaded.
+			  	$.each($('#drop_zone').children(), function(indx0, val0) {
+			    	arrObj[indx0] = [];
+			    	$.each(val0.children, function(indx, val) {
+				      	if(val.style.backgroundColor !== "") {
+				        	arrObj[indx0][arrObj[indx0].length] = val.value;
+				      	}
+			    	});
+			  	});
+		  	} else {
+		  		console.log('no csv data!');
+		  	}
+		  	return arrObj;
 		}
 
 		var columns = tst();
@@ -316,31 +321,36 @@ function csvSubmitFormAppendTo(container) {
 			value: 5,
 		});
 
-		$.colorbox({html: '<div id="cbDateEdit"></div>', width: '350px', height: '100px'});
-		progress.appendTo('#cbDateEdit'); //append it to a new colorbox.
+		if(tst().length > 0) { //make sure rows are selected before actually doing anything.
+			console.log('debug ln325:', tst());
+			$.colorbox({html: '<div id="cbDateEdit"></div>', width: '350px', height: '100px'});
+			progress.appendTo('#cbDateEdit'); //append it to a new colorbox.
 
-		var submitData = function() {
-			if(rawData[indx]) {
-				$.each(columns, function(indx1, currColumn) {
-					json[currColumn] = rawData[indx][indx1];
-				});
-				indx++;
-				console.log('pushing:', json);
-				submitProcess(json).done(function() {
-					if(indx < 128) {
-						submitData();
-						$('#'+progress.id).progressbar({
-							value: (((indx-2) / rawData.length) * 100),
-						});
-					} else {
-						$.colorbox.close();
-					}
-				});
-			} else {
-				$.colorbox.close();
+			var submitData = function() {
+				if(rawData[indx]) {
+					$.each(columns, function(indx1, currColumn) {
+						json[currColumn] = rawData[indx][indx1];
+					});
+					indx++;
+					console.log('pushing:', json);
+					submitProcess(json).done(function() {
+						if(indx < 128) {
+							submitData();
+							$('#'+progress.id).progressbar({
+								value: (((indx-2) / rawData.length) * 100),
+							});
+						} else {
+							$.colorbox.close();
+						}
+					});
+				} else {
+					$.colorbox.close();
+				}
 			}
+			submitData();
+		} else {
+			alert('No columns selected!');
 		}
-		submitData();
 	});
 
 	var btnCancel = $jConstruct('button', {

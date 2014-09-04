@@ -493,7 +493,7 @@ var forms = {
                     }).event('click', function() {
                         $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '145px'});
                         appendHTML(forms['dateTimeAlpha']('pick a new end date', function(dt) {
-                            $v().events()[prop.indx].dtOnLineFilledEndDate = dt.toISOString(); //11:55PM
+                            $v().events()[prop.indx].dtOnLineFilledEndDate = cmd.time.IEremoveISOTimeZone(dt).toISOString(); //11:55PM
                             cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
                             $.colorbox.close();
                         }), '#cbDateEdit');
@@ -1423,8 +1423,12 @@ var forms = {
         var btnSubmit = $jConstruct('button', {
             text: 'submit',
         }).event('click', function() {
-            var t = $dt.parse($('#'+timePicker.id)[0].value, $('#'+datePicker.id).datepicker('getDate'));
-            console.log(t.toLocaleTimeString());
+            var d = $('#'+datePicker.id).datepicker('getDate');
+            var t = $dt.parse($('#'+timePicker.id)[0].value, d);
+            if(cmd.isIE()) {
+                t = cmd.time.removeISOTimeZone($dt.write(cmd.time.parse($('#'+timePicker.id)[0].value, d)));
+            }
+            console.log('times:', d, t);
             func(t);
         });
 

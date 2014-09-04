@@ -215,7 +215,7 @@ var $dt = {
             return $dt.write(cmd.time.parse(time));
         }
         
-    }
+    },
 };
 
 var $db = {
@@ -562,6 +562,13 @@ var cmd = { //project commands sorted alphabetically.
                 return M.join(' ');
             })();
         
+    },
+    isIE: function() {
+        var type = cmd.detectBrowser();
+        if(type.substring(0, type.indexOf(' ')) != 'IE') {
+            return false;
+        }
+        return true;
     },
     componentToHex: function (c) {
         var hex = c.toString(16);
