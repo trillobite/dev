@@ -1250,7 +1250,7 @@ var forms = {
                             id: 'csvUploadBtn',
                             text: 'upload csv',
                         }).event('click', function() {
-                            $.colorbox({html: '<div id="cbDateEdit"></div>', width: '800px', height: '600px'});
+                            $.colorbox({html: '<div id="cbDateEdit"></div>', width: '900px', height: '600px'});
                             csvSubmitFormAppendTo('#cbDateEdit');
                         }),
 

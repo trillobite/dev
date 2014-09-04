@@ -101,6 +101,8 @@ var projFuncs = {
 				var tb = $jConstruct('textbox', { //text box
 					text: this,
 					name: 'column' + (++i),
+				}).css({
+					'width': ((100 / csvData[0].length) - (((100 / csvData[0].length) / 100) * (50 / csvData[0].length))).toString() + '%', //set proper cell size.
 				}).addFunction(function() {
 					//id, dbVal, defVal, updateFunc
 					toolKit().tgglTxtBx(tb.id, tb.text, tb.text, function(id) {
@@ -159,13 +161,24 @@ var projFuncs = {
 		var ch = $jConstruct('div', {
 			id: 'selectionRow',
 		}).css({ //row
-			'text-align': 'left',
+			'width': '100%',
+			'margin-left': ((100 / csvData[0].length) - csvData[0].length).toString() + 'px',
+			//'text-align': 'center',
+			//'padding-right': '10px',
+			//'margin-left': '5px',
+			//'margin-right': '10px',
 		});
+		/*var dropDownContainer = $jConstruct('div').css({
+			'float': 'left',
+			'margin-left': ((100 / csvData[0].length) - csvData[0].length).toString() + 'px',
+		});*/
 		for(var i = 0; i < csvData[0].length; ++i) {
 			var tmp = new projFuncs.dropDown('typeSelect' + i); //cell
 			tmp.css({
-				'width': ((100 / csvData[0].length) - (((100 / csvData[0].length) / 100) * (20 / csvData[0].length))).toString() + '%', //set proper cell size.
-				'margin-left': '2px',
+				//'width': ((100 / csvData[0].length) - (((100 / csvData[0].length) / 100) * (35 / csvData[0].length))).toString() + '%', //set proper cell size.
+				/*'padding-left': '1px',
+				'padding-right': '1px',*/
+				'float': 'left',
 			}).event('change', function() {
 				var num = (parseInt(this.id.substring(this.id.indexOf('typeSelect') + 10, this.id.length))).toString();
 				$("[name*='column" + num + "']").css({ //if selection made, change all column cells green.
@@ -188,12 +201,11 @@ var projFuncs = {
 					})(),
 				});
 			});
+			//dropDownContainer.addChild(tmp);
 			ch.addChild(tmp);
 		}
-		/*ch.addChild($jConstruct('div').css({ //helps with alignment, this is a filter since all other rows have a close button.
-			'width': '25px',
-			'float': 'right',
-		}));*/
+		//ch.addChild(dropDownContainer);
+		/*S*/
 
 		droppableBox.children = grid.children;
 		//droppableBox.functions = grid.functions;
@@ -204,6 +216,16 @@ var projFuncs = {
 			if(response) {
 				console.log(response);
 			}
+			var w = $("[name*='column0']").css('width').toString();
+			var width = parseInt(w.substring(0, w.indexOf('px')));
+			console.log(width);
+
+			$.each(ch.children, function(indx, obj) {
+				obj.css({
+					'width': (width + 4).toString(),
+				});
+			});
+
 			ch.appendTo('#'+droppableBox.id, 'prepend');
 		});
 	},
@@ -215,6 +237,7 @@ function csvSubmitFormAppendTo(container) {
 		'text-align': 'center',
 		'width': '100%',
 		'height': '100%',
+		//'overflow': 'scroll',
 	});
 
 	var drpZone = $jConstruct('div', {
@@ -226,7 +249,7 @@ function csvSubmitFormAppendTo(container) {
 		//'border': '1px solid black',
 		'border-radius': '3px',
 		'display': 'inline-block',
-		'overflow': 'auto',
+		//'overflow': 'scroll',
 		/*'width': '300px',
 		'height': '200px',*/
 		
@@ -237,6 +260,7 @@ function csvSubmitFormAppendTo(container) {
 		'text-align': 'center',
 		'width': '300px',
 		'height': '300px',
+		//'overflow': 'scroll',
 	})).event('filedrop', {
 		maxfiles: 1,
 		maxfilesize: 5,
