@@ -469,7 +469,7 @@ var forms = {
                         $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350', height: '145px'});
                         appendHTML(forms['dateTimeAlpha']('pick a new start date', function(dt) {
                             //dt.setDate(dt.getDate()-1); //offset the change.
-                            $v().events()[prop.indx].dtOnLineFilledStartDate = dt.toISOString();
+                            $v().events()[prop.indx].dtOnLineFilledStartDate = cmd.time.IEremoveISOTimeZone(dt).toISOString();
                             cmd.update(prop.indx, $v().events()[prop.indx].indxScheduleID); //updates the data, second parameter focuses the object.
                             $.colorbox.close();
                         }), '#cbDateEdit');
