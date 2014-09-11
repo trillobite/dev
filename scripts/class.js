@@ -158,17 +158,6 @@ function toolKit() {
                 }
             };
 
-            /*var focus = function() {
-                dataObjs.slctdDiv = id;
-                if(object().color == $p('purple')) { //if this entry has been edited, by user or by function.
-                    previousTxt = object().value;
-                    //object('');
-                } else {
-                    object('', $p('purple'));
-                }
-                //$('#'+id).select(); //so that the text (time) is hilighted.
-            };*/
-
             var blur = function() {
                 if(object().color == $p('purple')) { //purple if the entry was edited!
                     if(undefined !== dbVal && '' !== dbVal && null !== dbVal) {
