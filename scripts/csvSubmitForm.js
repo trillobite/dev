@@ -1,4 +1,4 @@
-/*Last Updated: 09/11/2014 @8:08AM*/
+/*Last Updated: 09/11/2014 @9:04AM*/
 
 var csvData;
 
@@ -165,21 +165,10 @@ var projFuncs = {
 		}).css({ //row
 			'width': '100%',
 			'margin-left': ((100 / csvData[0].length) - csvData[0].length).toString() + 'px',
-			//'text-align': 'center',
-			//'padding-right': '10px',
-			//'margin-left': '5px',
-			//'margin-right': '10px',
 		});
-		/*var dropDownContainer = $jConstruct('div').css({
-			'float': 'left',
-			'margin-left': ((100 / csvData[0].length) - csvData[0].length).toString() + 'px',
-		});*/
 		for(var i = 0; i < csvData[0].length; ++i) {
 			var tmp = new projFuncs.dropDown('typeSelect' + i); //cell
 			tmp.css({
-				//'width': ((100 / csvData[0].length) - (((100 / csvData[0].length) / 100) * (35 / csvData[0].length))).toString() + '%', //set proper cell size.
-				/*'padding-left': '1px',
-				'padding-right': '1px',*/
 				'float': 'left',
 			}).event('change', function() {
 				var num = (parseInt(this.id.substring(this.id.indexOf('typeSelect') + 10, this.id.length))).toString();
@@ -191,11 +180,6 @@ var projFuncs = {
 							return '#C7E18D';
 						}
 					})(),
-					/*(function() {
-						if($('#typeSelect'+num)[0].style.color == 'red') {
-							return 'color': 'black',
-						}
-					})();*/
 					'color': (function() {
 						if($('#typeSelect'+num)[0].value != 'time') {
 							return 'black';
@@ -203,14 +187,10 @@ var projFuncs = {
 					})(),
 				});
 			});
-			//dropDownContainer.addChild(tmp);
 			ch.addChild(tmp);
 		}
-		//ch.addChild(dropDownContainer);
-		/*S*/
 
 		droppableBox.children = grid.children;
-		//droppableBox.functions = grid.functions;
 		$.each(grid.functions, function() {
 			droppableBox.addFunction(this);
 		});
@@ -218,17 +198,16 @@ var projFuncs = {
 			if(response) {
 				console.log(response);
 			}
-			var w = $("[name*='column0']").css('width').toString();
-			var width = parseInt(w.substring(0, w.indexOf('px')));
-			console.log(width);
 
-			$.each(ch.children, function(indx, obj) {
-				obj.css({
-					'width': (width + 4).toString(),
+			ch.appendTo('#'+droppableBox.id, 'prepend').state.done(function() {
+				var w = $("[name*='column0']").css('width').toString();
+				var width = parseInt(w.substring(0, w.indexOf('px')));
+				console.log(width);
+
+				$("[parent*='selectionRow']").each(function() {
+					this.style["width"] = (width + 4).toString() + 'px';
 				});
 			});
-
-			ch.appendTo('#'+droppableBox.id, 'prepend');
 		});
 	},
 
