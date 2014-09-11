@@ -176,17 +176,17 @@ var projFuncs = {
 		$.each(grid.functions, function() {
 			droppableBox.addFunction(this);
 		});
-		droppableBox.refresh().state.done(function(response) {
+		droppableBox.refresh().state.done(function(response) { //after droppable box becomes a table,
 			if(response) {
 				console.log(response);
 			}
 
-			ch.appendTo('#'+droppableBox.id, 'prepend').state.done(function() {
+			ch.appendTo('#'+droppableBox.id, 'prepend').state.done(function() { //after the header selection box is appended to the top of the table,
 				var w = $("[name*='column0']").css('width').toString();
 				var width = parseInt(w.substring(0, w.indexOf('px')));
 				console.log(width);
 
-				$("[parent*='selectionRow']").each(function() {
+				$("[parent*='selectionRow']").each(function() { //change the size of the selectable header boxes.
 					this.style["width"] = (width + 4).toString() + 'px';
 				});
 			});
@@ -200,7 +200,6 @@ function csvSubmitFormAppendTo(container) {
 		'text-align': 'center',
 		'width': '100%',
 		'height': '100%',
-		//'overflow': 'scroll',
 	});
 
 	var drpZone = $jConstruct('div', {
@@ -209,12 +208,8 @@ function csvSubmitFormAppendTo(container) {
 		'background-color': '#C4C4C4',
 		'font-family': 'Sans-serif',
 		'margin': '0 auto',
-		//'border': '1px solid black',
 		'border-radius': '3px',
 		'display': 'inline-block',
-		//'overflow': 'scroll',
-		/*'width': '300px',
-		'height': '200px',*/
 		
 	}).addChild($jConstruct('div', {
 		id: 'container',
@@ -223,7 +218,6 @@ function csvSubmitFormAppendTo(container) {
 		'text-align': 'center',
 		'width': '300px',
 		'height': '300px',
-		//'overflow': 'scroll',
 	})).event('filedrop', {
 		maxfiles: 1,
 		maxfilesize: 5,
@@ -260,7 +254,6 @@ function csvSubmitFormAppendTo(container) {
             cmd.events.checkStatus(0, true).done(function() {
                 dfd.resolve();
             });
-            //$.colorbox.close(); //close the color box.
         });
         return dfd.promise();
 	}

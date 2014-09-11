@@ -1235,7 +1235,22 @@ var forms = {
                             id: 'csvUploadBtn',
                             text: 'upload csv',
                         }).event('click', function() {
+                            var title = $jConstruct('div', {
+                                text: '<h2>Submit CSV<h2>',
+                            }).css({
+                                'font-family': 'sans-serif',
+                                'text-align': 'center',
+                            });
+                            var box = $jConstruct('div', {
+                                text: 'Note: If you have an entire row of empty cells, it is best to remove them now, or empty rows will be contained in the event.',
+                            }).css({
+                                'width': '400px',
+                                'font-family': 'sans-serif',
+                                'margin': '0 auto',
+                            });
                             $.colorbox({html: '<div id="cbDateEdit"></div>', width: '900px', height: '600px'});
+                            title.appendTo('#cbDateEdit');
+                            box.appendTo('#cbDateEdit');
                             csvSubmitFormAppendTo('#cbDateEdit');
                         }),
 
