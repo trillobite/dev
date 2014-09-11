@@ -107,25 +107,7 @@ var projFuncs = {
 					'width': ((100 / csvData[0].length) - (((100 / csvData[0].length) / 100) * (50 / csvData[0].length))).toString() + '%', //set proper cell size.
 				}).addFunction(function() {
 					//id, dbVal, defVal, updateFunc
-					toolKit().tgglTxtBx(tb.id, tb.text, tb.text, function(id) {
-						console.log(id);
-						var name = $('#'+id).attr('name');
-						var column = parseInt(name.substring(6, name.length));
-
-						var row = function() {
-							var pos = undefined;
-							$("[name*='"+name+"']").each(function(indx, obj) {
-							    if($('#'+id)[0] == obj) {
-							        pos = indx;
-							    }
-							});	
-							return pos;					
-						};
-
-						csvData[row()][column] = $('#'+id)[0].value;
-						//$('#'+id).css('color', 'black'); //return the color from red back to black to show that it has updated.
-					});
-				}).event('click', function() {
+					toolKit().tgglTxtBx(tb.id, tb.text, tb.text);
 					console.log(this.name);
 				});
 				obj.addChild(tb); 

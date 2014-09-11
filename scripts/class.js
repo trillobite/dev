@@ -194,11 +194,7 @@ function toolKit() {
                 previousTxt = undefined;
             };
             var hasfocus = false;
-            $('#'+id).focus(function() {
-                focus();
-                //hasfocus = true;
-                //$('#'+id).select();
-            }).blur(function() {
+            $('#'+id).blur(function() {
                 blur();
                 hasfocus = false;
             }).click(function() {
