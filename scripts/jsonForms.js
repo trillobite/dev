@@ -135,22 +135,7 @@ function toggleTxtBx(id, txt) {
         }
     }
 }
-/*function getForm(id) {
-    var retForm;
-    $.each(forms, function () {
-       if(this.id == id) {
-           retForm = this;
-       } 
-    });
-    return retForm;
-}*/
-/*function dynFoo(prop) {
-    form = forms['foo'];
-    form.id = 'foo'+prop.indx;
-    form.children[0].text = prop.text;
-    form.children[1].children[0].id = 'edit'+prop.indx;
-    return form;
-}*/
+
 var forms = {
     createEventMinimal: function() { //converted to jsonHTML v0.8-beta standard.
         return $jConstruct('div', {
