@@ -122,8 +122,16 @@ var projFuncs = {
 		selection.select = function(str) {
 			if(getOption(str)) {
 				console.log('id:', tmpId);
-				$('#'+tmpId)[0].value = getOption(str);
-				//$('#'+tmpId).val(getOption(str));
+				
+				var type = cmd.detectBrowser();
+		        type = type.substring(0, type.indexOf(' '));
+		        
+		        if(type != 'IE') {
+		        	$('#'+tmpId)[0].value = getOption(str);
+		        } else {
+		        	$('#'+tmpId).val(getOption(str));
+		        }
+
 				return true;
 			}
 			return false;
@@ -187,14 +195,15 @@ var projFuncs = {
 			};
 			grid.getColumn = function(index) {
 				var columnIndex = parseInt(index) + columnsRemoved;
-				return $("[name*='column" + columnIndex + "']");
+				return $("[name='column" + columnIndex + "']");
 			};		
 			grid.removeRow = function(index) {
 				var dfd = new $.Deferred();
 				var rowIndex = parseInt(index) + rowsRemoved;
 				var removal = function() {
-					$("[row*='" + rowIndex + "']").each(function() {
-						this.remove();
+					$("[row='" + rowIndex + "']").each(function() {
+						$('#'+this.id).remove();
+						//this.remove();
 						rowsRemoved++;
 					});
 					dfd.resolve();
@@ -206,8 +215,9 @@ var projFuncs = {
 				var dfd = new $.Deferred();
 				var columnIndex = parseInt(index) + columnsRemoved;
 				var removal = function() {
-					$("[name*='column" + columnIndex + "']").each(function() {
-						this.remove();
+					$("[name='column" + columnIndex + "']").each(function() {
+						$('#'+this.id).remove();
+						//this.remove();
 					});
 					columnsRemoved++;
 					dfd.resolve();
