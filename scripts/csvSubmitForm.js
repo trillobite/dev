@@ -61,26 +61,48 @@ var projFuncs = {
 		return dfd.promise();
 	},
 	dropDown: function(tmpId) {
+		var options = [
+			'Select Column Type',
+			'time',
+			'name',
+			'division',
+			'coach',
+			'number of cameras',
+			'num participants',
+			'note',
+		];
+
+		//checks if input option is valid
+		function getOption(str) {
+			str = str.toLowerCase();
+			if(str.substring(str.length - 1, str.length) == ' ') {
+				str = str.substring(0, str.length - 1);
+			}
+
+			var retVal;
+			$(options).each(function() {
+				if(str.toString() == this.toString()) {
+					console.log(str.toString(), this.toString());
+					retVal = this.toString();
+				}
+			});
+			if(retVal) {
+				return retVal;
+			}
+			return false;
+		}
+
 		function makeOption(input) {
 			return $jConstruct('option', {
 				text: input,
 				value: input,
 			});
 		}
-		return $jConstruct('select', {
+
+		var selection = $jConstruct('select', {
 			id: tmpId,
 			title: 'Select row type',
-		})
-		.addChild(makeOption('Select Column Type'))
-		.addChild(makeOption('time'))
-		.addChild(makeOption('name'))
-		.addChild(makeOption('division'))
-		.addChild(makeOption('coach'))
-		.addChild(makeOption('number of cameras'))
-		.addChild(makeOption('group code'))
-		.addChild(makeOption('num participants'))
-		.addChild(makeOption('Note'))
-		.event('change', function() {
+		}).event('change', function() {
 			//console.log('triggered');
 			if($('#'+this.id)[0].value == 'time') {
 				var i = projFuncs.findColumn('time');
@@ -92,23 +114,45 @@ var projFuncs = {
 				console.log($('#'+this.id)[0].value);
 			}
 		});
+
+		$(options).each(function() {
+			selection.addChild(makeOption(this));
+		});
+
+		selection.select = function(str) {
+			if(getOption(str)) {
+				console.log('id:', tmpId);
+				$('#'+tmpId)[0].value = getOption(str);
+				//$('#'+tmpId).val(getOption(str));
+				return true;
+			}
+			return false;
+		};
+
+		return selection;
 	},
 	createGrid: function(arrData) {
 		var grid = $jConstruct('div');
 		var j = -1;
-		$.each(arrData, function() {
-			var obj = $jConstruct('div'); //row
+		var row = -1;
+		var rowsRemoved = 0;
+		var columnsRemoved = 0;
+
+		$.each(arrData, function() { //for every row...
+			var obj = $jConstruct('div', {
+				row: (++row).toString(), //show which row it is
+			}); //row
 			var i = -1;
-			$.each(this, function() {
+			$.each(this, function() { //for every column...
 				var tb = $jConstruct('textbox', { //text box
 					text: this,
-					name: 'column' + (++i),
+					column: (++i).toString(), //show which column it is.
+					name: 'column' + i.toString(),
 				}).css({
 					'width': ((100 / csvData[0].length) - (((100 / csvData[0].length) / 100) * (50 / csvData[0].length))).toString() + '%', //set proper cell size.
 				}).addFunction(function() {
 					//id, dbVal, defVal, updateFunc
 					toolKit().tgglTxtBx(tb.id, tb.text, tb.text);
-					console.log(this.name);
 				});
 				obj.addChild(tb); 
 			});
@@ -131,25 +175,67 @@ var projFuncs = {
 				$(".closeBtn").each(function() {
 					$(this).attr('name', (++l).toString()); //change the number in the html attribute so that it is correct.
 				});
+				rowsRemoved++;
 			});
 			obj.addChild(cb);
 			grid.addChild(obj);
-						
-		});
 
+
+			grid.getRow = function(index) {
+				var rowIndex = parseInt(index) + rowsRemoved;
+				return $("[row='" + rowIndex + "']");
+			};
+			grid.getColumn = function(index) {
+				var columnIndex = parseInt(index) + columnsRemoved;
+				return $("[name*='column" + columnIndex + "']");
+			};		
+			grid.removeRow = function(index) {
+				var dfd = new $.Deferred();
+				var rowIndex = parseInt(index) + rowsRemoved;
+				var removal = function() {
+					$("[row*='" + rowIndex + "']").each(function() {
+						this.remove();
+						rowsRemoved++;
+					});
+					dfd.resolve();
+				};
+				removal();
+				return dfd.promise();
+			};	
+			grid.removeColumn = function(index) {
+				var dfd = new $.Deferred();
+				var columnIndex = parseInt(index) + columnsRemoved;
+				var removal = function() {
+					$("[name*='column" + columnIndex + "']").each(function() {
+						this.remove();
+					});
+					columnsRemoved++;
+					dfd.resolve();
+				};
+				removal();
+				return dfd.promise();
+			}
+		});
+		
 		return grid;
 	},
 	draw: function(droppableBox) {
 		var grid = projFuncs.createGrid(csvData);
+
 		$('#container').remove();
+
 		var ch = $jConstruct('div', {
 			id: 'selectionRow',
 		}).css({ //row
 			'width': '100%',
 			'margin-left': ((100 / csvData[0].length) - csvData[0].length).toString() + 'px',
 		});
+
+		var tmpArr = [];
+
 		for(var i = 0; i < csvData[0].length; ++i) {
 			var tmp = new projFuncs.dropDown('typeSelect' + i); //cell
+			tmpArr[tmpArr.length] = tmp;
 			tmp.css({
 				'float': 'left',
 			}).event('change', function() {
@@ -184,11 +270,40 @@ var projFuncs = {
 			ch.appendTo('#'+droppableBox.id, 'prepend').state.done(function() { //after the header selection box is appended to the top of the table,
 				var w = $("[name*='column0']").css('width').toString();
 				var width = parseInt(w.substring(0, w.indexOf('px')));
-				console.log(width);
 
 				$("[parent*='selectionRow']").each(function() { //change the size of the selectable header boxes.
 					this.style["width"] = (width + 4).toString() + 'px';
 				});
+
+
+				var selFrmFrstRw = $jConstruct('checkbox', {
+					text: 'Get column types from first row',
+				}).event('change', function() {
+					if(this.checked) {
+						$(grid.getRow(0)[0].children).each(function(indx, obj) {
+							if(obj.value !== undefined) {
+								tmpArr[indx].select(obj.value);
+							}
+						});
+
+						grid.removeRow(0).done(function() {
+							$(tmpArr).each(function() {
+								$('#'+this.id).trigger('change');
+							});
+						});
+
+					}
+				});
+
+				selFrmFrstRw.appendTo('#'+droppableBox.id, 'prepend').state.done(function() {
+					//resize the colorbox to fit the inner content.
+		            var w = $('#cbDateEdit').width();
+		            var h = $('#cbDateEdit').height();
+		            console.log(w, h);
+		            $.colorbox.resize({width:w, height:h});
+				});
+
+
 			});
 		});
 	},
@@ -196,6 +311,7 @@ var projFuncs = {
 }
 
 function csvSubmitFormAppendTo(container) {
+	var dfd = new $.Deferred();
 	var main = $jConstruct('div').css({
 		'text-align': 'center',
 		'width': '100%',
@@ -226,7 +342,7 @@ function csvSubmitFormAppendTo(container) {
 				csvData = $.csv.toArrays(obj.result);
 				projFuncs.draw(drpZone); //just refresh this object with the grid in it.
 			});
-		}
+		},
 	});
 	main.addChild(drpZone);
 	main.appendTo(container);
@@ -286,6 +402,14 @@ function csvSubmitFormAppendTo(container) {
 		  	} else {
 		  		console.log('no csv data!');
 		  	}
+		  	if(arrObj.length > 0) { //filter the array.
+		  		$.each(arrObj, function(indx, obj) {
+		  			if(obj === undefined || obj === [] || obj === [[]] || obj.length <= 0) {
+		  				arrObj.splice(indx, 1);
+		  			}
+		  		});
+		  	}
+		  	console.log(arrObj);
 		  	return arrObj;
 		}
 
@@ -326,7 +450,7 @@ function csvSubmitFormAppendTo(container) {
 				} else {
 					$.colorbox.close();
 				}
-			}
+			};
 			submitData();
 		} else {
 			alert('No columns selected!');
@@ -346,5 +470,10 @@ function csvSubmitFormAppendTo(container) {
 
 	$jConstruct('div').addChild(btnContainer).css({
 		'text-align': 'center',
-	}).appendTo(container);
+	}).appendTo(container).state.done(function() {
+		dfd.resolve();
+	});
+
+	container.state = dfd.promise();
+	return container;
 }
