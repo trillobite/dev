@@ -588,7 +588,7 @@ var cmd = { //project commands sorted alphabetically.
             indx: obj.cntr,
             evntID: obj.data.indxScheduleID,
             pt0: {
-                text: '<font color="#241DAB">Description: ' + obj.data.strScheduleDescription + '</font>',
+                text: 'Description: ' + obj.data.strScheduleDescription,
                 raw: obj.data.strScheduleDescription, //the data without html tags.
             },
             pt1: {

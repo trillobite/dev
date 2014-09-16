@@ -395,54 +395,55 @@ var forms = {
                 }),
 
                 //description
-                forms.mDiv({
-                    id: prop.id + 'pt0',
-                    text: '<div id="description'+prop.id+'"><a>' + (undefined !== prop.pt0.text ? prop.pt0.text : undefined) + '</a></div>',
-                    css: function () {
-                        $('#'+prop.id+'pt0').css({
-                            'width': '100%',
-                            'height': '25px',
-                            'text-align': 'left',
-                            'float': 'left',
-                            'padding-left': '10px',
-                            //'border': '1px solid black',
-                        });
-                    },
-                    event: function () {
-                        $('#description'+prop.id+' a').click(function () {
-                            $('#description'+prop.id).remove(); //remove for mutation.
-                            appendHTML(forms.mTxt({ //mutates to this.
-                                id: 'descriptEditBx',
-                                text: prop.pt0.raw,
-                                css: function() {
-                                    $('#descriptEditBx').css({
-                                        'width': '70%',
-                                        'text-align': 'left',
-                                        'color': $p("purple"),
-                                    });
-                                },
-                                event: function () {
-                                    $('#descriptEditBx').focus(function() {
-                                        /*$('#descriptEditBx')[0].value = '';*/
-                                        $('#descriptEditBx').select();
-                                        dataObjs.slctdObj = prop.id+'pt0';
-                                    }).blur(function () {
-                                        if($('#descriptEditBx')[0].value != prop.pt0.raw && $('#descriptEditBx')[0].value !== '') {
-                                            $v().events()[prop.indx].strScheduleDescription = $('#descriptEditBx')[0].value; //edit object description.
-                                            cmd.update(prop.indx); //comment out if debugging so db wont be hit. <-- saves current state to the db.
-                                        } else {
-                                            $('#descriptEditBx').remove(); //if no edits to be made, just return the original state.
-                                            appendHTML(forms.genEvnt(prop).children[3], '#' + prop.id + 'pt0'); //add back original object.
-                                            cmd.events.checkStatus(prop.indx, true);
-                                        }
-                                    });
-                                }
-                            }), '#' + prop.id+"pt0");
-                            $('#descriptEditBx').focus();
-                        });
-                    }
-                }),
-                
+                (function() {
+                    var container = $jConstruct('div').css({
+                        'width': '100%',
+                        'height': '25px',
+                        'text-align': 'left',
+                        'float': 'left',
+                        'padding-left': '10px',
+                        //'border': '1px solid black',
+                    });
+
+                    var editable = $jConstruct('div', {
+                        id: 'description'+prop.id,
+                        text: (undefined !== prop.pt0.text ? prop.pt0.text : undefined),
+                    }).event('click', function() {
+                        if(editable.type == 'div') {
+                            editable.type = 'textbox';
+                            editable.text = prop.pt0.raw;
+                            editable.refresh().state.done(function() {
+                                $('#'+editable.id).select();
+                                $('#'+editable.id).css({
+                                    'color': $p("purple"),
+                                    'width': '90%',
+                                });
+                            });
+                            
+                        }
+                        dataObjs.slctdObj = prop.id+'pt0';
+                    }).event('blur', function() {
+                        if(editable.type == 'textbox') {
+                            if($('#'+editable.id)[0].value != prop.pt0.raw && $('#'+editable.id)[0].value !== '') {
+                                $v().events()[prop.indx].strScheduleDescription = $('#'+editable.id)[0].value; //edit object description.
+                                cmd.update(prop.indx); //comment out if debugging so db wont be hit. <-- saves current state to the db.
+                            } else {
+                                editable.text = (undefined !== prop.pt0.text ? prop.pt0.text : undefined); //if no edits to be made, just return the original state.
+                                editable.type = 'div',
+                                editable.refresh(); //add back original object.
+                                cmd.events.checkStatus(prop.indx, true);
+                            }
+                            
+                        }
+                    }).css({
+                        'color': '#241DAB',
+                        'display': 'inline', //makes sure that only the text will fire the click event.
+                    });
+
+                    container.addChild(editable);
+                    return container;
+                })(),
+
                 (function() {
                     var fromDate = $jConstruct('div', {
                         id: prop.id + 'fromDate',
@@ -493,10 +494,6 @@ var forms = {
                         'font-size': '10px',
                         'display': 'inline-block',
                         'margin-left': '35%',
-                        /*'width': '100%',
-                        'height': '100%',*/
-                        //'margin': '0 auto',
-                        //'border': '1px solid black',
                     }).addChild(fromDate).addChild(filler).addChild(toDate);
                 })(),
             ]
@@ -589,7 +586,6 @@ var forms = {
                 functions: [function() {
                     $('#statusContainer').css({
                         'float': 'left',
-                        //'border': '1px solid black',
                         'text-align': 'center',
                         'width': '30px',
                         'height': 'auto',
@@ -615,14 +611,8 @@ var forms = {
                 title: 'If blue, schedule time is a reservation style.',
                 functions: [function() {
                     $('#resrvd').css({
-                        //'color': 'white',
                         'background-color': $p('blue'),//'#D6B318'
                         'border': '1px solid '+$p('darkBlue'),
-                        //'border-radius': '5px',
-                        //'text-align': 'center',
-                        //'width': '25px',
-                        //'height': '23px',
-                        //'float': 'left',
                     });
                 }]
             },
@@ -861,7 +851,6 @@ var forms = {
                                 });
                             }]
                         },
-                        //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
                          //strGroupName
                         $jConstruct('textbox', {
                             id: 'txtBxName' + options.cnt,
