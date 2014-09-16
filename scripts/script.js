@@ -377,7 +377,22 @@ var $project = {
                     while(myNode.firstChild) {
                         myNode.removeChild(myNode.firstChild);
                     }
+
+                    var scrollToElement = function(el, ms){
+                        var speed = (ms) ? ms : 600;
+                        $('html,body').animate({
+                            scrollTop: $(el).offset().top
+                        }, speed);
+                    }
+                    function scrollit() {
+                        // specify id of element and optional scroll speed as arguments
+                        scrollToElement('#defaultEvent', 1500);                    
+
+                    }
+
                     appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
+                    setTimeout(scrollit, 600);
+
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
                         var prop = {
                             cnt: count,
