@@ -1,3 +1,7 @@
+#### v0.3.4-beta
+##### Fixes:
+Fixed bug for the Description info box, where upon edit, and canceling the edit, the box would vanish.
+
 #### v0.3.3-beta
 ##### Fixes: 
 Improved visual formatting for the csv reader.
