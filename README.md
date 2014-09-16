@@ -1,6 +1,19 @@
-#### v0.3.4-beta
+#### v0.4.1-beta
 ##### Fixes:
 Fixed bug for the Description info box, where upon edit, and canceling the edit, the box would vanish.
+
+#### v0.4.0-beta
+##### New:
+The csv upload window now has an option to utilize the first row's data to set the table column types.
+
+##### IE Bugs:
+Few alignment issues in the upload window
+
+##### Chrome Bugs:
+None
+
+##### File Removal / Additions: 
+None
 
 #### v0.3.3-beta
 ##### Fixes: 
