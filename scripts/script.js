@@ -378,20 +378,8 @@ var $project = {
                         myNode.removeChild(myNode.firstChild);
                     }
 
-                    var scrollToElement = function(el, ms){
-                        var speed = (ms) ? ms : 600;
-                        $('html,body').animate({
-                            scrollTop: $(el).offset().top
-                        }, speed);
-                    }
-                    function scrollit() {
-                        // specify id of element and optional scroll speed as arguments
-                        scrollToElement('#defaultEvent', 1500);                    
-
-                    }
 
                     appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
-                    setTimeout(scrollit, 600);
 
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
                         var prop = {
@@ -560,6 +548,22 @@ var $project = {
 }
 
 var cmd = { //project commands sorted alphabetically.
+    scrollAction: function() {
+        console.log('fire scroll');
+        var scrollToElement = function(el, ms){
+            var speed = (ms) ? ms : 600;
+            $('html,body').animate({
+                scrollTop: $(el).offset().top
+            }, speed);
+        }
+        function scrollit() {
+            // specify id of element and optional scroll speed as arguments
+            scrollToElement('#defaultEvent', 1500);                    
+        }
+
+        setTimeout(scrollit, 600);
+    },
+
     detectBrowser: function () {
         return (function(){
             var ua= navigator.userAgent, tem, 
@@ -720,14 +724,21 @@ var cmd = { //project commands sorted alphabetically.
                 }
             });
             $project.draw('scheduleItems')(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
+
+            //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if(undefined === dataObjs.slctdObj) {
+                cmd.scrollAction();
+            } else if(!(dataObjs.slctdObj.indexOf(id) > -1)) {
+                cmd.scrollAction();
+            }
         }
         $('#'+id).css({
             'background-color': $p('blue'),
         });
-
+        console.log(id, dataObjs.slctdObj);
         dataObjs.slctdObj = id;
     },
-    update: function (indx) { //DEPRICATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    update: function (indx) { //DEPRICATED
         $project.update('schedule')($v().events()[indx]).done(function(data) {
             $project.draw('schedules')(id.event).done(function() {
                 $.each($v().events(), function(cnt, obj) {
