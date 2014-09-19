@@ -13,7 +13,7 @@ var colors = function() { //depricated use $p('color');
 };
 
 var confirmDel = function (indx) {
-    $.colorbox({html: '<div id="cbConfirm"></div>', width: '460px', height: '140px'});
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '500px', height: '140px'});
     appendHTML(forms['confirmPopUp']({
         text: '<h3> Are you sure you wish to delete this entire schedule? </h3>',
         func: function () {
@@ -24,9 +24,9 @@ var confirmDel = function (indx) {
 };
 
 var confirmTimeDel = function(indx) {
-    $.colorbox({html: '<div id="cbConfirm"></div>', width: '465px', height: '120px'});
+    $.colorbox({html: '<div id="cbConfirm"></div>', width: '500px', height: '120px'});
     appendHTML(forms['confirmPopUp']({
-        text: '<h3> Are you sure you wish to delete this Event Time? </h3>',
+        text: '<h3> Are you sure you wish to delete this Schedule Time? </h3>',
         func: function() {
             var data = dataObjs.evntTimes.EventScheduleItems[indx].indxScheduleDateID;
             var data2 = dataObjs.evntTimes.EventScheduleItems[indx].indxOrganizationEventID;
@@ -140,14 +140,14 @@ var forms = {
     createEventMinimal: function() { //converted to jsonHTML v0.8-beta standard.
         return $jConstruct('div', {
             id: 'createForm',
-            text: '<h3>Setup New Event</h3>',
+            text: '<h3>Setup New Schedule</h3>',
         }).css({
             'font-family': 'sans-serif',
             'text-align': 'center',
         }).addChild(function() {
             return $jConstruct('textbox', {
                 id: 'scheduleTitle',
-                text: 'Event Title',
+                text: 'Schedule Title',
             }).css({
                 'color': $p('purple'),
             }).addFunction(function() {
@@ -156,7 +156,7 @@ var forms = {
         }).addChild(function() {
             return $jConstruct('textbox', {
                 id: 'scheduleDescription',
-                text: 'Event Description',
+                text: 'Schedule Description',
             }).css({
                 'color': $p('purple'),
             }).addFunction(function() {
@@ -488,7 +488,7 @@ var forms = {
                     return $jConstruct('div', {
                         id: prop.id + 'reservationRange',
                         //text: '<div>Schedule reservation active through:</div>',
-                        title: 'Event is active through...',
+                        title: 'Schedule is active through...',
                     }).css({
                         'float': 'left',
                         'font-size': '10px',
@@ -535,7 +535,7 @@ var forms = {
     },
 
     datePicker: function (indx) {
-        return forms.genericDTPKR('Pick your new event date', function(dt) {
+        return forms.genericDTPKR('Pick your new Schedule date', function(dt) {
             var d = dataObjs.clearTime(new Date(dt));
             $v().events()[indx].dtScheduleDate = $dt.write(d);
             $v().events()[indx].dtOnLineFilledEndDate = $dt.write(dataObjs.timeMidnight(d));
@@ -1231,7 +1231,7 @@ var forms = {
                                 'text-align': 'center',
                             });
                             var box = $jConstruct('div', {
-                                text: 'Note: If you have an entire row of empty cells, it is best to remove them now, or empty rows will be contained in the event.',
+                                text: 'Note: If you have an entire row of empty cells, it is best to remove them now, or empty rows will be contained in the Schedule.',
                             }).css({
                                 'width': '400px',
                                 'font-family': 'sans-serif',

@@ -549,7 +549,6 @@ var $project = {
 
 var cmd = { //project commands sorted alphabetically.
     scrollAction: function() {
-        console.log('fire scroll');
         var scrollToElement = function(el, ms){
             var speed = (ms) ? ms : 600;
             $('html,body').animate({
@@ -725,17 +724,16 @@ var cmd = { //project commands sorted alphabetically.
             });
             $project.draw('scheduleItems')(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
 
-            //WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if(undefined === dataObjs.slctdObj) {
+            //determines if to scroll or not.
+            if(undefined === dataObjs.slctdObj) { //if it's the first time an object is clicked.
                 cmd.scrollAction();
-            } else if(!(dataObjs.slctdObj.indexOf(id) > -1)) {
+            } else if(!(dataObjs.slctdObj.indexOf(id) > -1)) { //if it is not the same object.
                 cmd.scrollAction();
             }
         }
         $('#'+id).css({
             'background-color': $p('blue'),
         });
-        console.log(id, dataObjs.slctdObj);
         dataObjs.slctdObj = id;
     },
     update: function (indx) { //DEPRICATED
@@ -973,10 +971,10 @@ var setup = function() {
         id: 'btnNwEvnt',
         class: 'button',
         title: 'Add a new schedule to this event',
-        text: 'Create Event',
+        text: 'Create Schedule',
     }).css({
         'float': 'left',
-        'width': '115px',
+        'width': '135px',
         'line-height': '20px',
         'border-radius': '5px',
     }).event('click', function() {
