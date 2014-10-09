@@ -195,7 +195,7 @@ var $dt = {
         var type = cmd.detectBrowser();
         type = type.substring(0, type.indexOf(' '));
         
-        if(type != 'IE') {
+        if(type != 'IE' && type != 'Firefox') {
             date = date.replace('T', ' ');
             date = date.replace('Z', '');
             if(date.indexOf('.') >= 0) {
@@ -209,7 +209,8 @@ var $dt = {
     },
     parse: function(time, useDate) {
         var type = cmd.detectBrowser();
-        if(type.substring(0, type.indexOf(' ')) != 'IE') {
+        type = type.substring(0, type.indexOf(' '));
+        if(type != 'IE' && type != 'Firefox') {
             return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time, useDate))); //parse a string time in text box, and remove the time zone differences.
         } else {
             return $dt.write(cmd.time.parse(time));
