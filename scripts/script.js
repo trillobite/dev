@@ -45,7 +45,6 @@ var $v = function (obj) {
     };
     return retObj;
 };
-var undef;
 /*
     Object: dataObjs
     Description: Global properties variable, holds common data.
@@ -55,9 +54,6 @@ var dataObjs = {
     slctdDiv: undefined,
     srvdTbls: [], //Array, the names of the tables in which the user will edit.
     evntTimes: [], //Array, the times for the event (srvdTbls).
-    tblsData: [], //Array, the data contained in each table from the DB.
-    currTblElemns: [], //Array, an array of div id's for the dynamically created tables.
-    currDtaElemens: [], //Array, an array of div id's for the dynamically created times/table data.
     
     templates: {
         schedule: function() {
