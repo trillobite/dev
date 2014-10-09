@@ -387,7 +387,6 @@ var forms = {
                     class: 'maxMinBtn',
                     text: '<b>X</b>',
                 }).event('click', function() {
-                    console.log('close button clicked!', prop.indx);
                     confirmDel(prop.indx);
                 }).css({
                     'background-color': $p('lightAmber'),
@@ -1251,7 +1250,7 @@ var forms = {
                                 $('#cancelBtn').click(function () {
                                     $.colorbox.close(); //close the colorbox.
                                 });
-                            }]
+                            }],
                         },
                     ]
                 },

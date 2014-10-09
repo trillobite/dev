@@ -549,20 +549,20 @@ var $project = {
 
 var cmd = { //project commands sorted alphabetically.
     scrollAction: function() {
-        if (!($("#colorbox").css("display")=="block")) {  
-            var scrollToElement = function(el, ms){
-                var speed = (ms) ? ms : 600;
-                $('html,body').animate({
-                    scrollTop: $(el).offset().top
-                }, speed);
-            }
-            function scrollit() {
-                // specify id of element and optional scroll speed as arguments
-                scrollToElement('#defaultEvent', 1500);                    
-            }
-
-            setTimeout(scrollit, 600);
+        var scrollToElement = function(el, ms){
+            var speed = (ms) ? ms : 600;
+            $('html,body').animate({
+                scrollTop: $(el).offset().top
+            }, speed);
         }
+        function scrollit() {
+            if (!($("#colorbox").css("display")=="block")) { //if colorbox is open, do not scroll.
+                // specify id of element and optional scroll speed as arguments
+                scrollToElement('#defaultEvent', 1500);   
+            }                 
+        }
+
+        setTimeout(scrollit, 1000);
     },
 
     detectBrowser: function () {
