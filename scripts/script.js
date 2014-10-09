@@ -210,12 +210,15 @@ var $dt = {
     parse: function(time, useDate) {
         var type = cmd.detectBrowser();
         type = type.substring(0, type.indexOf(' '));
-        if(type != 'IE' && type != 'Firefox') {
-            return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time, useDate))); //parse a string time in text box, and remove the time zone differences.
+        if(type != 'IE') {
+            if(type == 'Firefox') {
+                return cmd.time.FFremoveISOTimeZone($dt.write(cmd.time.parse(time, useDate)));
+            } else {
+                return cmd.time.removeISOTimeZone($dt.write(cmd.time.parse(time, useDate))); //parse a string time in text box, and remove the time zone differences.
+            }
         } else {
             return $dt.write(cmd.time.parse(time));
         }
-        
     },
 };
 
@@ -763,35 +766,42 @@ var cmd = { //project commands sorted alphabetically.
                                             or
                           cmd.time.removeISOTimeZone(dateTime.toISOString(), false);
         */
-        removeISOTimeZone: function(isoTime, add) {
+        detectBrTime: function(obj) {
             var type = cmd.detectBrowser();
             type = type.substring(0, type.indexOf(' '));
-            var d = new Date(isoTime);
-
-            if(type == 'Chrome' || type == 'Opera') {
-                if(add) {
-                    return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
-                } else {
-                    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
-                }
+            var d = new Date(obj);
+            return {
+                browser: type,
+                d: d,
+            };
+        },
+        timeZoneFix: function(d, bl) {
+            if(bl) {
+                return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+            } else {
+                return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+            }
+        },
+        removeISOTimeZone: function(isoTime, add) {
+            var detect = cmd.time.detectBrTime(isoTime);
+            if(detect.browser == 'Chrome' || detect.browser == 'Opera') {
+                return cmd.time.timeZoneFix(detect.d, add);
             } 
-
-            return d;
+            return detect.d;
         },
         IEremoveISOTimeZone: function(isoTime, add) {
-            var type = cmd.detectBrowser();
-            type = type.substring(0, type.indexOf(' '));
-            var d = new Date(isoTime);
-
-            if(type == 'IE') {
-                if(add) {
-                    return new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
-                } else {
-                    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
-                }
+            var detect = cmd.time.detectBrTime(isoTime);
+            if(detect.browser == 'IE') {
+                return cmd.time.timeZoneFix(detect.d, add);
             } 
-
-            return d;
+            return detect.d;
+        },
+        FFremoveISOTimeZone: function(isoTime, add) {
+            var detect = cmd.time.detectBrTime(isoTime);
+            if(detect.browser == 'Firefox') {
+                return cmd.time.timeZoneFix(detect.d, add);
+            }
+            return detect.d;
         },
         getRelevantDate: function() {
             return $dt.read($v().events()[0].dtScheduleDate);

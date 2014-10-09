@@ -1196,6 +1196,8 @@ var forms = {
                                     strJson.strNotes = getText($('#notesBox')[0].value, 'Notes...');
                                     if(getText($('#timeBox')[0].value, 'time') !== "") {
                                         strJson.dtDateTime = cmd.time.IEremoveISOTimeZone($dt.parse($('#timeBox')[0].value), false).toISOString();
+                                        //for Firefox:
+                                        //strJson.dtDateTime = cmd.time.FFremoveISOTimeZone(strJson.dtDateTime, false).toISOString();
                                         console.log( $('#timeBox')[0].value, strJson.dtDateTime);
                                     }
                                     $project.create('scheduleItem')(strJson).done(function() { //make the new schedule item (aka time).
