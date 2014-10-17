@@ -1335,15 +1335,30 @@ var forms = {
                 Slots: $('#'+numSlotsBox.id)[0].value,
                 PhotographerID: id.photographer,
             }
+            
+            $.colorbox({html: '<div id="cbDateEdit"></div>', width: '350px', height: '100px'});
+            var progress = $jConstruct('div', { //construct the progress bar div.
+                id: 'progressbar',
+                text: 'Waiting for response...',
+            }).event('progressbar', {
+                value: 50,
+            }).appendTo('#cbDateEdit');
+
             console.log(obj);
             $project.insert('scheduleItem')(obj).done(function(data) {
                 if(data) {
                     console.log(data);
                 }
-                console.log('done');
+                progress.text = 'Done!';
+                progress.refresh();
+                $('#'+progress.id).progressbar({
+                    value: 100,
+                });
                 cmd.events.checkStatus(0, true).done(function() {
                     $project.draw('scheduleItems')($v().events()[parseInt(dataObjs.slctdObj.substring(3, dataObjs.slctdObj.length))].indxScheduleID);
-                    $.colorbox.close(); //close the loading screen.
+                    setTimeout(function() {
+                        $.colorbox.close();
+                    }, 600); //close the progress screen.
                 });
                 //$.colorbox.close();
                 
