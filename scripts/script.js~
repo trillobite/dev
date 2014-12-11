@@ -983,7 +983,7 @@ var setup = function() {
         text: 'Create Schedule',
     }).css({
         'float': 'left',
-        'width': '145px',
+        'width': '140px',
         'line-height': '20px',
         'border-radius': '5px',
     }).event('click', function() {
