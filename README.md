@@ -1,3 +1,6 @@
+#### v0.5.0-beta
+This is a current known stable copy of what is currently running on the server as of 12/14/2015.
+
 #### v0.4.1-beta
 ##### Fixes:
 Fixed bug for the Description info box, where upon edit, and canceling the edit, the box would vanish.
