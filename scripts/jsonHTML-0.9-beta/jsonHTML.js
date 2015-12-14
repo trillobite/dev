@@ -245,13 +245,13 @@ var jConstructObjectManipulations = { //text object manipulations.
         tmp.remove = function() {
             var divId = this.id;
             var myNode = document.getElementById(divId);
-            if(myNode) { //just ensures that the object is even within the DOM.
+            if(myNode) {
                 while(myNode.firstChild) { //Experimental DOM object removal, jQuery "remove" leaves a temporary memory leak, this is intended to fix that issue.
                     myNode.removeChild(myNode.firstChild);
                 }
                 $('#'+divId).remove();                
-            } else { //object does not exist.
-                console.log('Notice:', 'object', divId, 'does not exist, or has already been removed.');
+            } else {
+                console.log(divId, 'object does not exist, or has already been removed');
             }
             return this;
         };
