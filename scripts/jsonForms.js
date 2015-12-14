@@ -206,9 +206,11 @@ var forms = {
                     obj.dtOnLineFilledEndDate = cmd.time.removeISOTimeZone(addDays(t.midnightPm($('#mkSchedDtPkr').datepicker('getDate')), 1)).toISOString(); //11:55PM
                     obj.indxOrganizationEventID = id.event;
                     obj.indxPhotographerID = id.photographer;
+                    console.log('sending JSON:', obj); //this is the json which is being sent to the server.
                     var url = 'https://www.mypicday.com/Handlers/ScheduleCreateData.aspx?Data='+JSON.stringify(obj);
                     $sql(url).get(function(data){
                         var parsed = JSON.parse(data);
+                        console.log('data returned:', parsed);
                         var len;
                         
                         if(undefined !== dataObjs.srvdTbls.EventSchedules) {
@@ -218,7 +220,7 @@ var forms = {
                             dataObjs.srvdTbls.EventSchedules = [];
                             dataObjs.srvdTbls.EventSchedules[0] = parsed;
                         }
-                        cmd.events.drawJSON(dataObjs.srvdTbls);
+                        cmd.events.drawJSON(dataObjs.srvdTbls, data.indxScheduleID);
                         $.colorbox.close();
                     });
                 });
@@ -260,11 +262,11 @@ var forms = {
             class: undefined !== prop.class ? prop.class : undefined,
             text: undefined !== prop.text ? prop.text : undefined,
             functions: [function () {
-                if(dataObjs.slctdObj == prop.id) { //if there was an update, the object would be hilighted blue.
+                /*if(dataObjs.slctdObj == prop.id) { //if there was an update, the object would be hilighted blue.
                     $('#'+prop.id).css({
                         'background-color': $p('blue'),
                     });
-                }
+                }*/
                 $('#'+prop.id).mouseover(function () {
                     var color = 'midgray';
                     if(dataObjs.slctdObj == prop.id) {
@@ -293,7 +295,50 @@ var forms = {
 
                     }
                 }).click(function() {
-                    cmd.scheduleFocus(prop.id, prop.evntID);
+                    cmd.scheduleFocus(prop.id, prop.evntID).done(function(status) {
+                        console.log('status:', status);
+                        if(status) {
+                            console.log('scheduleFocus finished');
+                            /*
+                                trying to get this to work so that clicking the object updates the header field.
+                            */
+
+                            //goes through and ensures that the proper custom column is being displayed.
+                            var customColumn = arrdb.get('customFieldHeader');
+                            console.log('customColumn:', customColumn);
+                            var customFieldValue = $('#customFieldTitleEditBox'+prop.evntID.toString())[0].value;
+                            var shorten = function(txt) {
+                                return txt.length > 10 ? txt.substring(0, 10).trim() + '...' : txt;
+                            }
+                            console.log('value:', customFieldValue);
+
+                            //if it's not null or empty, and not equal to the default text value:
+                            if(customFieldValue && customFieldValue !== 'Activate custom field') {
+                                customColumn.text = shorten(customFieldValue);
+                                customColumn.refresh();
+                            } else if(customFieldValue == 'Activate custom field') {
+                                customColumn.text = "";
+                                customColumn.refresh();
+                            }
+                        }
+                    });
+
+                    /*if(customColumn) { //if there is a custom column value set
+                        for(var i = 0; i < customColumn.children.length; ++i) { //go through all of the custom column values.
+                            if(customColumn.children[i].id == 'customColumnTitle'+prop.evntID.toString()) { //if it is the active custom column.
+                                customColumn.children[i].css({ //ensure that it is the one which is showing.
+                                    'display': 'block',
+                                });
+                            } else { //if not the active custom column item...
+                                customColumn.children[i].css({ //ensure that it does not show.
+                                    'display': 'none',
+                                });
+                            }
+                        }
+                    }*/
+                    //if has custom element value set.
+                        //set the custom column title to visible.
+                    //else leave the custom column title hidden.
                 });
             }],
             children: [
@@ -443,7 +488,268 @@ var forms = {
                     return container;
                 })(),
 
-                (function() {
+                //custom element creator.
+                (function() { 
+                    var text = prop.customElement.text;
+                    //console.log('prop:', prop);
+
+                    /*
+                        need to make the title refresh somehow without the refresh function,
+                        unless I include the latest version of jsonHTML.
+                    */
+
+                    var textShorten = function(txt) {
+                        //txt = txt.replace(' ', '');
+                        return txt.length > 10 ? txt.substring(0, 10).trim() + '...' : txt;
+                    }
+                    var customTileObjCSS = {
+                        'display': 'none',
+                        'width': '100px',
+                        //'border': '1px solid black',
+                        'overflow': 'hidden',
+                    };
+
+                    /*
+                        I need to rewrite things so that it utilizes jsonHTML techniques better.
+                    */
+                    /*if(prop.customElement.raw.length > 0) {
+                        console.log('custom title:', text);
+                        var tmp = textShorten(text); //text for the custom element.
+                        var customTitle = arrdb.get('customColumnTitle'+prop.evntID.toString()); //the custom title object.
+                        if(customTitle) { //if it already exists.
+                            customTitle.text = tmp;
+                            customTitle.css(customTileObjCSS);
+                        } else { //if it does not exist.
+                            var customTileObject = arrdb.get('customFieldHeader'); //this is what contains all of the custom titles.
+
+                            customTileObject.addChild($jConstruct('div', { //add a new title object.
+                                text: tmp,
+                                id: 'customColumnTitle' + prop.evntID.toString(),
+                            }).css(customTileObjCSS));
+                        }
+                    }*/
+
+                    var txtBx = $jConstruct('textbox', {
+                        id: 'customFieldTitleEditBox' + prop.evntID.toString(),
+                        text: prop.customElement.text,
+                    }).event('focus', function() {
+                        txtBx.css({ //set font to black when object is in use.
+                            'color': 'black',
+                        });
+                        var tmp = $('#'+this.id)[0].value;
+                        if(tmp == 'Activate custom field') {
+                            $('#'+this.id)[0].value = "";
+                        } else {
+                            $('#'+this.id).select();    
+                        }
+                    }).event('keypress', function(e) {
+                        var code = e.keyCode || e.which;
+                        if(code == 13) { //Enter keycode
+                            $('#'+txtBx.id).trigger('focusout');
+                        }                        
+                    }).event('focusout', function() {
+                        //if text in textbox changed, and is not empty:
+                        console.log('debug:', {
+                            text: text,
+                            value: $('#'+this.id)[0].value,
+                            propValue: prop.customElement.text,
+                        });
+                        /*
+                            if:
+                            -Current text box value is not equal to prop.customElement.text,
+                                and
+                            -Current text box is not actually empty. String length must be greater than zero. 
+                        */
+                        if($('#'+this.id)[0].value != text && $('#'+this.id)[0].value.length != 0) { 
+                            //update local object with current value
+                            $v().events()[prop.indx].strCustomFieldTitle = $('#'+this.id)[0].value; //edit object value.
+                            
+                            //update the custom column text element with new text.
+                            /*var update = function(txt) {
+                                var tmp = arrdb.get('customColumnTitle' + prop.evntID.toString()); //the object to update.
+                                console.log('update function:', tmp.id);
+                                if(tmp) { //if object is not false
+                                    //update text for the custom field title.
+                                    tmp.text = textShorten(txt);
+                                    //display the changes by simply refreshing the custom field title div.
+                                    tmp.refresh();
+                                    return true; //shows everything was successful.
+                                }
+                                return false; //could not update anything, return false.
+                            }
+                            //create a new custom column name, for if one does not already exist.
+                            var insertNew = function(txt) {
+                                console.log('attempting new insert');
+                                var customColumn = arrdb.get('customFieldHeader');
+                                //make sure the customColumn has child objects.
+                                //required because customColumnTitle was not written to jsonHTML 0.9+ spec.
+                                if(customColumn.hasOwnProperty('children')) {
+                                    customColumn.children[customColumn.children.length] = $jConstruct('div', {
+                                        text: txt, //this is the text that will show in the custom column title.
+                                        id: 'customColumnTitle' + prop.evntID.toString(),
+                                    });
+                                    customColumn.refresh(); //refresh to show this new custom column title div.
+                                }
+                            }
+                            //if update failes, insert a new object.
+                            if(!update($v().events()[prop.indx].strCustomFieldTitle)) {
+                                console.log('Notice: General update failed');
+                                //BUG!!! text does not splice correctly if it contains a space!!!
+                                insertNew(textShorten($v().events()[prop.indx].strCustomFieldTitle));
+                            }*/
+                            //save new custom column name.
+                            //cmd.update(prop.indx); 
+                            
+                            var txtBxObj = arrdb.get(this.id);
+                            txtBxObj.text = $('#'+this.id)[0].value; //set the current text as it is to the jsonHTML object.
+                            prop.customElement.text = txtBxObj.text;
+
+                            console.log('changing color to red to show updating process', this.id);
+                            txtBxObj.css({
+                                'color': 'red',
+                            });
+                            txtBxObj.refresh();
+
+                            //comment out if debugging so db wont be hit. <-- saves current state to the db.
+                            $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
+                                //make sure that the object which is being updated is still visible.
+                                /*arrdb.get('customColumnTitle' + prop.evntID.toString()).css({
+                                    'display': 'block',
+                                });*/
+
+                                txtBxObj.refresh();
+                                arrdb.get('customFieldHeader').text = textShorten(txtBxObj.text);
+                                arrdb.get('customFieldHeader').refresh();
+                                console.log('update schedule function:', 'changing color to purple:', txtBxObj.id);
+
+                                txtBxObj.css({
+                                    'color': $p('purple'),
+                                });
+                            });
+
+                            console.log('updated:', $v().events()[prop.indx]);
+                            //show the hidden column.
+                            for(var i = 0; i < $v().times().length; ++i) {
+                                var tmp = $('#txtBxCustom'+i);
+                                if(!tmp[0].value) { //Is there any text within this text box?
+                                    tmp[0].value = 'custom'; //set that value to the default 'custom' text.
+                                    tmp.css({ //set the default color to gray.
+                                        'color': 'gray',
+                                    });
+                                }
+                                tmp.css({ //make sure that the object is now visible.
+                                    'visibility': 'visible',
+                                });
+                            }
+                        
+                        /*
+                            if:
+                                Text box does not have anything in it
+                                and:
+                                The default value is not 'Activate custom field.'
+                        */
+                        } else if($('#'+this.id)[0].value.length == 0 && prop.customElement.text != 'Activate custom field') {
+                            console.log('checking', {
+                                value: $('#'+this.id)[0].value,
+                                customElementValue: prop.customElement.text,
+                            });
+                            var result = confirm("Click OK if you wish to remove the entire custom column and it's data.");
+                            if(result) { //if user clicked ok.
+
+                                /*
+                                    i need to update this so that it simply clears the custom column space.
+                                */
+
+                                //if the custom column item exists for which the column will be removed.
+                                console.log('will remove:', 'customColumnTitle'+prop.evntID.toString());
+                                /*if(arrdb.get('customColumnTitle'+prop.evntID.toString())) {
+                                    $('#customColumnTitle'+prop.evntID.toString()).remove(); //remove the custom column item.    
+                                }*/
+                                //$('#'+txtBx.id)[0].value = 'Activate custom field';
+
+                                //set the value to an empty string so that it updates to the database as an empty field.
+                                $v().events()[prop.indx].strCustomFieldTitle = "";
+                                //update everything.
+                                $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
+                                    //make sure that the object which is being updated is still visible.
+                                    /*arrdb.get('customColumnTitle' + prop.evntID.toString()).css({
+                                        'display': 'none',
+                                    });*/
+                                    arrdb.get('customColumnTitle'+prop.evntID.toString()).text = "";
+                                    arrdb.get('customFieldHeader').text = ""; //update the custom column title text.
+                                    arrdb.get('customFieldHeader').refresh(); //refresh so that the changes now show.
+                                    txtBx.text = 'Activate custom field';
+                                    txtBx.css({
+                                        'color': 'black',
+                                    });
+                                    prop.customElement.text = txtBx.text; //making sure this is set to default value.
+                                    text = txtBx.text; //making sure this is set to default value.
+                                    txtBx.refresh();
+                                });
+
+                                //cmd.update(prop.indx);
+                                for(var i = 0; i < $v().times().length; ++i) {
+
+                                    $('#txtBxCustom'+i)[0].value = "";
+                                    $('#txtBxCustom'+i).css({ //hide the column.
+                                        'visibility': 'hidden',
+                                        'color': 'gray', //if column is re-enabled, everything will still look normal in terms of color.
+                                    });
+                                    //only use update command on those that need to have it's value changed.
+                                    if($('#txtBxCustom'+i)[0].value != 'custom') { //if there is data to update.
+                                        //update the db so that all of the data is cleared.
+                                        $project.update('scheduleItemTextBoxUpdater')({
+                                            color: $p('purple'), //change text to purple to indicate that update has finished.
+                                            indx: i,
+                                            property: 'strCustomField',
+                                            txtBxID: 'txtBxCustom'+i,
+                                        }).done(function(input) {
+                                            console.log('cell update complete status', input);
+                                            //arrdb.get('txtBxCustom'+i).text = 'custom';
+                                            //$('#txtBxCustom'+i)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
+                                        });
+                                    } else {
+                                        $('#txtBxCustom'+i)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
+                                    }
+                                }
+                            } else {
+                                /*prop.customElement.text = prop.customElement.text ? prop.customElement.text : 'custom';*/
+                                $('#'+txtBx.id)[0].value = prop.customElement.text;
+                            }
+                        } else { //if the text did not change, is still default, or now empty:
+                            /*$('#'+txtBx.id)[0].value = prop.customElement.text;*/
+                            $('#'+txtBx.id)[0].value = text;
+                            /*prop.customElement.text = prop.customElement.text ? prop.customElement.text : 'custom';*/
+                        }
+                        //change font color back to default when no longer being modified:
+                        if(prop.customElement.text) {
+                            if(prop.customElement.text != 'Activate custom field') {
+                                txtBx.css({
+                                    'color': $p('purple'),
+                                });
+                            }
+                        } else {
+                            txtBx.css({
+                                'color': 'gray',
+                            });
+                        }
+                    });
+                    //If this is user specified text, make sure that it appears purple.
+                    if(prop.customElement.text) {
+                        if(prop.customElement.text != 'Activate custom field') {
+                            txtBx.css({
+                                'color': $p('purple'),
+                            });
+                        }
+                    } else { //If not, then make sure that it appears gray.
+                        txtBx.css({
+                            'color': 'gray',
+                        });
+                    }
+                    return txtBx;
+                })(),
+
+                (function() { //the displayed date object.
                     var fromDate = $jConstruct('div', {
                         id: prop.id + 'fromDate',
                         text: cmd.time.removeISOTimeZone(prop.dates[0], true).toDateString().substring(4, 10) + ', ' + cmd.time.removeISOTimeZone(prop.dates[0], true).toLocaleTimeString(), 
@@ -489,10 +795,10 @@ var forms = {
                         //text: '<div>Schedule reservation active through:</div>',
                         title: 'Schedule is active through...',
                     }).css({
-                        'float': 'left',
+                        'float': 'right',
                         'font-size': '10px',
                         'display': 'inline-block',
-                        'margin-left': '35%',
+                        'margin-right': '25%',
                     }).addChild(fromDate).addChild(filler).addChild(toDate);
                 })(),
             ]
@@ -565,157 +871,121 @@ var forms = {
                 properties.func();
             }));
     },
-    
-    defaultEvntTime: { 
-        type: 'div',
-        id: 'defaultEvent',
-        class: 'fooTimes',
-        functions:[function() {
-            $('#defaultEvent').css({
-                'border-top': '1px solid '+$p('darkBlue'),
-                'background-color': '#C5CCD9',
-                'height': '26px',
-                'margin-top': '10px',
-            });
-        }],
-        children: [
-            {
-                type: 'div',
-                id: 'statusContainer',
-                functions: [function() {
-                    $('#statusContainer').css({
-                        'float': 'left',
-                        'text-align': 'center',
-                        'width': '30px',
-                        'height': 'auto',
-                    });
-                }],
-                children: [
-                    {
-                        type: 'checkbox',
-                        id: 'chkdIn',
-                        title: 'If visible, and checked, coach/parent check-in is complete',
-                        functions: [function() {
-                            $('#chkdIn').prop('checked', true);
-                        }]
-                    },
-                ]
-            },
 
-            {
-                type: 'div',
-                id: 'resrvd',
-                class: 'reservationKey',
-                text: '<b>R</b>',
-                title: 'If blue, schedule time is a reservation style.',
-                functions: [function() {
-                    $('#resrvd').css({
-                        'background-color': $p('blue'),//'#D6B318'
-                        'border': '1px solid '+$p('darkBlue'),
-                    });
-                }]
-            },
+    defaultEvntTime: (function() {
+        var main = $jConstruct('div', {
+            id: 'defaultEvent',
+            class: 'fooTimes',
+        }).css({
+            'border-top': '1px solid ' + $p('darkBlue'),
+            'background-color': '#C5CCD9',
+            'height': '26px',
+            'margin-top': '10px',
+            'display': 'none',
+        });
+        main.addChild($jConstruct('div', {
+            id: 'statusContainer',
+        }).css({
+            'float': 'left',
+            'text-align': 'center',
+            'width': '30px',
+            'height': 'auto',
+        }).addChild($jConstruct('checkbox', {
+            id: 'chkdIn',
+            title: 'If visible, and checked, coach/parent check-in is complete',
+        }).addFunction(function() {
+            $('#chkdIn').prop('checked', true);
+        })));
+        main.addChild($jConstruct('div', {
+            id: 'resrvd',
+            class: 'reservationKey',
+            text: '<b>R</b>',
+            title: 'If blue, schedule time is a reservation style.',
+        }).css({
+            'background-color': $p('blue'), //'#D6B318'
+            'border': '1px solid ' + $p('darkBlue'),
+        }));
+        main.addChild($jConstruct('div', {
+            id: 'timebox',
+            text: 'Time',
+        }).css({
+            'color': 'black',
+            'width': '100px',
+            'text-align': 'center',
+            'float': 'left',
+        }));
+        main.addChild($jConstruct('div', {
+            id: 'namebx',
+            text: 'Group Name',
+        }).css({
+            'color': 'black',
+            'width': '155px',
+            'text-align': 'center',
+            'float': 'left',
+        }));
+        main.addChild($jConstruct('div', {
+            id: 'division',
+            text: 'division',
+        }).css({
+            'color': 'black',
+            'width': '100px',
+            'text-align': 'center',
+            'float': 'left',
+        }));
+        main.addChild($jConstruct('div', {
+            id: 'defaultCoach',
+            text: 'coach',
+        }).css({
+            'color': 'black',
+            'width': '100px',
+            'text-align': 'center',
+            'float': 'left',
+        }));
+        main.addChild($jConstruct('div', {
+            id: 'defaultID',
+            text: '#',
+        }).css({
+            'color': 'black',
+            'width': '80px',
+            'text-align': 'center',
+            'float': 'left',
+        }));
+        main.addChild($jConstruct('div', {
+            id: 'customFieldHeader',
+        }).css({
+            'color': 'black',
+            'width': '60px',
+            'text-align': 'center',
+            'float': 'left',
+            'overflow': 'hidden', //so that text too large will simply clip, and not destroy the alignment of everything.
+            //'border': '1px solid black',
+            'width': '100px', //so that the overflow clipping will work properly.
+        }));
+        main.addChild($jConstruct('button', {
+            id: 'btnAddTimeToEvent',
+            text: 'Add Time',
+            title: 'Add a time to the schedule.',
+        }).css({
+            'border-radius': '5px',
+            'background-color': $p('blue'),
+            //'border': '1px solid '+$p('darkBlue'),
+            'margin-right': '5px',
+            'color': 'white',
+            'width': '100px',
+            'height': '23px',
+            'float': 'right',
+            'cursor': 'pointer',
+            'line-height': '20px',            
+        }).event('click', function() {
+            $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '450px'});
+            appendHTML(forms['addTimeForm']({
+                indx: 0,
+            }), '#tmp');
+        }));
+        return main;
+    })(),
 
-            {
-                type: 'div',
-                id: 'timebox',
-                text: 'Time',
-                functions: [function() {
-                    $('#timebox').css({
-                        'color': 'black',
-                        'width': '100px',
-                        'text-align': 'center',
-                        'float': 'left',
-                    });
-                }]
-            }, 
-
-            {
-                type: 'div',
-                id: 'namebx',
-                text: 'Group Name',
-                functions: [function() {
-                    $('#namebx').css({
-                        'color': 'black',
-                        'width': '155px',
-                        'text-align': 'center',
-                        'float': 'left'
-                    });
-                }]
-            },
-
-            {
-                type: 'div',
-                id: 'division',
-                text: 'division',
-                functions: [function() {
-                    $('#division').css({
-                        'color': 'black',
-                        'width': '100px',
-                        'text-align': 'center',
-                        'float': 'left'
-                    });
-                }]
-            },
-
-            {
-                type: 'div',
-                id: 'defaultCoach',
-                text: 'coach',
-                functions: [function() {
-                    $('#defaultCoach').css({
-                        'color': 'black',
-                        'width': '100px',
-                        'text-align': 'center',
-                        'float': 'left'
-                    });
-                }]
-            },
-
-            {
-                type: 'div',
-                id: 'defaultID',
-                text: '#',
-                functions: [function() {
-                    $('#defaultID').css({
-                        'color': 'black',
-                        'width': '45px',
-                        'text-align': 'center',
-                        'float': 'left'
-                    });
-                }]
-            },
-
-            {
-                type: 'button',
-                id: 'btnAddTimeToEvent',
-                text: 'Add Time',
-                title: 'Add a time to the schedule.',
-                functions: [function() {
-                    $('#btnAddTimeToEvent').css({
-                        'border-radius': '5px',
-                        'background-color': $p('blue'),
-                        //'border': '1px solid '+$p('darkBlue'),
-                        'margin-right': '5px',
-                        'color': 'white',
-                        'width': '100px',
-                        'height': '23px',
-                        'float': 'right',
-                        'cursor': 'pointer',
-                        'line-height': '20px',
-                    });
-                    $('#btnAddTimeToEvent').click(function() {
-                        $.colorbox({html: '<div id="tmp"></div>', width: '350px', height: '450px'});
-                        appendHTML(forms['addTimeForm']({
-                            indx: 0,
-                        }), '#tmp');                    
-                    });
-                }]
-            }
-        ]
-    },
-
-    defEvntTimes: function (options) {
+    defEvntTimes: function (options) { //The schedule time grid layers.
         return {
             type: 'div',
             id: 'fooTimes' + options.cnt,
@@ -820,6 +1090,14 @@ var forms = {
                                         'color': $p('purple'),
                                     });
                                 }
+                                //allows for the update command to execute upon an enter keypress.
+                                $('#txtBxTime'+options.cnt).keypress(function(e) {
+                                    var objID = this.id;
+                                    var code = e.keyCode || e.which;
+                                    if(code == 13) { //Enter keycode
+                                        $('#'+objID).trigger('blur');
+                                    }
+                                });
                                 $('#txtBxTime'+options.cnt).blur(function () {
                                     if($dt.write(date).toLocaleTimeString() != $('#txtBxTime'+options.cnt)[0].value) {
                                         //var dtTime = $dt.parse($('#txtBxTime5')[0].value);
@@ -871,6 +1149,12 @@ var forms = {
                                     'color': $p('purple'),
                                 });
                             }
+                        }).event('keypress', function(e) { //allows for the update command to execute upon an enter keypress.
+                            var objID = this.id;
+                            var code = e.keyCode || e.which;
+                            if(code == 13) { //Enter keycode
+                                $('#'+objID).trigger('blur');
+                            }
                         }).event('blur', function() {
                             if($p('color')('txtBxName'+options.cnt) == $p('red')) {
                                 $project.update('scheduleItemTextBoxUpdater')({ //does the update for me.
@@ -901,6 +1185,12 @@ var forms = {
                                     'color': $p('purple'),
                                 });
                             }
+                        }).event('keypress', function(e) { //allows for the update command to execute upon an enter keypress.
+                            var objID = this.id;
+                            var code = e.keyCode || e.which;
+                            if(code == 13) { //Enter keycode
+                                $('#'+objID).trigger('blur');
+                            }
                         }).event('blur', function() {
                             if($p('color')('txtBxDivision'+options.cnt) == $p('red')) {
                                 $project.update('scheduleItemTextBoxUpdater')({
@@ -930,6 +1220,12 @@ var forms = {
                                 $('#txtBxCoach'+options.cnt).css({
                                     'color': $p('purple'),
                                 });
+                            }
+                        }).event('keypress', function(e) { //allows for the update command to execute upon an enter keypress.
+                            var objID = this.id;
+                            var code = e.keyCode || e.which;
+                            if(code == 13) { //Enter keycode
+                                $('#'+objID).trigger('blur');
                             }
                         }).event('blur', function() {
                             if($p('color')('txtBxCoach'+options.cnt) == $p('red')) {
@@ -966,6 +1262,12 @@ var forms = {
                                     'color': $p('purple'),
                                 });
                             }
+                        }).event('keypress', function(e) { //allows for the update command to execute upon an enter keypress.
+                            var objID = this.id;
+                            var code = e.keyCode || e.which;
+                            if(code == 13) { //Enter keycode
+                                $('#'+objID).trigger('blur');
+                            }
                         }).event('blur', function() {
                             if($p('color')('txtBxID'+options.cnt) == $p('red')) {
                                 $project.update('scheduleItemTextBoxUpdater')({
@@ -974,6 +1276,91 @@ var forms = {
                                     property: 'intScheduleOverRideNumPaticipants',
                                     txtBxID: 'txtBxID'+options.cnt,
                                 });
+                            }
+                        }),
+
+                        //strCustomField
+                        $jConstruct('textbox', {
+                            id: 'txtBxCustom' + options.cnt,
+                            text: (function() { //if there is a value already, use it.
+                                var text = 'custom'; //default setting.
+                                if($v().times()[options.cnt].strCustomField.length > 0) { //if there is a value set for this field
+                                    text = $v().times()[options.cnt].strCustomField;
+                                }
+                                return text;
+                            })(),
+                            class: 'txtBxTimes',
+                        }).addFunction(function() {
+                            //console.log('this scope:', options.cnt);
+                            if($v().events()[parseInt(dataObjs.slctdObj.substring(3,4))].strCustomFieldTitle.length > 0) {
+                                $('#txtBxCustom'+options.cnt).css({
+                                    'visibility': 'visible',
+                                });
+                            } else {
+                                $('#txtBxCustom'+options.cnt).css({
+                                    'visibility': 'hidden',
+                                });
+                            }
+                            if($('#txtBxCustom'+options.cnt)[0].value != 'custom') {
+                                $('#txtBxCustom'+options.cnt).css({ //if it already has a value, change the color.
+                                    'color': $p('purple'),
+                                });
+                            }
+                        }).event('focus', function() {
+                            if($('#'+this.id)[0].value == 'custom') {
+                                $('#'+this.id)[0].value = "";
+                            }
+                            $('#'+this.id).css({
+                                'color': 'black',
+                            });
+                            $('#'+this.id).select(); //hilight all of the text for easy edit.
+                        }).event('keypress', function(e) { //allows for the update command to execute upon an enter keypress.
+                            var objID = this.id;
+                            var code = e.keyCode || e.which;
+                            if(code == 13) { //Enter keycode
+                                $('#'+objID).trigger('blur');
+                            }
+                        }).event('blur', function() {
+                            var objID = this.id; //so the original jsonHTML object can be called.
+                            var obj = $('#'+this.id); //object on the DOM.
+                            var updateCustomBox = function(divID) { //updates text boxes.
+                                arrdb.get(divID).css({ //change text color to red, until update is finished.
+                                    'color': 'red',
+                                });
+                                $project.update('scheduleItemTextBoxUpdater')({
+                                    color: $p('purple'), //change text to purple to indicate that update has finished.
+                                    indx: options.cnt,
+                                    property: 'strCustomField',
+                                    txtBxID: divID,
+                                }).done(function(input) {
+                                    console.log('cell update complete status', input);
+                                    if(input.strCustomField.length) { //if the object returned is not something empty or null.
+                                        arrdb.get(divID).text = input.strCustomField; //ensure the data shown is what's in the DB.
+                                        arrdb.get(divID).refresh(); //show the changes.
+                                    } else {
+                                        arrdb.get(divID).text = 'custom', //set a default text
+                                        arrdb.get(divID).refresh(); //show the changes.
+                                    }
+                                });
+                            }
+                            /*
+                                do if:
+                                    object has text,
+                                    and
+                                    object text does not equal 'custom',
+                                    and
+                                    object text does not equal current text value.
+                            */
+                            if(obj[0].value.length && obj[0].value != 'custom' && obj[0].value != arrdb.get(objID).text) {
+                                //update the field
+                                updateCustomBox(objID);
+                            //if the text field is empty, and that it is not the default text
+                            } else if(obj[0].value.length == 0 && arrdb.get(objID).text != 'custom') {
+                                //empty the text box, and update it.
+                                //obj[0].value = 'custom';
+                                updateCustomBox(objID);
+                            } else {
+                                arrdb.get(objID).refresh(); //just simply reload the box back to previous settings.
                             }
                         }),
 

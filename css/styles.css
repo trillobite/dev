@@ -7,7 +7,7 @@
 }*/
 #defaultMenu {
     /*border: 1px solid #4D4D4D;*/
-    width: 85%;
+    width: 99%;
     height: 26px;
     text-align: center;
     margin: 0 auto;
@@ -75,7 +75,7 @@
     /*74B93E*/
     background-color: white;
     color: black; /* makes font color white */
-    width: 85%;
+    width: 99%;
     height: 105px;
     margin: 0 auto; /*centers the whole div element.*/
     border-bottom: 1px solid #3287CC;
@@ -86,7 +86,7 @@
 .fooTimes {
     background-color: white;
     /*border-bottom: 1px solid black;*/
-    width: 85%;
+    width: 99%;
     height: auto;
     margin: 0 auto;
     line-height: 25px;

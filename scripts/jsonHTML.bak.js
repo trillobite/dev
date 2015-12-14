@@ -15,7 +15,58 @@
     It's a really powerful tool actually. The biggest benifit is that it leverages the memory on the
     client side rather than the server side.
 */
-var arrdb = new micronDB();
+var arrdb = {
+    db: [],
+    calcIndex: function(data) { //takes a string
+        var total = 0;
+        for(var i = 0; i < data.length; ++i) {
+            total += data.charCodeAt(i);
+        }
+        return total % 50; //max hash table size.
+    },
+    exists: function(data) { //takes a string object.
+        var indx = this.calcIndex(data);
+        if(this.db[indx]) {
+            for(var i = 0; i < this.db[indx].length; ++i) {
+                if(this.db[indx][i].id == data) {
+                    return true; //success
+                }
+            }
+            return false; //none matched
+        } else {
+            return false; //contains nothing.
+        }
+    },
+    hash: function(data) {
+        if(!(this.exists(data))) {
+            var indx = this.calcIndex(data.id);
+            if(this.db[indx]) {
+                this.db[indx][this.db[indx].length] = data;
+                return true; //success
+            } else {
+                this.db[indx] = [];
+                this.db[indx][this.db[indx].length] = data;
+                return true; //success
+            }
+        } else {
+            return false; //already exists
+        }
+    },
+    get: function(key) { //key is the id of the object.
+        var indx = this.calcIndex(key);
+        if(this.db[indx]) {
+            for(var i = 0; i < this.db[indx].length; ++i) {
+                if(this.db[indx][i].id == key) {
+                    return this.db[indx][i]; //found the object.
+                }
+            }
+            return undefined; //object does not exist in this hash array.
+        } else {
+            return undefined; //object does not even exist.
+        }
+    }
+
+};
 
 /*
     If the user does not provide a div id for their object, this will make a 
@@ -25,7 +76,7 @@ var makeID = function () {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for( var i=0; i < 12; i++ ) //rough estimate: 44,652 possible unique random ids.
+    for( var i=0; i < 12; i++ ) //144 possible random div id's
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     /*if(!(arrdb.hash({id: text, append: undefined, }))) {
@@ -122,7 +173,7 @@ function appendHTML(jsonObj, container, type) {
         if(arrdb.exists(jsonObj.id)) {
             arrdb.get(jsonObj.id).append = type;
         } else {
-            arrdb.hash(jsonObj);
+            arrdb.hash({id: jsonObj.id, append: type});
         }
         jsonObj.parent = container;
         if(type) {
@@ -245,14 +296,10 @@ var jConstructObjectManipulations = { //text object manipulations.
         tmp.remove = function() {
             var divId = this.id;
             var myNode = document.getElementById(divId);
-            if(myNode) { //just ensures that the object is even within the DOM.
-                while(myNode.firstChild) { //Experimental DOM object removal, jQuery "remove" leaves a temporary memory leak, this is intended to fix that issue.
-                    myNode.removeChild(myNode.firstChild);
-                }
-                $('#'+divId).remove();                
-            } else { //object does not exist.
-                console.log('Notice:', 'object', divId, 'does not exist, or has already been removed.');
+            while(myNode.firstChild) { //Experimental DOM object removal, jQuery "remove" leaves a temporary memory leak, this is intended to fix that issue.
+                myNode.removeChild(myNode.firstChild);
             }
+            $('#'+divId).remove();
             return this;
         };
         //allows the user to change what the text looks like with simple pre-generated HTML tags.

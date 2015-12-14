@@ -28,6 +28,7 @@ var $p = function (obj) {
     return undefined !== options[obj] ? options[obj] : undefined;
 };
 
+//shortcut to common commands and elements.
 var $v = function (obj) {
     var retObj = {
         events: function () {
@@ -40,8 +41,23 @@ var $v = function (obj) {
             return $('#'+obj)[0];
         },
         clear: function () {
-            $('#'+obj).empty();  
+            //this operation is only required for a specific div element.
+            if(obj == 'display-tblInfo') {
+                $('#'+obj).each(function() {
+                    if(this.id != 'defaultEvent') {
+                        $(this).remove();
+                    }
+                });
+            } else { //this one is designed for the rest of the div elements.
+                $('#'+obj).empty();
+            }
         },
+        clean: function(input) { //Cleans out the unneccessary duplicate divs within the custom header.
+            var tmp = arrdb.get('customFieldHeader');
+            for(var i = 0; i < tmp.children.length; ++i) {
+                console.log(tmp.children[i]);
+            }
+        }
     };
     return retObj;
 };
@@ -184,7 +200,7 @@ var dataObjs = {
 */
 var $dt = {
     read: function (date) {
-        if(typeof(date) == 'object') {
+        if(typeof(date) == 'object') { //something is bugging out here.
             date = date.toISOString();
         } 
 
@@ -300,6 +316,7 @@ var $db = {
         },
         update: function(json, func) {
             var url = 'https://www.mypicday.com/Handlers/ScheduleUpdateItemData.aspx?Data='+JSON.stringify(json);
+            console.log('update string:', url);
             $sql($db.preventCache(url)).get(function (data) {
                 func(data);
             });
@@ -337,6 +354,11 @@ var $project = {
             schedules: function (indx) { //event id, and current selected schedule, if any.
                 var dfd = new $.Deferred();
                 $db.schedules.get(indx, function(data) {
+                    console.log('data input:', JSON.parse(data)); //gives a view into what the data coming in looks like.
+                    if(!arrdb.get('defaultEvent')) { //only do this if defaultEvent is nowhere to be found.
+                        forms.defaultEvntTime.appendTo('#display-tblInfo'); //adds the event time's header bar.
+                        console.log('added defaultEvntTime div');                        
+                    }
                     if(JSON.parse(data).EventSchedules != "") {
                         var parsed = JSON.parse(data);
                         dataObjs.srvdTbls = [];
@@ -367,6 +389,11 @@ var $project = {
             scheduleItems: function (indx) {
                 var dfd = new $.Deferred();
                 $db.scheduleItems.get(indx, function (data) {
+                    //check what kind of data is being moved around.
+                    console.log({
+                        indx: indx,
+                        data: data,
+                    });
                     dataObjs.evntTime = [];
                     dataObjs.evntTimes = JSON.parse(data);
                     dataObjs.evntTimes.EventScheduleItems.sort(function(a,b) { //sort by time.
@@ -374,12 +401,29 @@ var $project = {
                     });
                     //clears the div in case there is existing data.
                     var myNode = document.getElementById('display-tblInfo');
-                    while(myNode.firstChild) {
-                        myNode.removeChild(myNode.firstChild);
+                    if(myNode !== null) { //make sure that there is something there.
+                        while(myNode.firstChild) {
+                            myNode.removeChild(myNode.firstChild);
+                        }
+                        if(arrdb.get('defaultEvent')) { //if the default event object already exists:
+                            arrdb.get('defaultEvent').refresh(); //just refresh it so it shows again.
+                        } else {
+                            forms.defaultEvntTime.appendTo('#display-tblInfo'); //adds the event time's header bar.
+                            console.log('added defaultEvntTime div');
+                        }
+                    } else { //something is wrong, 'display-tblInfo' is gone for some reason.
+                        console.log('refreshing everything');
+                        arrdb.get('display-tblInfo').refresh(); //restore it
+                        arrdb.get('defaultEvent').refresh(); //restore the default event object too.
                     }
 
-
-                    appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
+                    //makes the event times header visible.
+                    arrdb.get('defaultEvent').css({
+                        'display': 'block',
+                    });
+                    
+                    //forms.defaultEvntTime.appendTo('#display-tblInfo');
+                    //appendHTML(forms['defaultEvntTime'], '#display-tblInfo');
 
                     $.each(dataObjs.evntTimes.EventScheduleItems, function(count, obj) {
                         var prop = {
@@ -392,7 +436,7 @@ var $project = {
                             coach: obj.strGroupInstructor,
                             id: obj.intScheduleOverRideNumPaticipants,
                         };
-                        appendHTML(forms['defEvntTimes'](prop), '#display-tblInfo');
+                        appendHTML(forms['defEvntTimes'](prop), '#display-tblInfo'); //the little tiles.
                     });
                     dfd.resolve(); //everything is done here.
                 });
@@ -415,6 +459,7 @@ var $project = {
     },
     update: function(selection) { //$project.update('scheduleItem')('{json}', function () {});
         var objects = {
+            //$project.update('textBoxUpdater')(obj, type);
             textBoxUpdater: function (obj, type) { //super, super, super generic updater for schedules/events and schedule items/times.
                 var arrtype = type == 'schedule' ? 'events' : 'times'; //if it's a schedule, use the events array, if it's not, use the times array.
                 var dfd = new $.Deferred();
@@ -482,6 +527,23 @@ var $project = {
                 });
                 return dfd.promise();
             },
+            /*customScheduleTextBoxUpdater: function(obj) {
+                var dfd = new $.Deferred();
+                $project.update('textBoxUpdater')(obj, 'schedule').done(function(data) {
+                    dfd.resolve(data);
+                });
+                return dfd.promise();
+            },
+            customScheduleItemTextBoxUpdater: function(obj) {
+                var dfd = new $.Deferred();
+                $project.update('textBoxUpdater')(obj, 'scheduleItem').done(function(data) {
+                    $('#'+obj.txtBxID).css({
+                        'color': obj.color, //change the color of the text to show the user it was successfully updated.
+                    });
+                    dfd.resolve(data);
+                });
+                return dfd.promise();
+            },*/
         };
         return undefined !== objects[selection] ? objects[selection] : undefined;
     },
@@ -623,12 +685,43 @@ var cmd = { //project commands sorted alphabetically.
                 text: 'active: ' + (obj.data.blnActive ? 'true' : '<font color="#993300"><b>false</font></b>'),
                 raw: obj.data.blnActive, //the data without html tags.
             },
+            customElement: {
+                text: obj.data.strCustomFieldTitle ? obj.data.strCustomFieldTitle : 'Activate custom field',
+                raw: obj.data.strCustomFieldTitle, //raw data without any html tags.
+            },
             dates: [obj.data.dtOnLineFilledStartDate, obj.data.dtOnLineFilledEndDate],
             activateReservationTimes: true,
         };
     }, 
     events: { //display-tbls DIV.
         checkStatus: function(cnt, recursive) {
+            var dfd = new $.Deferred();
+            $db.schedules.check($v().events()[cnt].indxScheduleID, function(data) {
+                if(arrdb.get('foo'+cnt+'reservationRange')) {
+                    if(parseInt(data)) {
+                        arrdb.get('foo'+cnt+'reservationRange').css({
+                            'visibility': 'visible'
+                        });
+                    } else {
+                        arrdb.get('foo'+cnt+'reservationRange').css({
+                            'visibility': 'hidden',
+                        });
+                    }
+
+                }
+            }).done(function() {
+                cnt++
+                if(cnt < $v().events().length && recursive) {
+                    cmd.events.checkStatus(cnt, true).done(function() {
+                        dfd.resolve();
+                    });
+                } else {
+                    dfd.resolve();
+                }
+            })
+            return dfd.promise();
+        },
+        /*checkStatus: function(cnt, recursive) {
             var dfd = new $.Deferred();
             $db.schedules.check($v().events()[cnt].indxScheduleID, function(data) {
                 if(parseInt(data)) {
@@ -649,14 +742,14 @@ var cmd = { //project commands sorted alphabetically.
                 }
             })
             return dfd.promise();
-        },
+        },*/
 
         drawJSON: function (jsonDta, idSelect) {
             //start: loading window
             $project.draw('loadingScreen')();
             //end: loading window
 
-            jsonDta.EventSchedules.sort(function(a,b) { //sort by date.
+            jsonDta.EventSchedules.sort(function(a,b) { //sort schedules by date.
                 return new Date(a.dtScheduleDate) - new Date(b.dtScheduleDate); 
             });
 
@@ -666,15 +759,17 @@ var cmd = { //project commands sorted alphabetically.
                     data: obj,
                 })), '#display-tbls');
             });
-            if(undefined !== idSelect) { //can specify which object to have focus after drawing the json data.
-                $.each($v().events(), function (index, obj) {
-                    if(obj.indxScheduleID == idSelect) {
-                        //$('#foo'+index).focus();
-                        cmd.scheduleFocus('foo'+index, obj.indxScheduleID);
-                    }
-                });
-            }
+
             cmd.events.checkStatus(0, true).done(function() {
+                if(undefined !== idSelect) { //can specify which object to have focus after drawing the json data.
+                    $.each($v().events(), function (index, obj) {
+                        if(obj.indxScheduleID == idSelect) {
+                            //$('#foo'+index).focus();
+                            cmd.scheduleFocus('foo'+index, obj.indxScheduleID);
+                            //$('#foo'+index).trigger('click');
+                        }
+                    });
+                }                
                 $.colorbox.close(); //close the loading screen.
             });
         },
@@ -710,6 +805,7 @@ var cmd = { //project commands sorted alphabetically.
         }
     },
     scheduleFocus: function (id, evntID) { //prop.id, prop.evntID
+        var dfd = new $.Deferred();
         if(id != dataObjs.slctdObj) {
             $('.foo').each(function() {
                 $('#'+this.id).css({
@@ -724,7 +820,26 @@ var cmd = { //project commands sorted alphabetically.
                     });
                 }
             });
-            $project.draw('scheduleItems')(evntID); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
+            console.log('drawing schedule items');
+            $project.draw('scheduleItems')(evntID).done(function() {
+                //var index = id.substring(id.length-1, id.length);
+                //show or hide the custom column.
+                /*var customColumn = arrdb.get('customFieldHeader');
+                if(customColumn) { //if there is a custom column value set
+                    for(var i = 0; i < customColumn.children.length; ++i) { //go through all of the custom column values.
+                        if(customColumn.children[i].id == 'customColumnTitle'+evntID) { //if it is the active custom column.
+                            customColumn.children[i].css({ //ensure that it is the one which is showing.
+                                'display': 'block',
+                            });
+                        } else { //if not the active custom column item...
+                            customColumn.children[i].css({ //ensure that it does not show.
+                                'display': 'none',
+                            });
+                        }
+                    }
+                }*/
+                dfd.resolve(true);
+            }); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
 
             //determines if to scroll or not.
             if(undefined === dataObjs.slctdObj) { //if it's the first time an object is clicked.
@@ -732,11 +847,19 @@ var cmd = { //project commands sorted alphabetically.
             } else if(!(dataObjs.slctdObj.indexOf(id) > -1)) { //if it is not the same object.
                 cmd.scrollAction();
             }
+        } else {
+            //the object should already be selected.
+            dfd.resolve(false);
         }
         $('#'+id).css({
             'background-color': $p('blue'),
         });
         dataObjs.slctdObj = id;
+        /*var index = id.substring(id.length-1, id.length);
+        $('#customColumnTitle' + index).css({
+            'display': 'block',
+        });*/
+        return dfd.promise();
     },
     update: function (indx) { //DEPRICATED
         $project.update('schedule')($v().events()[indx]).done(function(data) {
@@ -964,7 +1087,7 @@ var cmd = { //project commands sorted alphabetically.
 };
 
 var setup = function() {
-            //sets up the static div's
+    //sets up the static div's
     $jConstruct('div', {
         id: 'display',
     }).addChild($jConstruct('div', {
