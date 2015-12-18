@@ -307,14 +307,12 @@ var forms = {
                             var customColumn = arrdb.get('customFieldHeader');
                             console.log('customColumn:', customColumn);
                             var customFieldValue = $('#customFieldTitleEditBox'+prop.evntID.toString())[0].value;
-                            var shorten = function(txt) {
-                                return txt.length > 10 ? txt.substring(0, 10).trim() + '...' : txt;
-                            }
                             console.log('value:', customFieldValue);
 
                             //if it's not null or empty, and not equal to the default text value:
                             if(customFieldValue && customFieldValue !== 'Activate custom field') {
-                                customColumn.text = shorten(customFieldValue);
+                                //shorten the text so that it will fit into the custom title box.
+                                customColumn.text = cmd.textShorten(customFieldValue);
                                 customColumn.refresh();
                             } else if(customFieldValue == 'Activate custom field') {
                                 customColumn.text = "";
@@ -322,23 +320,6 @@ var forms = {
                             }
                         }
                     });
-
-                    /*if(customColumn) { //if there is a custom column value set
-                        for(var i = 0; i < customColumn.children.length; ++i) { //go through all of the custom column values.
-                            if(customColumn.children[i].id == 'customColumnTitle'+prop.evntID.toString()) { //if it is the active custom column.
-                                customColumn.children[i].css({ //ensure that it is the one which is showing.
-                                    'display': 'block',
-                                });
-                            } else { //if not the active custom column item...
-                                customColumn.children[i].css({ //ensure that it does not show.
-                                    'display': 'none',
-                                });
-                            }
-                        }
-                    }*/
-                    //if has custom element value set.
-                        //set the custom column title to visible.
-                    //else leave the custom column title hidden.
                 });
             }],
             children: [
@@ -498,37 +479,6 @@ var forms = {
                         unless I include the latest version of jsonHTML.
                     */
 
-                    var textShorten = function(txt) {
-                        //txt = txt.replace(' ', '');
-                        return txt.length > 10 ? txt.substring(0, 10).trim() + '...' : txt;
-                    }
-                    var customTileObjCSS = {
-                        'display': 'none',
-                        'width': '100px',
-                        //'border': '1px solid black',
-                        'overflow': 'hidden',
-                    };
-
-                    /*
-                        I need to rewrite things so that it utilizes jsonHTML techniques better.
-                    */
-                    /*if(prop.customElement.raw.length > 0) {
-                        console.log('custom title:', text);
-                        var tmp = textShorten(text); //text for the custom element.
-                        var customTitle = arrdb.get('customColumnTitle'+prop.evntID.toString()); //the custom title object.
-                        if(customTitle) { //if it already exists.
-                            customTitle.text = tmp;
-                            customTitle.css(customTileObjCSS);
-                        } else { //if it does not exist.
-                            var customTileObject = arrdb.get('customFieldHeader'); //this is what contains all of the custom titles.
-
-                            customTileObject.addChild($jConstruct('div', { //add a new title object.
-                                text: tmp,
-                                id: 'customColumnTitle' + prop.evntID.toString(),
-                            }).css(customTileObjCSS));
-                        }
-                    }*/
-
                     var txtBx = $jConstruct('textbox', {
                         id: 'customFieldTitleEditBox' + prop.evntID.toString(),
                         text: prop.customElement.text,
@@ -564,39 +514,6 @@ var forms = {
                             //update local object with current value
                             $v().events()[prop.indx].strCustomFieldTitle = $('#'+this.id)[0].value; //edit object value.
                             
-                            //update the custom column text element with new text.
-                            /*var update = function(txt) {
-                                var tmp = arrdb.get('customColumnTitle' + prop.evntID.toString()); //the object to update.
-                                console.log('update function:', tmp.id);
-                                if(tmp) { //if object is not false
-                                    //update text for the custom field title.
-                                    tmp.text = textShorten(txt);
-                                    //display the changes by simply refreshing the custom field title div.
-                                    tmp.refresh();
-                                    return true; //shows everything was successful.
-                                }
-                                return false; //could not update anything, return false.
-                            }
-                            //create a new custom column name, for if one does not already exist.
-                            var insertNew = function(txt) {
-                                console.log('attempting new insert');
-                                var customColumn = arrdb.get('customFieldHeader');
-                                //make sure the customColumn has child objects.
-                                //required because customColumnTitle was not written to jsonHTML 0.9+ spec.
-                                if(customColumn.hasOwnProperty('children')) {
-                                    customColumn.children[customColumn.children.length] = $jConstruct('div', {
-                                        text: txt, //this is the text that will show in the custom column title.
-                                        id: 'customColumnTitle' + prop.evntID.toString(),
-                                    });
-                                    customColumn.refresh(); //refresh to show this new custom column title div.
-                                }
-                            }
-                            //if update failes, insert a new object.
-                            if(!update($v().events()[prop.indx].strCustomFieldTitle)) {
-                                console.log('Notice: General update failed');
-                                //BUG!!! text does not splice correctly if it contains a space!!!
-                                insertNew(textShorten($v().events()[prop.indx].strCustomFieldTitle));
-                            }*/
                             //save new custom column name.
                             //cmd.update(prop.indx); 
                             
@@ -605,30 +522,23 @@ var forms = {
                             prop.customElement.text = txtBxObj.text;
 
                             console.log('changing color to red to show updating process', this.id);
-                            txtBxObj.css({
+                            txtBxObj.css({ //does not need a refresh, as css is actually a jQuery call.
                                 'color': 'red',
                             });
-                            txtBxObj.refresh();
 
                             //comment out if debugging so db wont be hit. <-- saves current state to the db.
                             $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
-                                //make sure that the object which is being updated is still visible.
-                                /*arrdb.get('customColumnTitle' + prop.evntID.toString()).css({
-                                    'display': 'block',
-                                });*/
-
-                                txtBxObj.refresh();
-                                arrdb.get('customFieldHeader').text = textShorten(txtBxObj.text);
-                                arrdb.get('customFieldHeader').refresh();
-                                console.log('update schedule function:', 'changing color to purple:', txtBxObj.id);
-
-                                txtBxObj.css({
+                                //txtBxObj.refresh(); //will move the text cursor out of the textbox if enabled.
+                                arrdb.get('customFieldHeader').text = cmd.textShorten(txtBxObj.text);
+                                arrdb.get('customFieldHeader').refresh(); //show the shortened text.
+                                txtBxObj.css({ //change color back to purple to demonstrate the update.
                                     'color': $p('purple'),
                                 });
+                                console.log('updated:', $v().events()[prop.indx]);
                             });
 
-                            console.log('updated:', $v().events()[prop.indx]);
-                            //show the hidden column.
+                            
+                            //show the hidden column cells.
                             for(var i = 0; i < $v().times().length; ++i) {
                                 var tmp = $('#txtBxCustom'+i);
                                 if(!tmp[0].value) { //Is there any text within this text box?
@@ -655,32 +565,15 @@ var forms = {
                             });
                             var result = confirm("Click OK if you wish to remove the entire custom column and it's data.");
                             if(result) { //if user clicked ok.
-
-                                /*
-                                    i need to update this so that it simply clears the custom column space.
-                                */
-
-                                //if the custom column item exists for which the column will be removed.
-                                console.log('will remove:', 'customColumnTitle'+prop.evntID.toString());
-                                /*if(arrdb.get('customColumnTitle'+prop.evntID.toString())) {
-                                    $('#customColumnTitle'+prop.evntID.toString()).remove(); //remove the custom column item.    
-                                }*/
-                                //$('#'+txtBx.id)[0].value = 'Activate custom field';
-
                                 //set the value to an empty string so that it updates to the database as an empty field.
                                 $v().events()[prop.indx].strCustomFieldTitle = "";
                                 //update everything.
                                 $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
-                                    //make sure that the object which is being updated is still visible.
-                                    /*arrdb.get('customColumnTitle' + prop.evntID.toString()).css({
-                                        'display': 'none',
-                                    });*/
-                                    arrdb.get('customColumnTitle'+prop.evntID.toString()).text = "";
                                     arrdb.get('customFieldHeader').text = ""; //update the custom column title text.
                                     arrdb.get('customFieldHeader').refresh(); //refresh so that the changes now show.
                                     txtBx.text = 'Activate custom field';
                                     txtBx.css({
-                                        'color': 'black',
+                                        'color': 'gray',
                                     });
                                     prop.customElement.text = txtBx.text; //making sure this is set to default value.
                                     text = txtBx.text; //making sure this is set to default value.
@@ -705,8 +598,6 @@ var forms = {
                                             txtBxID: 'txtBxCustom'+i,
                                         }).done(function(input) {
                                             console.log('cell update complete status', input);
-                                            //arrdb.get('txtBxCustom'+i).text = 'custom';
-                                            //$('#txtBxCustom'+i)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
                                         });
                                     } else {
                                         $('#txtBxCustom'+i)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
@@ -715,10 +606,20 @@ var forms = {
                             } else {
                                 /*prop.customElement.text = prop.customElement.text ? prop.customElement.text : 'custom';*/
                                 $('#'+txtBx.id)[0].value = prop.customElement.text;
+                                if(text == 'Activate custom field') {
+                                    txtBx.css({ //make sure that if it's default text, that it will stay gray.
+                                        'color': 'gray',
+                                    });
+                                }
                             }
                         } else { //if the text did not change, is still default, or now empty:
                             /*$('#'+txtBx.id)[0].value = prop.customElement.text;*/
                             $('#'+txtBx.id)[0].value = text;
+                            if(text == 'Activate custom field') {
+                                txtBx.css({ //make sure that if it's default text, that it will stay gray.
+                                    'color': 'gray',
+                                });
+                            }
                             /*prop.customElement.text = prop.customElement.text ? prop.customElement.text : 'custom';*/
                         }
                         //change font color back to default when no longer being modified:
@@ -739,6 +640,10 @@ var forms = {
                         if(prop.customElement.text != 'Activate custom field') {
                             txtBx.css({
                                 'color': $p('purple'),
+                            });
+                        } else { //make sure the text appears gray if the text value is as stated above.
+                            txtBx.css({
+                                'color': 'gray',
                             });
                         }
                     } else { //If not, then make sure that it appears gray.

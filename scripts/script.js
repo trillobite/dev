@@ -610,6 +610,11 @@ var $project = {
 }
 
 var cmd = { //project commands sorted alphabetically.
+    textShorten: function(txt) { //cmd.textShorten('string')
+        //txt = txt.replace(' ', '');
+            return txt.length > 10 ? txt.substring(0, 10).trim() + '...' : txt;
+    },
+
     scrollAction: function() {
         var scrollToElement = function(el, ms){
             var speed = (ms) ? ms : 600;
@@ -824,7 +829,7 @@ var cmd = { //project commands sorted alphabetically.
             $project.draw('scheduleItems')(evntID).done(function() {
                 //var index = id.substring(id.length-1, id.length);
                 //show or hide the custom column.
-                var customColumn = arrdb.get('customFieldHeader');
+                /*var customColumn = arrdb.get('customFieldHeader');
                 if(customColumn) { //if there is a custom column value set
                     for(var i = 0; i < customColumn.children.length; ++i) { //go through all of the custom column values.
                         if(customColumn.children[i].id == 'customColumnTitle'+evntID) { //if it is the active custom column.
@@ -837,7 +842,7 @@ var cmd = { //project commands sorted alphabetically.
                             });
                         }
                     }
-                }
+                }*/
                 dfd.resolve(true);
             }); //had to be placed here, since if the user hit the edit menu, every menu item would produce a sql call.
 
