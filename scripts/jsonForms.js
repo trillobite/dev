@@ -482,6 +482,7 @@ var forms = {
                     var txtBx = $jConstruct('textbox', {
                         id: 'customFieldTitleEditBox' + prop.evntID.toString(),
                         text: prop.customElement.text,
+                        title: 'This will activate or modify a custom column below.'
                     }).event('focus', function() {
                         txtBx.css({ //set font to black when object is in use.
                             'color': 'black',
@@ -505,12 +506,13 @@ var forms = {
                             propValue: prop.customElement.text,
                         });
                         /*
+                            FOR UPDATING:
                             if:
                             -Current text box value is not equal to prop.customElement.text,
                                 and
                             -Current text box is not actually empty. String length must be greater than zero. 
                         */
-                        if($('#'+this.id)[0].value != text && $('#'+this.id)[0].value.length != 0) { 
+                        if($('#'+this.id)[0].value != prop.customElement.text && $('#'+this.id)[0].value.length != 0) { 
                             //update local object with current value
                             $v().events()[prop.indx].strCustomFieldTitle = $('#'+this.id)[0].value; //edit object value.
                             
@@ -528,13 +530,20 @@ var forms = {
 
                             //comment out if debugging so db wont be hit. <-- saves current state to the db.
                             $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
+                                console.log('updated:', data);
+                                txtBxObj.text = data.strCustomFieldTitle; //make sure the same value in the db is shown.
+                                txtBxObj.refresh(); //make sure text change is shown to the user.
+
                                 //txtBxObj.refresh(); //will move the text cursor out of the textbox if enabled.
                                 arrdb.get('customFieldHeader').text = cmd.textShorten(txtBxObj.text);
                                 arrdb.get('customFieldHeader').refresh(); //show the shortened text.
-                                txtBxObj.css({ //change color back to purple to demonstrate the update.
+                                
+                                //now visually show that the whole update process is now complete.
+                                txtBxObj.css({
                                     'color': $p('purple'),
                                 });
-                                console.log('updated:', $v().events()[prop.indx]);
+                                
+                                //console.log('updated:', $v().events()[prop.indx]);
                             });
 
                             
@@ -553,6 +562,7 @@ var forms = {
                             }
                         
                         /*
+                            IF EMPTY BOX:
                             if:
                                 Text box does not have anything in it
                                 and:
@@ -614,8 +624,8 @@ var forms = {
                             }
                         } else { //if the text did not change, is still default, or now empty:
                             /*$('#'+txtBx.id)[0].value = prop.customElement.text;*/
-                            $('#'+txtBx.id)[0].value = text;
-                            if(text == 'Activate custom field') {
+                            $('#'+txtBx.id)[0].value = prop.customElement.text;
+                            if(prop.customElement.text == 'Activate custom field') {
                                 txtBx.css({ //make sure that if it's default text, that it will stay gray.
                                     'color': 'gray',
                                 });
