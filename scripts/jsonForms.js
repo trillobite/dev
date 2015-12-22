@@ -471,7 +471,7 @@ var forms = {
 
                 //custom element creator.
                 (function() { 
-                    var text = prop.customElement.text;
+                    //var text = prop.customElement.text;
                     //console.log('prop:', prop);
 
                     /*
@@ -501,7 +501,7 @@ var forms = {
                     }).event('focusout', function() {
                         //if text in textbox changed, and is not empty:
                         console.log('debug:', {
-                            text: text,
+                            //text: text,
                             value: $('#'+this.id)[0].value,
                             propValue: prop.customElement.text,
                         });
@@ -537,7 +537,7 @@ var forms = {
                                 //txtBxObj.refresh(); //will move the text cursor out of the textbox if enabled.
                                 arrdb.get('customFieldHeader').text = cmd.textShorten(txtBxObj.text);
                                 arrdb.get('customFieldHeader').refresh(); //show the shortened text.
-                                
+
                                 //now visually show that the whole update process is now complete.
                                 txtBxObj.css({
                                     'color': $p('purple'),
@@ -574,49 +574,76 @@ var forms = {
                                 customElementValue: prop.customElement.text,
                             });
                             var result = confirm("Click OK if you wish to remove the entire custom column and it's data.");
-                            if(result) { //if user clicked ok.
-                                //set the value to an empty string so that it updates to the database as an empty field.
-                                $v().events()[prop.indx].strCustomFieldTitle = "";
-                                //update everything.
-                                $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
-                                    arrdb.get('customFieldHeader').text = ""; //update the custom column title text.
-                                    arrdb.get('customFieldHeader').refresh(); //refresh so that the changes now show.
-                                    txtBx.text = 'Activate custom field';
-                                    txtBx.css({
-                                        'color': 'gray',
-                                    });
-                                    prop.customElement.text = txtBx.text; //making sure this is set to default value.
-                                    text = txtBx.text; //making sure this is set to default value.
-                                    txtBx.refresh();
-                                });
+                            if(result) { //if user wishes to disable the custom column.
 
-                                //cmd.update(prop.indx);
-                                for(var i = 0; i < $v().times().length; ++i) {
-
-                                    $('#txtBxCustom'+i)[0].value = "";
-                                    $('#txtBxCustom'+i).css({ //hide the column.
-                                        'visibility': 'hidden',
-                                        'color': 'gray', //if column is re-enabled, everything will still look normal in terms of color.
+                                var updateSchedule = function(input) {
+                                    var dfd = new $.Deferred();
+                                    $v().events()[prop.indx].strCustomFieldTitle = input;
+                                    $project.update('schedule')($v().events()[prop.indx]).done(function(data) {
+                                        arrdb.get('customFieldHeader').text = input; //update the custom column title text.
+                                        arrdb.get('customFieldHeader').refresh(); //refresh so that the changes now show.
+                                        if(!input) { //If input is undefined or an empty string.
+                                            txtBx.text = 'Activate custom field'; //set a default value.
+                                            txtBx.css({ //make sure that the default value displays as gray.
+                                                'color': 'gray',
+                                            });                                            
+                                        }
+                                        prop.customElement.text = txtBx.text; //make sure all data is updated to current settings.
+                                        txtBx.refresh(); //display the changes to the user.
+                                        dfd.resolve(data);
                                     });
-                                    //only use update command on those that need to have it's value changed.
-                                    if($('#txtBxCustom'+i)[0].value != 'custom') { //if there is data to update.
-                                        //update the db so that all of the data is cleared.
-                                        $project.update('scheduleItemTextBoxUpdater')({
+                                    return dfd.promise();
+                                };
+
+                                var updateCustomCells = function(totalNumCells) {
+                                    var updateCell = function(i) {
+                                        return $project.update('scheduleItemTextBoxUpdater')({
                                             color: $p('purple'), //change text to purple to indicate that update has finished.
                                             indx: i,
                                             property: 'strCustomField',
                                             txtBxID: 'txtBxCustom'+i,
-                                        }).done(function(input) {
-                                            console.log('cell update complete status', input);
                                         });
-                                    } else {
-                                        $('#txtBxCustom'+i)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
+                                    };
+                                    var dfd = new $.Deferred();
+                                    var recCellUpdate = function(cnt) {
+                                        console.log(cnt);
+                                        var recallUpdate = function() {
+                                            $('#txtBxCustom'+cnt).css({ //hide the column.
+                                                'visibility': 'hidden',
+                                                'color': 'gray', //if column is re-enabled, everything will still look normal in terms of color.
+                                            });
+                                            if(cnt > 0) { //check to see if there is another one.
+                                                recCellUpdate(--cnt);
+                                            } else {
+                                                dfd.resolve();
+                                            }                                            
+                                        }
+                                        //only use update command on those that need to have it's value changed.
+                                        if($('#txtBxCustom'+cnt)[0].value !== 'custom' && $('#txtBxCustom'+cnt)[0].value !== "") { //if there is data to update.
+                                            console.log('updating', cnt);
+                                            $('#txtBxCustom'+cnt)[0].value = "";
+                                            updateCell(cnt).done(function() {
+                                                recallUpdate();
+                                            });
+                                        } else {
+                                            $('#txtBxCustom'+cnt)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
+                                            recallUpdate();
+                                        }
                                     }
-                                }
+                                    recCellUpdate(totalNumCells);
+                                    return dfd.promise();
+                                };
+
+                                updateCustomCells($v().times().length - 1).done(function() {
+                                    updateSchedule("").done(function(data) {
+                                        console.log('All updated:', data);
+                                    });
+                                });
+
                             } else {
                                 /*prop.customElement.text = prop.customElement.text ? prop.customElement.text : 'custom';*/
                                 $('#'+txtBx.id)[0].value = prop.customElement.text;
-                                if(text == 'Activate custom field') {
+                                if(prop.customElement.text == 'Activate custom field') {
                                     txtBx.css({ //make sure that if it's default text, that it will stay gray.
                                         'color': 'gray',
                                     });
