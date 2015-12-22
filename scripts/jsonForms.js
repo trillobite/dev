@@ -553,7 +553,7 @@ var forms = {
                                 if(!tmp[0].value) { //Is there any text within this text box?
                                     tmp[0].value = 'custom'; //set that value to the default 'custom' text.
                                     tmp.css({ //set the default color to gray.
-                                        'color': 'gray',
+                                        'color': $p('gray'),
                                     });
                                 }
                                 tmp.css({ //make sure that the object is now visible.
@@ -585,7 +585,7 @@ var forms = {
                                         if(!input) { //If input is undefined or an empty string.
                                             txtBx.text = 'Activate custom field'; //set a default value.
                                             txtBx.css({ //make sure that the default value displays as gray.
-                                                'color': 'gray',
+                                                'color': $p('gray'),
                                             });                                            
                                         }
                                         prop.customElement.text = txtBx.text; //make sure all data is updated to current settings.
@@ -608,14 +608,16 @@ var forms = {
                                     var recCellUpdate = function(cnt) {
                                         console.log(cnt);
                                         var recallUpdate = function() {
+                                            arrdb.get('txtBxCustom'+cnt).text = 'custom'; //so that if re-enabled, will show text 'custom.'
                                             $('#txtBxCustom'+cnt).css({ //hide the column.
                                                 'visibility': 'hidden',
-                                                'color': 'gray', //if column is re-enabled, everything will still look normal in terms of color.
+                                                'color': $p('gray'), //if column is re-enabled, everything will still look normal in terms of color.
                                             });
+                                            
                                             if(cnt > 0) { //check to see if there is another one.
-                                                recCellUpdate(--cnt);
+                                                recCellUpdate(--cnt); //recursive call
                                             } else {
-                                                dfd.resolve();
+                                                dfd.resolve(); //no more cells to
                                             }                                            
                                         }
                                         //only use update command on those that need to have it's value changed.
@@ -626,7 +628,6 @@ var forms = {
                                                 recallUpdate();
                                             });
                                         } else {
-                                            $('#txtBxCustom'+cnt)[0].value = 'custom'; //so that if re-enabled, will show text 'custom.'                                    
                                             recallUpdate();
                                         }
                                     }
@@ -645,7 +646,7 @@ var forms = {
                                 $('#'+txtBx.id)[0].value = prop.customElement.text;
                                 if(prop.customElement.text == 'Activate custom field') {
                                     txtBx.css({ //make sure that if it's default text, that it will stay gray.
-                                        'color': 'gray',
+                                        'color': $p('gray'),
                                     });
                                 }
                             }
@@ -654,7 +655,7 @@ var forms = {
                             $('#'+txtBx.id)[0].value = prop.customElement.text;
                             if(prop.customElement.text == 'Activate custom field') {
                                 txtBx.css({ //make sure that if it's default text, that it will stay gray.
-                                    'color': 'gray',
+                                    'color': $p('gray'),
                                 });
                             }
                             /*prop.customElement.text = prop.customElement.text ? prop.customElement.text : 'custom';*/
@@ -668,7 +669,7 @@ var forms = {
                             }
                         } else {
                             txtBx.css({
-                                'color': 'gray',
+                                'color': $p('gray'),
                             });
                         }
                     });
@@ -680,12 +681,12 @@ var forms = {
                             });
                         } else { //make sure the text appears gray if the text value is as stated above.
                             txtBx.css({
-                                'color': 'gray',
+                                'color': $p('gray'),
                             });
                         }
                     } else { //If not, then make sure that it appears gray.
                         txtBx.css({
-                            'color': 'gray',
+                            'color': $p('gray'),
                         });
                     }
                     return txtBx;
