@@ -584,12 +584,13 @@ var forms = {
                                         arrdb.get('customFieldHeader').refresh(); //refresh so that the changes now show.
                                         if(!input) { //If input is undefined or an empty string.
                                             txtBx.text = 'Activate custom field'; //set a default value.
+                                            txtBx.refresh(); //display the changes to the user.
                                             txtBx.css({ //make sure that the default value displays as gray.
                                                 'color': $p('gray'),
                                             });                                            
                                         }
                                         prop.customElement.text = txtBx.text; //make sure all data is updated to current settings.
-                                        txtBx.refresh(); //display the changes to the user.
+                                        
                                         dfd.resolve(data);
                                     });
                                     return dfd.promise();
